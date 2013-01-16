@@ -34,6 +34,9 @@ function mtrender(template::ASCIIString, view)
     render(_writer, parse(template), view)
 end
 
+## Use Main as the default
+mtrender(template::ASCIIString) = mtrender(template, Main)
+mtrender(tokens::MustacheTokens) = mtrender(tokens, Main)
 
 
 end
