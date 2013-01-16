@@ -28,7 +28,8 @@ function lookup(ctx::Context, key)
                 ## do something with "."
                 error("Not implemented. Can use Composite Kinds in the view.")
             else
-                value = lookup_in_view(context.view, key)
+                ## strip leading, trailing whitespace in key
+                value = lookup_in_view(context.view, stripWhitepace(key))
             end
 
             context = context.parent
