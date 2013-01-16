@@ -1,3 +1,8 @@
+type MustacheTokens
+    tokens
+end
+
+
 ## after parsing off to squash, nest and render the tokens
 
 ## take single character tokens and collaps into chunks
