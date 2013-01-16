@@ -49,6 +49,12 @@ end
 ## Lookup value in an object by key
 ## This of course varies based on the view.
 function lookup_in_view(view::Dict, key)
+
+    ## is it a symbol?
+    if ismatch(r"^:", key)
+        key = symbol(key[2:end])
+    end
+
     if has(view, key)
         view[key]
     else
@@ -66,7 +72,7 @@ end
 
 function lookup_in_view(view::Module, key)
     hasmatch = false
-    re = Regex(key)
+    re = Regex("^$key" * E"$") ## watch the $
     for i in names(view)
         if ismatch(re, string(i))
             hasmatch = true
@@ -85,6 +91,7 @@ end
 
 ## Default is likely not great, but we use CompositeKind
 function lookup_in_view(view, key)
+
     nms = names(view)
     re = Regex(key)
     has_match = false
@@ -97,7 +104,7 @@ function lookup_in_view(view, key)
 
     if has_match
         getfield(view, symbol(key))  ## view.key
-    elseif
+    else
         nothing
     end
 end
