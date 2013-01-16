@@ -9,15 +9,31 @@ include("context.jl")
 include("writer.jl")
 include("parse.jl")
 
-## This is the main function
-## Can call as Mustache.render(tpl, view)
+export @mt_str, mtrender
+
+## Macro to comile simple parsing outside of loops
+## use as mt"{{a}} and {{b}}", say
+macro mt_str(s)
+    parse(s)
+end
+
+
+## Main function for use with compiled strings
+## @param tokens  Created using mt_str macro, as in mt"abc do re me"
+function mtrender(tokens::MustacheTokens, view)
+    _writer = Writer()
+    render(_writer, tokens, view)
+end
+
+## Exported call without first parsing tokens via mt"literal"
 ##
 ## @param template a string containing the template for expansion
 ## @param view a Dict, Module, CompositeType, DataFrame holding variables for expansion
-function render(template::ASCIIString, view)
+function mtrender(template::ASCIIString, view)
     _writer = Writer()
-    render(_writer, template, view)
+    render(_writer, parse(template), view)
 end
+
 
 
 end
