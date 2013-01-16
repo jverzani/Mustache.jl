@@ -1,8 +1,5 @@
 Try to make mustache.js for `julia`
 
-This code is a fairly faithful translation of code of https://github.com/janl/mustache.js/blob/master/mustache.js 
-
-All credit should go there. All bugs are my own.
 
 The mustache folks say:
 
@@ -10,15 +7,21 @@ The mustache folks say:
     config files, source code - anything. It works by expanding tags in a
     template using values provided in a hash or object.
 
+
+This code is a fairly faithful translation of code of
+https://github.com/janl/mustache.js/blob/master/mustache.js
+
+All credit should go there. All bugs are my own.
+
 Some basic examples with `julia`:
 
 ```julia
 using Mustache; 
 
-tpl = "the position is {{x}} and tail is  {{y}}"
+tpl = mt"the position is {{x}} and tail is  {{y}}"
 
 ## a dict
-out = Mustache.render(tpl, {"x"=>1, "y"=>2})
+out = mtrender(tpl, {"x"=>1, "y"=>2})
 println(out)
 ```
 
@@ -28,13 +31,18 @@ Yields
 the position is 1 and tail is  2
 ```
 
-(Should `render` be exported, I don't really think so, as it is too generic.)
+We export `mtrender`, as `render` seemed a bit too generic, Though
+`render` seems traditional with Mustache.
 
-Similarly, we can do this with a module, such as `Main`:
+The non-standard string literal `mt`, used above to make the `tpl`
+object, is optional. If used, then the parsing is done at compile time
+and should be faster when used in a loop, say. (Thanks Patrick!)
+
+Similarly, we can use a module as a view such as `Main`:
 
 ```julia
 x = 1; y = "two"
-Mustache.render(tpl, Main)
+mtrender(tpl, Main)
 ```
 
 gives
@@ -48,7 +56,7 @@ One can use Composite Kinds. This may make writing `show` methods easier:
 ```julia
 using Distributions
 tpl = "Beta distribution with alpha={{alpha}}, beta={{beta}}"
-Mustache.render(tpl, Beta(1, 2))
+mtrender(tpl, Beta(1, 2))
 ```
 
 gives
@@ -92,16 +100,32 @@ end
 using DataFrames
 d = DataFrame({"names" => _names, "summs" => _summaries})
 
-out = Mustache.render(tpl, {"Title" => "A quick table", "d" => d})
+out = mtrender(tpl, {"Title" => "A quick table", "d" => d})
 print(out)
+```
+
+
+This can be compared to using an array of `Dict`s, convenient if you have data by the row:
+
+```julia
+A = [{"a" => "eh", "b" => "bee"},
+     {"a" => "ah", "b" => "buh"}]
+tpl = mt"{{#A}} pronounce a as {{a}} and b as {{b}}.{{/A}}"
+mtrender(tpl, {"A" => A}) | print
+```
+
+yielding
+
+```julia
+pronounce a as eh and b as bee. pronounce a as ah and b as buh.
 ```
 
 
 
 This project deviates from that of http://mustache.github.com in a few significant ways:
 
-* I've punted on the partials. I've never been that fancy.
-* I hard code the tags
+* I've punted on implementing partials (the `>` tag). I've never been that fancy.
+* I hard code the tags, so one uses `{{` and `}}` to demark objects.
 * Julian structures are used, not JavaScript objects. As illustrated,
   one can use Dicts, Modules, DataFrames
 

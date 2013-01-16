@@ -2,15 +2,15 @@
 
 using Mustache; 
 
-tpl = "the value of x is {{x}} and that of y is {{y}}"
+tpl = mt"the value of x is {{x}} and that of y is {{y}}"
 
 ## a dict
-out = Mustache.render(tpl, {"x"=>1, "y"=>2})
+out = mtrender(tpl, {"x"=>1, "y"=>2})
 println(out)
 
 ## A module
 x = 1; y = "two"
-Mustache.render(tpl, Main)
+mtrender(tpl, Main)
 
 ## a CompositeKind
 type ThrowAway
@@ -18,23 +18,23 @@ type ThrowAway
     y
 end
 
-Mustache.render(tpl, ThrowAway("ex","why"))
+mtrender(tpl, ThrowAway("ex","why"))
 
 
 ## a more useful CompositeKind
 using Distributions
-tpl = "Beta distribution with alpha={{alpha}}, beta={{beta}}"
-Mustache.render(tpl, Beta(1, 2))
+tpl = mt"Beta distribution with alpha={{alpha}}, beta={{beta}}"
+mtrender(tpl, Beta(1, 2))
 
 
 ## conditional text
 using Mustache
 tpl = "{{#b}}this doesn't show{{/b}}{{#a}}this does show{{/a}}"
-Mustache.render(tpl, {"a" => 1})
+mtrender(tpl, {"a" => 1})
 
 
 
-## iterable DataFrame
+## We can iterate over data frames. Handy for making tables
 using Mustache
 using DataFrames
 
@@ -70,10 +70,34 @@ tpl = "
 </html>
 ";
 
-out = Mustache.render(tpl, {"Title" => "A quick table", "d" => d})
+out = mtrender(tpl, {"Title" => "A quick table", "d" => d})
 ## show in browser (on Mac)
 f = tempname()
 io = open("$f.html", "w")
 print(io, out)
 close(io)
 run(`open $f.html`)
+
+
+## A dict using symbols
+d = { :a => 1, :b => 2}
+tpl = "symbol {{:a}} and {{:b}}"
+mtrender(tpl, d)
+
+
+
+## array of Dicts
+using Mustache
+
+A = [{"a" => "eh", "b" => "bee"},
+     {"a" => "ah", "b" => "buh"}]
+
+## Contrast to data frame:
+D = DataFrame(quote
+  a = ["eh", "ah"]
+  b = ["bee", "buh"]
+end)
+
+tpl = mt"{{#A}} pronounce a as {{a}} and b as {{b}}.{{/A}}"
+
+mtrender(tpl, {"A" => A})
