@@ -2,6 +2,7 @@
 ## character parsed into a token, the tokens are squashed, then
 ## nested, then rendered.
 function parse(template, tags)
+
     
     tags = ["{{", "}}"]         # we hard code tags!
     tagRes = ["\{\{", "\}\}"]   # escaped to be regular expressions
@@ -119,5 +120,9 @@ function parse(template, tags)
     tokens = squashTokens(tokens)
     out = nestTokens(tokens)
     
-    out
+    ##out
+    MustacheTokens(out)
 end
+
+## use default tags
+parse(template) = parse(template, ["{{", "}}"])

@@ -18,8 +18,9 @@ function compile(w::Writer, template, tags)
         return(w._cache[template])
     end
 
-    tokens = parse(template, tags)
-    w._cache[template] = compileTokens(w, tokens, template)
+##    tokens = parse(template, tags)
+    tokens = template
+    w._cache[template] = compileTokens(w, tokens.tokens, template)
 
     return(w._cache[template])
 end
