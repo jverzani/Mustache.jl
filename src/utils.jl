@@ -10,6 +10,11 @@ tagRe = r"^[#^/>{&=!]"
 
 
 isWhitespace(x) = ismatch(whiteRe, x)
+function stripWhitepace(x) 
+    y = replace(x, r"^\s+", "")
+    replace(y, r"\s+$", "")
+end
+
 
 ## this is for falsy value
 ## Falsy is true if x is false, 0 length, "", ...
