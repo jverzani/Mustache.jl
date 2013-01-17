@@ -199,69 +199,66 @@ end
 ## higher-order sections to extract the portion of the original template that
 ## was contained in that section.
 
-function renderTokens(tokens, writer, context, template)
+function renderTokens(io, tokens, writer, context, template)
 
-    buffer = ""
-    
     for i in 1:length(tokens)
         token = tokens[i]
         tokenValue = token[2]
-
-
+        
+        
         if token[1] == "#"
             ## iterate over value if Dict, Array or DataFrame, 
             ## or display conditionally
             value = lookup(context, tokenValue)
-
+            
             ##  many things based on value of value
             if isa(value, Dict)
                 for (k, v) in value
-                    buffer *= renderTokens(token[5], writer, ctx_push(context, v), template)
+                    print(io, renderTokens(token[5], writer, ctx_push(context, v), template))
                 end
             elseif isa(value, Array)
                 for v in value
-                    buffer *= renderTokens(token[5], writer, ctx_push(context, v), template)
+                    print(io, renderTokens(token[5], writer, ctx_push(context, v), template))
                 end
             elseif isa(value, DataFrame)
-                for i in 1:size(value)[1] ## iterate along row, Call one for each row
-                    buffer *= renderTokens(token[5], writer, ctx_push(context, value[i,:]), template)
+                ## iterate along row, Call one for each row
+                for i in 1:size(value)[1] 
+                    print(io, renderTokens(token[5], writer, ctx_push(context, value[i,:]), template))
                 end
             elseif !falsy(value)
-                buffer *= renderTokens(token[5], writer, context, template)
-
+                print(io, renderTokens(token[5], writer, context, template))
             end
-
+            
         elseif token[1] == "^"
             ## display if falsy, unlike #
             value = lookup(context, tokenValue)
-
+            
             if falsy(value)
-                buffer *= renderTokens(token[5], writer, context, template)
+                print(io, renderTokens(token[5], writer, context, template))
             end
-
-
+            
+            
         elseif token[1] == ">"
             ## need partials to do this
-
+            
         elseif token[1] == "&"
             value = lookup(context, tokenValue)
             if value != nothing
-                buffer *= value
+                print(io, value)
             end
-    
-
+            
+            
         elseif token[1] == "name"
             value = lookup(context, tokenValue)
             if value != nothing
-                buffer *= escape_html(value)
+                print(io, escape_html(value))
             end
-
+            
         elseif token[1] == "text"
-            buffer *= tokenValue
-
+            print(io, tokenValue)
         end
-
+        
     end
-
-    return(buffer)
+    
+    #    return(buffer)
 end

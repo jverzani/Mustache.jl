@@ -13,16 +13,17 @@ function clearCache(w::Writer)
     w._partialCache=Dict()
 end
 
-function compile(w::Writer, template, tags)
-    if has(w._cache, template)
-        return(w._cache[template])
-    end
+function compile(io::IO, w::Writer, template, tags)
+#    if has(w._cache, template)
+#        return(w._cache[template])
+#    end
 
 ##    tokens = parse(template, tags)
     tokens = template
-    w._cache[template] = compileTokens(w, tokens.tokens, template)
+    compileTokens(io, w, tokens.tokens, template)
+#    w._cache[template] = compileTokens(io, w, tokens.tokens, template)
 
-    return(w._cache[template])
+#    return(w._cache[template])
 end
 
 function compilePartial(w::Writer, name, template, tags)
@@ -39,16 +40,16 @@ function getPartial(w::Writer, name)
     w._partialCache[name]
 end
 
-function compileTokens(w::Writer, tokens, template)
+function compileTokens(io, w::Writer, tokens, template)
     ## return a function
     function f(w::Writer, view) #  no partials
-       renderTokens(tokens, w, Context(view), template)
+       renderTokens(io, tokens, w, Context(view), template) # io in closure
     end
     return(f)
 end
 
-function render(w::Writer, template, view)
-    f = compile(w, template, ["{{", "}}"])
+function render(io::IO, w::Writer, template, view)
+    f = compile(io, w, template, ["{{", "}}"])
     f(w, view)
 end
 

@@ -21,8 +21,7 @@ using Mustache;
 tpl = mt"the position is {{x}} and tail is  {{y}}"
 
 ## a dict
-out = mtrender(tpl, {"x"=>1, "y"=>2})
-println(out)
+render(tpl, {"x"=>1, "y"=>2})
 ```
 
 Yields
@@ -31,8 +30,8 @@ Yields
 the position is 1 and tail is  2
 ```
 
-We export `mtrender`, as `render` seemed a bit too generic, Though
-`render` seems traditional with Mustache.
+We export `render`. It seems too generic, but `render` is traditional
+with Mustache. The first argument of `render` can be an `IO` instance. It it is not given, then `sprint` is used to provide one. (Thanks Stefan for the suggestion.)
 
 The non-standard string literal `mt`, used above to make the `tpl`
 object, is optional. If used, then the parsing is done at compile time
@@ -42,7 +41,7 @@ Similarly, we can use a module as a view such as `Main`:
 
 ```julia
 x = 1; y = "two"
-mtrender(tpl, Main)
+render(tpl, Main)
 ```
 
 gives
@@ -56,7 +55,7 @@ One can use Composite Kinds. This may make writing `show` methods easier:
 ```julia
 using Distributions
 tpl = "Beta distribution with alpha={{alpha}}, beta={{beta}}"
-mtrender(tpl, Beta(1, 2))
+render(tpl, Beta(1, 2))
 ```
 
 gives
@@ -100,7 +99,7 @@ end
 using DataFrames
 d = DataFrame({"names" => _names, "summs" => _summaries})
 
-out = mtrender(tpl, {"Title" => "A quick table", "d" => d})
+out = render(tpl, {"Title" => "A quick table", "d" => d})
 print(out)
 ```
 
@@ -111,7 +110,7 @@ This can be compared to using an array of `Dict`s, convenient if you have data b
 A = [{"a" => "eh", "b" => "bee"},
      {"a" => "ah", "b" => "buh"}]
 tpl = mt"{{#A}} pronounce a as {{a}} and b as {{b}}.{{/A}}"
-mtrender(tpl, {"A" => A}) | print
+render(tpl, {"A" => A}) | print
 ```
 
 yielding
