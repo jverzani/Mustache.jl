@@ -34,7 +34,7 @@ render(tokens::MustacheTokens) = render(tokens, Main)
 ## @param view a Dict, Module, CompositeType, DataFrame holding variables for expansion
 function render(io::IO, template::ASCIIString, view)
     _writer = Writer()
-    render(_writer, parse(template), view)
+    render(io, _writer, parse(template), view)
 end
 
 render(template::ASCIIString, view) = sprint(io -> render(io, template, view))
