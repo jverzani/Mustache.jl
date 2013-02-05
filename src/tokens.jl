@@ -249,7 +249,12 @@ function renderTokens(io, tokens, writer, context, template)
             if value != nothing
                 print(io, value)
             end
-            
+
+        elseif token[1] == "{" 
+            value = lookup(context, tokenValue)
+            if value != nothing
+                print(io, value)
+            end
             
         elseif token[1] == "name"
             value = lookup(context, tokenValue)
