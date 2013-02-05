@@ -83,6 +83,9 @@ function make_tokens(template, tags)
             scan(scanner, curlyRe)
             scanUntil!(scanner, tagRes[2])
             _type = "&"
+        elseif _type == "{"
+            value = scanUntil!(scanner, tagRes[2])
+            scan(scanner, r"}")
         else
             value = scanUntil!(scanner, tagRes[2])
         end
