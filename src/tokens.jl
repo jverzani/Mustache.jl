@@ -217,19 +217,19 @@ function renderTokens(io, tokens, writer, context, template)
             ##  many things based on value of value
             if isa(value, Dict)
                 for (k, v) in value
-                    print(io, renderTokens(token[5], writer, ctx_push(context, v), template))
+                    renderTokens(io, token[5], writer, ctx_push(context, v), template)
                 end
             elseif isa(value, Array)
                 for v in value
-                    print(io, renderTokens(token[5], writer, ctx_push(context, v), template))
+                    renderTokens(io, token[5], writer, ctx_push(context, v), template)
                 end
-            elseif isa(value, DataFrame)
+            elseif Main.isdefined(:DataFrame) && isa(value, Main.DataFrame)
                 ## iterate along row, Call one for each row
                 for i in 1:size(value)[1] 
-                    print(io, renderTokens(token[5], writer, ctx_push(context, value[i,:]), template))
+                    renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
                 end
             elseif !falsy(value)
-                print(io, renderTokens(token[5], writer, context, template))
+                renderTokens(io, token[5], writer, context, template)
             end
             
         elseif token[1] == "^"
@@ -237,7 +237,7 @@ function renderTokens(io, tokens, writer, context, template)
             value = lookup(context, tokenValue)
             
             if falsy(value)
-                print(io, renderTokens(token[5], writer, context, template))
+                renderTokens(io, token[5], writer, context, template)
             end
             
             

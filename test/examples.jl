@@ -1,6 +1,7 @@
 ## Some simple tests of the package
 
-using Mustache; 
+using Mustache
+mtrender = render
 
 tpl = mt"the value of x is {{x}} and that of y is {{y}}"
 
@@ -93,10 +94,10 @@ A = [{"a" => "eh", "b" => "bee"},
      {"a" => "ah", "b" => "buh"}]
 
 ## Contrast to data frame:
-D = DataFrame(quote
-  a = ["eh", "ah"]
-  b = ["bee", "buh"]
-end)
+# D = DataFrame(quote
+#   a = ["eh", "ah"]
+#   b = ["bee", "buh"]
+# end);
 
 tpl = mt"{{#A}} pronounce a as {{a}} and b as {{b}}.{{/A}}"
 

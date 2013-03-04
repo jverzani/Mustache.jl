@@ -1,6 +1,6 @@
 module Mustache
 
-using DataFrames
+# using DataFrames
 
 include("utils.jl")
 include("tokens.jl")
