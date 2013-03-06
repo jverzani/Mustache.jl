@@ -1,4 +1,3 @@
-
 ## regular expressions to use
 whiteRe = r"\s*"
 spaceRe = r"\s+"
@@ -45,7 +44,7 @@ end
 
 ## Make these work
 function escapeRe(string)
-    replace(string, r"[\-\[\]{}()*+?.,\\\^$|#\s]", "\\$&");
+    replace(string, r"[\-\[\]{}()*+?.,\\\^$|#\s]", "\\\$&");
 end
 
 function escapeTags(tags)
