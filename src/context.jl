@@ -73,7 +73,7 @@ end
 
 function lookup_in_view(view::Module, key)
     hasmatch = false
-    re = Regex("^$key" * E"$") ## watch the $
+    re = Regex("^$key\$")
     for i in names(view)
         if ismatch(re, string(i))
             hasmatch = true
