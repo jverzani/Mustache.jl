@@ -26,13 +26,12 @@ falsy(x) = false                #  default
 
 ## escape_html with entities
 
-entityMap = {"&" => "&amp;",
-             "<" => "&lt;",
-             ">" => "&gt;",
-             "'" => "&#39;",
-             "\"" => "&quot;",
-             "/" => "&#x2F;"
-             }
+entityMap = [("&", "&amp;"),
+             ("<", "&lt;"),
+             (">", "&gt;"),
+             ("'", "&#39;"),
+             ("\"", "&quot;"),
+             ("/", "&#x2F;")]
              
 function escape_html(x)
     y = string(x)
