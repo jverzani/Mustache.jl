@@ -36,7 +36,6 @@ entityMap = [("&", "&amp;"),
 function escape_html(x)
     y = string(x)
     for (k,v) in entityMap
-        println(k, v)
         y = replace(y, k, v)
     end
     y
