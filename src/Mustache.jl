@@ -9,14 +9,13 @@ include("context.jl")
 include("writer.jl")
 include("parse.jl")
 
-export @mt_str, render
+export @mt_str, render, render_from_file
 
 ## Macro to comile simple parsing outside of loops
 ## use as mt"{{a}} and {{b}}", say
 macro mt_str(s)
     parse(s)
 end
-
 
 ## Main function for use with compiled strings
 ## @param tokens  Created using mt_str macro, as in mt"abc do re me"
@@ -41,5 +40,32 @@ render(template::ASCIIString, view) = sprint(io -> render(io, template, view))
 render(template::ASCIIString) = render(template, Main)
 
 
+## Dict for storing parsed templates
+TEMPLATES = Dict{String, MustacheTokens}()
+
+## Load template from file
+function template_from_file(filepath)
+    f = open(filepath)
+    tpl = parse(readall(f))
+    close(f)
+    return tpl
+end
+
+## Renders a template from `filepath` and `view`. If it has seen the file
+## before then it finds the compiled `MustacheTokens` in `TEMPLATES` rather
+## than calling `parse` a second time.
+function render_from_file(filepath, view)
+    if has(TEMPLATES, filepath)
+        render(TEMPLATES[filepath], view)
+    else
+        try
+            tpl = template_from_file(filepath)
+            TEMPLATES[filepath] = tpl
+            render(tpl, view)
+        catch
+            nothing
+        end
+    end
+end
 
 end
