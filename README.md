@@ -1,4 +1,7 @@
-Try to make mustache.js for `julia`
+Mustache is a text-based template system available in many languages.
+
+This packages ports over most of the mustache.js implementation for
+use in `julia`.
 
 
 The mustache folks say:
