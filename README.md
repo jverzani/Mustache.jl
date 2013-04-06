@@ -50,6 +50,16 @@ gives
 "the position is 1 and tail is  two"
 ```
 
+Or, with a temporary module (thanks Tom):
+
+```julia
+module TMP
+  x = 1; y = "two"
+end
+render("{{x}} and {{y}}", TMP) | println
+```
+
+
 One can use Composite Kinds. This may make writing `show` methods easier:
 
 ```julia
@@ -120,7 +130,6 @@ pronounce a as eh and b as bee. pronounce a as ah and b as buh.
 ```
 
 
-
 This project deviates from that of http://mustache.github.com in a few significant ways:
 
 * I've punted on implementing partials (the `>` tag). I've never been that fancy.
@@ -128,6 +137,10 @@ This project deviates from that of http://mustache.github.com in a few significa
 * Julian structures are used, not JavaScript objects. As illustrated,
   one can use Dicts, Modules, DataFrames
 
+
+The parsing code lifted from mustache.js does not handle unicode
+values, so we use the `ASCIIString` class. It would be nice to work
+around this.
 
 
 
