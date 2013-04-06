@@ -74,7 +74,7 @@ end
 function lookup_in_view(view::Module, key)
     hasmatch = false
     re = Regex("^$key\$")
-    for i in names(view)
+    for i in names(view, true)
         if ismatch(re, string(i))
             hasmatch = true
             break
