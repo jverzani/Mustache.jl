@@ -126,7 +126,7 @@ function make_tokens(template, tags)
         
     if length(sections) > 0
         openSection = pop!(sections)
-        error("Unclosed section " * openSection[2] * "at " * scanner.pos)
+        error("Unclosed section " * string(openSection[2]) * "at " * string(scanner.pos))
     end
     
     return(tokens)

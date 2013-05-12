@@ -14,7 +14,7 @@ function clearCache(w::Writer)
 end
 
 function compile(io::IO, w::Writer, template, tags)
-#    if has(w._cache, template)
+#    if haskey(w._cache, template)
 #        return(w._cache[template])
 #    end
 
@@ -34,7 +34,7 @@ end
 
 function getPartial(w::Writer, name)
 ## didn't do loadPartial, as not sure where template is
-#    if !has(w._partialCache, name) && is(w._loadPartial, Function)
+#    if !haskey(w._partialCache, name) && is(w._loadPartial, Function)
 #        compilePartial(w, 
 
     w._partialCache[name]

@@ -17,7 +17,7 @@ end
 
 ## Lookup value by key in the context
 function lookup(ctx::Context, key)
-    if has(ctx._cache, key)
+    if haskey(ctx._cache, key)
         value = ctx._cache[key]
     else
         context = ctx
@@ -56,7 +56,7 @@ function lookup_in_view(view::Dict, key)
         key = symbol(key[2:end])
     end
 
-    if has(view, key)
+    if haskey(view, key)
         view[key]
     else
         nothing
@@ -64,7 +64,7 @@ function lookup_in_view(view::Dict, key)
 end
 
 # function lookup_in_view(view::Main.DataFrame, key)
-#     if has(view, key)
+#     if haskey(view, key)
 #         view[1, key] ## first element only
 #     else
 #         nothing
@@ -95,7 +95,7 @@ function lookup_in_view(view, key)
     
     if Main.isdefined(:DataFrame) && typeof(view) == Main.DataFrame
         # Adapted from line 66
-        if has(view, key)
+        if haskey(view, key)
             return view[1, key] ## first element only
         else
             return nothing

@@ -55,7 +55,7 @@ end
 ## before then it finds the compiled `MustacheTokens` in `TEMPLATES` rather
 ## than calling `parse` a second time.
 function render_from_file(filepath, view)
-    if has(TEMPLATES, filepath)
+    if haskey(TEMPLATES, filepath)
         render(TEMPLATES[filepath], view)
     else
         try
