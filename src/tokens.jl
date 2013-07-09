@@ -40,17 +40,18 @@ function make_tokens(template, tags)
         value = scanUntil!(scanner, tagRes[1])
         
         if !falsy(value) 
-            for i in 1:length(value)
-                chr = string(value[i])
-                
+#            for i in 1:length(value)
+#                chr = string(value[i])
+            for val in value
+                chr = string(val)
                 if isWhitespace(chr)
                     push!(spaces, length(tokens))
                 else
                     nonSpace = true
                 end
                 
-                push!(tokens, {"text", chr, start, start + 1})
-                start += 1
+                push!(tokens, {"text", chr, start, start + endof(chr)})
+                start += endof(chr)
                 
                 if chr == "\n"
                     #stripSpace(hasTag, nonSpace)

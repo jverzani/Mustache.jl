@@ -19,7 +19,7 @@ end
 ## Falsy is true if x is false, 0 length, "", ...
 falsy(x::Bool) = !x
 falsy(x::Array) = length(x) == 0
-falsy(x::ASCIIString) = x == ""
+falsy(x::String) = x == ""
 falsy(x::Nothing) = true
 falsy(x::Real) = x == 0
 falsy(x) = false                #  default
