@@ -31,13 +31,13 @@ render(tokens::MustacheTokens) = render(tokens, Main)
 ##
 ## @param template a string containing the template for expansion
 ## @param view a Dict, Module, CompositeType, DataFrame holding variables for expansion
-function render(io::IO, template::ASCIIString, view)
+function render(io::IO, template::String, view)
     _writer = Writer()
     render(io, _writer, parse(template), view)
 end
 
-render(template::ASCIIString, view) = sprint(io -> render(io, template, view))
-render(template::ASCIIString) = render(template, Main)
+render(template::String, view) = sprint(io -> render(io, template, view))
+render(template::String) = render(template, Main)
 
 
 ## Dict for storing parsed templates

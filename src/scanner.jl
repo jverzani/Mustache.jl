@@ -1,11 +1,11 @@
 ## Scanner
 
 type Scanner
-    string::ASCIIString
-    tail::ASCIIString
+    string::String
+    tail::String
     pos::Integer
 end
-Scanner(string::ASCIIString) = Scanner("", string, 0)
+Scanner(string::String) = Scanner("", string, 0)
 
 
 
@@ -23,16 +23,16 @@ function scan(s::Scanner, re::Regex)
     end
     
     m = match(re, s.tail)
-    if m.offset == 1
+    if m.offset >= 1
         ## move past match
-        no_chars = length(m.match)
+        no_chars = endof(m.match) + m.offset - 1
         s.pos += no_chars
         s.tail = s.tail[(no_chars + 1):end]
     end    
 
     m.match
 end
-scan(s::Scanner, re::ASCIIString) = scan(s, Regex(re))
+scan(s::Scanner, re::String) = scan(s, Regex(re))
 scan(s::Scanner, re::Char) = scan(s, string(re))
 
 ## Skips all text until the given regular expression can be matched. Returns
@@ -42,19 +42,19 @@ function scanUntil!(s::Scanner, re::Regex)
 
     if m == nothing
         ourmatch = s.tail
-        s.pos += length(s.tail)
+        s.pos += endof(s.tail)
         s.tail = ""
     else
         pos = m.offset
         ourmatch = s.tail[1:(pos-1)]
-        s.tail = s.tail[pos:(length(s.tail))]
+        s.tail = s.tail[pos:(endof(s.tail))]
         s.pos += pos
     end
 
     return(ourmatch)
 end
 
-scanUntil!(s::Scanner, re::ASCIIString) = scanUntil!(s, Regex(re))
+scanUntil!(s::Scanner, re::String) = scanUntil!(s, Regex(re))
 scanUntil!(s::Scanner, re::Char) = scanUntil!(s, string(re))
     
     
