@@ -34,7 +34,8 @@ the position is 1 and tail is  2
 ```
 
 We export `render`. It seems too generic, but `render` is traditional
-with Mustache. The first argument of `render` can be an `IO` instance. It it is not given, then `sprint` is used to provide one. (Thanks Stefan for the suggestion.)
+with Mustache. The first argument of `render` can be an `IO` instance.
+If it is not given, then `sprint` is used to provide one. (Thanks Stefan for the suggestion.)
 
 The non-standard string literal `mt`, used above to make the `tpl`
 object, is optional. If used, then the parsing is done at compile time
