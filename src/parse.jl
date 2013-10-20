@@ -6,7 +6,6 @@ function parse(template, tags)
     tokens = make_tokens(template, tags)
     tokens = squashTokens(tokens)
     out = nestTokens(tokens)
-    
     ##out
     MustacheTokens(out)
 end

@@ -2,7 +2,6 @@ type MustacheTokens
     tokens
 end
 
-
 ## after parsing off to squash, nest and render the tokens
 
 ## Make the intial set of tokens before squashing and nesting
@@ -136,8 +135,8 @@ end
 ## take single character tokens and collaps into chunks
 function squashTokens(tokens)
     squashedTokens = Array(Any, 0)
-    
     lastToken = nothing
+    
     for i in 1:length(tokens)
         token = tokens[i]
         if !falsy(lastToken) && token[1] == "text"  && lastToken[1] == "text"
@@ -162,7 +161,7 @@ function nestTokens (tokens)
     tree = Array(Any,0)
     collector = tree
     sections = Array(Any, 0)
-    
+        
     for i in 1:length(tokens)
         token = tokens[i]
         ## a {{#name}}...{{/name}} will iterate over name
@@ -175,26 +174,24 @@ function nestTokens (tokens)
             collector = token[5]
         elseif token[1] == "/"
             section = pop!(sections)
-            push!(section, token[3])
-            collector = length(sections) > 0 ? sections[length(sections)] : tree
+            collector = length(sections) > 0 ? sections[end][5] : tree
         else
             push!(collector, token)
         end
     end
-
+    
     function print_tree(x, k)
         for i in x
             if length(i) > 4
-                println((k, i[1:4]))
-                print_tree(i[5], k + 1)
+                println(" " ^ (k-1), (k, i[1:4]))
+                print_tree(i[5], k+1)
             else
-                println((k, i))
+                println(" " ^ (k-1), (k, i)) 
             end
         end
     end
-    ## print_tree(tree, 1)
 
-    return(tree) ## ?? Tree?
+    return(tree) 
 end
 
 
@@ -204,11 +201,10 @@ end
 ## was contained in that section.
 
 function renderTokens(io, tokens, writer, context, template)
-
+    
     for i in 1:length(tokens)
         token = tokens[i]
         tokenValue = token[2]
-        
         
         if token[1] == "#"
             ## iterate over value if Dict, Array or DataFrame, 
