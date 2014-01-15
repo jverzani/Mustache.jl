@@ -9,11 +9,15 @@ include("context.jl")
 include("writer.jl")
 include("parse.jl")
 
-export @mt_str, render, render_from_file
+export @mt_str, @mt_mstr, render, render_from_file
 
 ## Macro to comile simple parsing outside of loops
 ## use as mt"{{a}} and {{b}}", say
 macro mt_str(s)
+    parse(s)
+end
+
+macro mt_mstr(s)
     parse(s)
 end
 
