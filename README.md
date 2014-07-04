@@ -60,7 +60,7 @@ Or, with a temporary module (thanks Tom):
 module TMP
   x = 1; y = "two"
 end
-render("{{x}} and {{y}}", TMP) | println
+render("{{x}} and {{y}}", TMP) |> println
 ```
 
 
@@ -124,7 +124,7 @@ This can be compared to using an array of `Dict`s, convenient if you have data b
 A = [{"a" => "eh", "b" => "bee"},
      {"a" => "ah", "b" => "buh"}]
 tpl = mt"{{#A}} pronounce a as {{a}} and b as {{b}}.{{/A}}"
-render(tpl, {"A" => A}) | print
+render(tpl, {"A" => A}) |> print
 ```
 
 yielding
@@ -136,15 +136,12 @@ pronounce a as eh and b as bee. pronounce a as ah and b as buh.
 
 This project deviates from that of http://mustache.github.com in a few significant ways:
 
-* I've punted on implementing partials (the `>` tag). I've never been that fancy.
-* I hard code the tags, so one uses `{{` and `}}` to demark objects.
+* The partials tag (the `>` tag) is not implemented.
+* The tags are only demarked with `{{` and `}}`.
 * Julian structures are used, not JavaScript objects. As illustrated,
   one can use Dicts, Modules, DataFrames
 
 
-The parsing code lifted from mustache.js does not handle unicode
-values, so we use the `ASCIIString` class. It would be nice to work
-around this.
 
 
 
