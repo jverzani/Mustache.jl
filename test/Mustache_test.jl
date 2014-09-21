@@ -65,4 +65,4 @@ end
 using GLM, RDatasets, DataFrames
 LifeCycleSavings = dataset("datasets", "LifeCycleSavings")
 fm2 = fit(LinearModel, SR ~ Pop15 + Pop75 + DPI + DDPI, LifeCycleSavings)
-print(glm_table(fm2))
+glm_table(fm2)
