@@ -95,8 +95,8 @@ function lookup_in_view(view, key)
     
     if Main.isdefined(:DataFrame) && typeof(view) == Main.DataFrame
         # Adapted from line 66
-        if haskey(view, key)
-            return view[1, key] ## first element only
+        if haskey(view, symbol(key))
+            return view[1, symbol(key)] ## first element only
         else
             return nothing
         end

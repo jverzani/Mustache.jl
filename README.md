@@ -33,13 +33,12 @@ Yields
 the position is 1 and tail is  2
 ```
 
-We export `render`. It seems too generic, but `render` is traditional
-with Mustache. The first argument of `render` can be an `IO` instance.
-If it is not given, then `sprint` is used to provide one. (Thanks Stefan for the suggestion.)
+The first argument of `render` can be an `IO` instance.
+If it is not given, then `sprint` is used to provide one.
 
 The non-standard string literal `mt`, used above to make the `tpl`
 object, is optional. If used, then the parsing is done at compile time
-and should be faster when used in a loop, say. (Thanks Patrick!)
+and should be faster when used in a loop, say. A triple-quoted form is also available.
 
 Similarly, we can use a module as a view such as `Main`:
 
@@ -54,7 +53,7 @@ gives
 "the position is 1 and tail is  two"
 ```
 
-Or, with a temporary module (thanks Tom):
+Or, with a temporary module:
 
 ```julia
 module TMP
@@ -111,7 +110,7 @@ for s in sort(map(string, names(m)))
 end
 
 using DataFrames
-d = DataFrame({"names" => _names, "summs" => _summaries})
+d = DataFrame(names=_names, summs=_summaries)
 
 out = render(tpl, {"Title" => "A quick table", "d" => d})
 print(out)
@@ -123,14 +122,14 @@ This can be compared to using an array of `Dict`s, convenient if you have data b
 ```julia
 A = [{"a" => "eh", "b" => "bee"},
      {"a" => "ah", "b" => "buh"}]
-tpl = mt"{{#A}} pronounce a as {{a}} and b as {{b}}.{{/A}}"
+tpl = mt"{{#A}}Pronounce a as {{a}} and b as {{b}}. {{/A}}"
 render(tpl, {"A" => A}) |> print
 ```
 
 yielding
 
 ```julia
-pronounce a as eh and b as bee. pronounce a as ah and b as buh.
+Pronounce a as eh and b as bee. Pronounce a as ah and b as buh.
 ```
 
 
