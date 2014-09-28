@@ -1,25 +1,21 @@
-Mustache is a text-based template system available in many languages.
+# Mustache
 
-This package ports over most of the mustache.js implementation for
-use in `julia`.
+[![Build Status](https://travis-ci.org/jverzani/Mustache.jl.svg?branch=master)](https://travis-ci.org/jverzani/Mustache.jl)
+[![Coverage Status](https://coveralls.io/repos/jverzani/Mustache.jl/badge.png)](https://coveralls.io/r/jverzani/Mustache.jl)
+[![Mustache](http://pkg.julialang.org/badges/Mustache_release.svg)](http://pkg.julialang.org/?pkg=Mustache&ver=release)
 
+[Mustache](http://mustache.github.io/) is 
 
-The mustache folks say:
-
-    Mustache is a logic-less template syntax. It can be used for HTML,
+    ... a logic-less template syntax. It can be used for HTML,
     config files, source code - anything. It works by expanding tags in a
     template using values provided in a hash or object.
 
-
-This code is a fairly faithful translation of code of
-https://github.com/janl/mustache.js/blob/master/mustache.js
-
-All credit should go there. All bugs are my own.
+This package ports over most of the [mustache.js](https://github.com/janl/mustache.js) implementation for use in [Julia](http://julialang.org). All credit should go there. All bugs are my own.
 
 Some basic examples with `julia`:
 
 ```julia
-using Mustache; 
+using Mustache
 
 tpl = mt"the position is {{x}} and tail is  {{y}}"
 
@@ -80,7 +76,7 @@ gives
 One can iterate over data frames. Here is a template for making a web page:
 
 ```julia
-tpl = "
+tpl = """
 <html>
 <head>
 <title>{{Title}}</title>
@@ -93,7 +89,7 @@ tpl = "
 {{/d}}
 </body>
 </html>
-"
+"""
 ```
 This can be used to generate a web page for `whos`-like values:
 
@@ -139,9 +135,3 @@ This project deviates from that of http://mustache.github.com in a few significa
 * The tags are only demarked with `{{` and `}}`.
 * Julian structures are used, not JavaScript objects. As illustrated,
   one can use Dicts, Modules, DataFrames
-
-
-
-
-
-
