@@ -49,7 +49,7 @@ function make_tokens(template, tags)
                     nonSpace = true
                 end
                 
-                push!(tokens, {"text", chr, start, start + endof(chr)})
+                push!(tokens, Any["text", chr, start, start + endof(chr)])
                 start += endof(chr)
                 
                 if chr == "\n"
@@ -95,7 +95,7 @@ function make_tokens(template, tags)
         end
         
         
-        token = {_type, value, start, scanner.pos}
+        token = Any[_type, value, start, scanner.pos]
         
 
         push!(tokens, token)
