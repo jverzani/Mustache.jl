@@ -4,7 +4,7 @@ using Base.Test
 tpl = mt"a:{{x}} b:{{{y}}}"
 
 x, y = "ex", "why"
-d = ["x"=>"ex", "y"=>"why"]
+d = @compat Dict("x"=>"ex", "y"=>"why")
 type ThrowAway
     x
     y
@@ -25,10 +25,10 @@ tpl = mt"""a:{{x}} b:{{y}}"""
 
 ## conditional
 tpl = "{{#b}}this doesn't show{{/b}}{{#a}}this does show{{/a}}"
-@test render(tpl, ["a" => 1]) == "this does show"
+@test render(tpl, @compat Dict("a" => 1)) == "this does show"
 
 ## dict using symbols
-d = [ :a => x, :b => y]
+d = @compat Dict(:a => x, :b => y)
 tpl = "a:{{:a}} b:{{:b}}"
 @test render(tpl, d) == "a:ex b:why"
 
