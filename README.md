@@ -20,7 +20,7 @@ using Mustache
 tpl = mt"the position is {{x}} and tail is  {{y}}"
 
 ## a dict
-render(tpl, {"x"=>1, "y"=>2})
+render(tpl, {"x"=>1, "y"=>1})
 ```
 
 Yields

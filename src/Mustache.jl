@@ -1,7 +1,7 @@
 module Mustache
 
 # using DataFrames
-
+using Requires
 include("utils.jl")
 include("tokens.jl")
 include("scanner.jl")

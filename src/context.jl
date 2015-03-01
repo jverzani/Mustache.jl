@@ -63,14 +63,6 @@ function lookup_in_view(view::Dict, key)
     end
 end
 
-# function lookup_in_view(view::Main.DataFrame, key)
-#     if haskey(view, key)
-#         view[1, key] ## first element only
-#     else
-#         nothing
-#     end
-# end
-
 function lookup_in_view(view::Module, key)
     hasmatch = false
     re = Regex("^$key\$")
@@ -90,19 +82,20 @@ function lookup_in_view(view::Module, key)
 
 end
 
-## Default is likely not great, but we use CompositeKind
-function lookup_in_view(view, key)
-    
-    if Main.isdefined(:DataFrame) && typeof(view) == Main.DataFrame
-        # Adapted from line 66
+Requires.@require DataFrames begin
+    function lookup_in_view(view::DataFrames.DataFrame, key)
         if haskey(view, symbol(key))
             return view[1, symbol(key)] ## first element only
         else
             return nothing
         end
-    else
-        nms = names(view)
     end
+end
+
+## Default is likely not great, but we use CompositeKind
+function lookup_in_view(view, key)
+    
+    nms = names(view)
     re = Regex(key)
     has_match = false
     for i in nms

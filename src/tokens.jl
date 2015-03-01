@@ -186,7 +186,7 @@ function nestTokens (tokens)
                 println(" " ^ (k-1), (k, i[1:4]))
                 print_tree(i[5], k+1)
             else
-                println(" " ^ (k-1), (k, i)) 
+                println(" " ^ (k-1), (k, i))
             end
         end
     end
