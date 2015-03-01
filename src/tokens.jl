@@ -167,7 +167,7 @@ function nestTokens (tokens)
         ## a {{#name}}...{{/name}} will iterate over name
         ## a {{^name}}...{{/name}} does ... if we have no name
         ## start nesting
-        if token[1] == "^" || token[1] == "#" 
+        if token[1] == "^" || token[1] == "#"
             push!(sections, token)
             push!(collector, token)
             push!(token, Array(Any, 0))
@@ -222,7 +222,7 @@ function renderTokens(io, tokens, writer, context, template)
                 end
             elseif Main.isdefined(:DataFrame) && isa(value, Main.DataFrame)
                 ## iterate along row, Call one for each row
-                for i in 1:size(value)[1] 
+                for i in 1:size(value)[1]
                     renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
                 end
             elseif !falsy(value)
