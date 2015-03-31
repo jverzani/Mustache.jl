@@ -27,9 +27,13 @@ function render(io::IO, tokens::MustacheTokens, view)
     _writer = Writer()
     render(io, _writer, tokens, view)
 end
+function render(io::IO, tokens::MustacheTokens; kwargs...)
+    d = [k => v for (k,v) in kwargs]
+    render(io, tokens, d)
+end
 
 render(tokens::MustacheTokens, view) = sprint(io -> render(io, tokens, view))
-render(tokens::MustacheTokens) = render(tokens, Main)
+render(tokens::MustacheTokens; kwargs...) = sprint(io -> render(io, tokens; kwargs...))
 
 ## Exported call without first parsing tokens via mt"literal"
 ##
@@ -39,10 +43,13 @@ function render(io::IO, template::String, view)
     _writer = Writer()
     render(io, _writer, parse(template), view)
 end
-
+function render(io::IO, template::String; kwargs...)
+    _writer = Writer()
+    view = [k => v for (k,v) in kwargs]
+    render(io, _writer, parse(template), view)
+end
 render(template::String, view) = sprint(io -> render(io, template, view))
-render(template::String) = render(template, Main)
-
+render(template::String; kwargs...) = sprint(io -> render(io, template; kwargs...))
 
 ## Dict for storing parsed templates
 TEMPLATES = Dict{String, MustacheTokens}()

@@ -32,4 +32,5 @@ d = @compat Dict(:a => x, :b => y)
 tpl = "a:{{:a}} b:{{:b}}"
 @test render(tpl, d) == "a:ex b:why"
 
-
+## keyword args
+@test render(tpl, a="ex", b="why") == "a:ex b:why"

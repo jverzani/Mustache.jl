@@ -58,6 +58,13 @@ end
 render("{{x}} and {{y}}", TMP) |> println
 ```
 
+If the variables in the templates are symbols, then keyword arguments can be used.
+
+```
+tpl = mt"{{{:x}}} and {{{:y}}}."
+render(tpl, x="Salt", y="pepper")
+```
+
 
 One can use Composite Kinds. This may make writing `show` methods easier:
 
