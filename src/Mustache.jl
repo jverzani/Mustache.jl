@@ -2,6 +2,8 @@ module Mustache
 
 # using DataFrames
 using Requires
+using Compat
+
 include("utils.jl")
 include("tokens.jl")
 include("scanner.jl")
