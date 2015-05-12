@@ -140,8 +140,8 @@ The same approach can be made to make a LaTeX table from a data frame:
 ```
 
 function df_to_table(df, label="label", caption="caption")
-	fmt = repeat("c", length(d))
-    row = join(["{{$x}}" for x in map(string, names(d))], " & ")
+	fmt = repeat("c", length(df))
+    row = join(["{{$x}}" for x in map(string, names(df))], " & ")
 
 tpl="""
 \\begin{table}
@@ -149,8 +149,8 @@ tpl="""
   \\begin{tabular}{$fmt}
 {{#df}}    $row\\\\
 {{/df}}  \\end{tabular}
-  \\caption{caption}
-  \\label{tab:label}
+  \\caption{$caption}
+  \\label{tab:$label}
 \\end{table}
 """
 
