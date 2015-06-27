@@ -84,8 +84,12 @@ end
 
 Requires.@require DataFrames begin
     function lookup_in_view(view::DataFrames.DataFrame, key)
-        if haskey(view, symbol(key))
-            return view[1, symbol(key)] ## first element only
+        if ismatch(r":", key)
+            key = key[2:end]
+        end
+        key = symbol(key)
+        if haskey(view, key)
+            return view[1, key] ## first element only
         else
             return nothing
         end
