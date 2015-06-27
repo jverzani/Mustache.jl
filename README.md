@@ -212,7 +212,23 @@ render(tpl, ["df"=>df, "caption"=>caption, "label" => label])
 end
 ```
 
-### Differences from Mustache.js
+## Alternatives
+
+`Julia` provides some alternatives to this package which are better suited for many jobs:
+
+* For simple substitution inside a string, string
+  [interpolation](http://julia.readthedocs.org/en/latest/manual/strings/)
+  is available.
+
+* For piecing together pieces of text either the `string` function or
+  string concatenation (the `*` operator) are useful.
+
+* For formatting numbers and text, the
+  [Formatting.jl](https://github.com/JuliaLang/Formatting.jl) package
+  is available.
+
+
+## Differences from Mustache.js
 
 This project deviates from that of http://mustache.github.com in a few significant ways:
 
