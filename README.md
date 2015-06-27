@@ -31,6 +31,7 @@ You have just won {{value}} dollars!
 Well, {{taxed_value}} dollars, after taxes.
 {{/in_ca}}
 """
+```
 
 The values with braces (mustaches on their side) are looked up in a view, such as a dictionary or module. For example,
 
