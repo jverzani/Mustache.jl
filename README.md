@@ -55,14 +55,14 @@ Well, 6000.0 dollars, after taxes.
 ```
 
 The `render` function pieces things together. Like `print`, the first
-argument is for an option `IO` instance. In the above example, where
+argument is for an optional `IO` instance. In the above example, where
 one is not provided, the `sprint` function is employed.
 
 
 The second argument is a either a string or a mustache template. As
-seen, templates can be made through the `mt` no-standard string
+seen, templates can be made through the `mt` non-standard string
 literal. The advantage of using `mt`, is the template will be
-processed at compile time and its reuse will be faster.
+processed at compile time so its reuse will be faster.
 
 The templates use tags comprised of matching mustaches (`{}`), either two or three, to
 indicate a value to be substituted for.
@@ -122,14 +122,18 @@ Well, {{taxed_value}} dollars, after taxes.
 {{/in_ca}}
 ```
 
-Tags beginning with `#varname` and closed with `/varname` create section. The part between them is used only if the variable is defined. Related, if the tag begins with `^varname` and ends with `/varname` the text between these tags is included only if the variable is *not* defined.
+Tags beginning with `#varname` and closed with `/varname` create
+sections. The part between them is used only if the variable is
+defined. Related, if the tag begins with `^varname` and ends with
+`/varname` the text between these tags is included only if the
+variable is *not* defined.
 
 ### Iteration
 
 If the section variable binds to an iterable collection, then the text
 in the section is repeated for each item in the collection.
 
-This is use for collections of named objects, such as DataFrames
+This is useful for collections of named objects, such as DataFrames
 (where the collection is comprised of rows) or arrays of
 dictionaries.
 
@@ -137,17 +141,17 @@ For data frames the variable names are specified as
 symbols or strings. Here is a template for making a web page:
 
 ```
-tpl = """
+tpl = mt"""
 <html>
 <head>
-<title>{{Title}}</title>
+<title>{{:TITLE}}</title>
 </head>
 <body>
 <table>
 <tr><th>name</th><th>summary</th></tr>
-{{#d}}
+{{#:D}}
 <tr><td>{{:names}}</td><td>{{summs}}</td></tr>
-{{/d}}
+{{/:D}}
 </body>
 </html>
 """
@@ -169,7 +173,7 @@ end
 using DataFrames
 d = DataFrame(names=_names, summs=_summaries)
 
-out = render(tpl, {"Title" => "A quick table", "d" => d})
+out = render(tpl, TITLE="A quick table", D=d)
 print(out)
 ```
 
@@ -179,8 +183,8 @@ This can be compared to using an array of `Dict`s, convenient if you have data b
 ```
 A = [{"a" => "eh", "b" => "bee"},
      {"a" => "ah", "b" => "buh"}]
-tpl = mt"{{#A}}Pronounce a as {{a}} and b as {{b}}. {{/A}}"
-render(tpl, {"A" => A}) |> print
+tpl = mt"{{#:A}}Pronounce a as {{a}} and b as {{b}}. {{/:A}}"
+render(tpl, A=A) |> print
 ```
 
 yielding
@@ -201,24 +205,25 @@ tpl="""
 \\begin{table}
   \\centering
   \\begin{tabular}{$fmt}
-{{#df}}    $row\\\\
-{{/df}}  \\end{tabular}
+{{#:DF}}    $row\\\\
+{{/:DF}}  \\end{tabular}
   \\caption{$caption}
   \\label{tab:$label}
 \\end{table}
 """
 
-render(tpl, ["df"=>df, "caption"=>caption, "label" => label])
+render(tpl, DF=df)
 end
 ```
+
+(A string is used -- and not a `mt` macro above -- so that string interpolation can happen.)
 
 ## Alternatives
 
 `Julia` provides some alternatives to this package which are better suited for many jobs:
 
-* For simple substitution inside a string, string
-  [interpolation](http://julia.readthedocs.org/en/latest/manual/strings/)
-  is available.
+* For simple substitution inside a string there is string
+  [interpolation](http://julia.readthedocs.org/en/latest/manual/strings/).
 
 * For piecing together pieces of text either the `string` function or
   string concatenation (the `*` operator) are useful.
