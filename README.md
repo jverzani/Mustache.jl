@@ -98,7 +98,7 @@ As well, one can use Composite Kinds. This may make writing `show` methods easie
 
 ```
 using Distributions
-tpl = "Beta distribution with alpha={{alpha}}, beta={{beta}}"
+tpl = "Beta distribution with alpha={{α}}, beta={{β}}"
 render(tpl, Beta(1, 2))
 ```
 
@@ -130,8 +130,10 @@ variable is *not* defined.
 
 ### Iteration
 
-If the section variable binds to an iterable collection, then the text
-in the section is repeated for each item in the collection.
+If the section variable, `{{#VARNAME}}`, binds to an iterable
+collection, then the text in the section is repeated for each item in
+the collection with the view used for the context of the template
+given by the item.
 
 This is useful for collections of named objects, such as DataFrames
 (where the collection is comprised of rows) or arrays of

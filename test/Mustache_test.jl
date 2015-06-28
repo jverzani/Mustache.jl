@@ -34,3 +34,13 @@ tpl = "a:{{:a}} b:{{:b}}"
 
 ## keyword args
 @test render(tpl, a="ex", b="why") == "a:ex b:why"
+
+## unicode 
+module TMP
+α = 1
+β = 2
+end
+@test render("{{α}} + 1 = {{β}}", TMP) == "1 + 1 = 2"
+@test render("{{:β}}", β=2) == "2"
+@test render("α - {{:β}}", β=2) == "α - 2"
+@test render("{{:α}}", α="β") == "β"
