@@ -3,7 +3,7 @@
 &nbsp;
 Linux: [![Build Status](https://travis-ci.org/jverzani/Mustache.jl.svg?branch=master)](https://travis-ci.org/jverzani/Mustache.jl)
 &nbsp;
-Windows: [![Build Status](https://ci.appveyor.com/api/projects/status/github/jverzani/Mustache.jl?branch=master&svg=true)](https://ci.appveyor.com/project/tkelman/example-jl/branch/master)
+Windows: [![Build Status](https://ci.appveyor.com/api/projects/status/github/jverzani/Mustache.jl?branch=master&svg=true)](https://ci.appveyor.com/project/jverzani/sympy-jl)
 
 # Mustache
 
@@ -110,7 +110,11 @@ gives
 
 ### Variables
 
-Tags representing variables have the form `{{varname}}`, `{{:symbol}}`, or their triple-braced versions. (The triple brace prevents HTML substitution for entities such as `<`.) 
+Tags representing variables have the form `{{varname}}`,
+`{{:symbol}}`, or their triple-braced versions `{{{varname}}}` or
+`{{{:symbol}}}`.  The triple brace prevents HTML substitution for
+entities such as `<`. The following are escaped when only double
+braces are used: "&", "<", ">", "'", "\", and "/".
 
 ### Sections
 
