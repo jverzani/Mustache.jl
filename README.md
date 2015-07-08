@@ -141,7 +141,7 @@ given by the item.
 
 This is useful for collections of named objects, such as DataFrames
 (where the collection is comprised of rows) or arrays of
-dictionaries.
+dictionaries. The special variable `{{.}}` can be used to iterate over non-named collections.
 
 For data frames the variable names are specified as
 symbols or strings. Here is a template for making a web page:

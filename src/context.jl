@@ -7,8 +7,11 @@ type Context
     parent ## a context or nothing
     _cache::Dict
 end
-Context(view) = Context(view, nothing, Dict())
-Context(view, parent) = Context(view, parent, Dict())
+function Context(view, parent=nothing)
+    d = Dict()
+    d["."] = view
+    Context(view, parent, d)
+end
 
 ## used by renderTokens
 function ctx_push(ctx::Context, view)
