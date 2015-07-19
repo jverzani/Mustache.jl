@@ -5,11 +5,11 @@ nonSpaceRe = r"\S"
 eqRe = r"\s*="
 curlyRe = r"\s*\}"
 #tagRe = r"#|\^|\/|>|\{|&|=|!"
-tagRe = r"^[#^/>{&=!]" 
+tagRe = r"^[#^/>{&=!]"
 
 
 isWhitespace(x) = ismatch(whiteRe, x)
-function stripWhitepace(x) 
+function stripWhitepace(x)
     y = replace(x, r"^\s+", "")
     replace(y, r"\s+$", "")
 end
@@ -32,7 +32,7 @@ entityMap = [("&", "&amp;"),
              ("'", "&#39;"),
              ("\"", "&quot;"),
              ("/", "&#x2F;")]
-             
+
 function escape_html(x)
     y = string(x)
     for (k,v) in entityMap

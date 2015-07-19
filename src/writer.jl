@@ -35,7 +35,7 @@ end
 function getPartial(w::Writer, name)
 ## didn't do loadPartial, as not sure where template is
 #    if !haskey(w._partialCache, name) && is(w._loadPartial, Function)
-#        compilePartial(w, 
+#        compilePartial(w,
 
     w._partialCache[name]
 end

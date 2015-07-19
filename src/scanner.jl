@@ -21,14 +21,14 @@ function scan(s::Scanner, re::Regex)
     if !ismatch(re, s.tail)
         return ""
     end
-    
+
     m = match(re, s.tail)
     if m.offset >= 1
         ## move past match
         no_chars = endof(m.match) + m.offset - 1
         s.pos += no_chars
         s.tail = s.tail[(no_chars + 1):end]
-    end    
+    end
 
     m.match
 end
@@ -56,6 +56,6 @@ end
 
 scanUntil!(s::Scanner, re::String) = scanUntil!(s, Regex(re))
 scanUntil!(s::Scanner, re::Char) = scanUntil!(s, string(re))
-    
-    
-    
+
+
+

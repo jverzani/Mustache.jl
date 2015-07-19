@@ -23,7 +23,7 @@ function glm_table(mod)
         nm = "col$j"
         mat[symbol(nm)] = map(x -> @sprintf("%.2f", x), tbl.mat[:,j])
     end
-    
+
     Mustache.render(glm_tpl,{"colnms"=>colnms, "mat"=>mat})
 end
 
