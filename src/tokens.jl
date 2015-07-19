@@ -157,7 +157,7 @@ end
 ## tokens that represent a section have two additional items: 1) an array of
 ## all tokens that appear in that section and 2) the index in the original
 ## template that represents the end of that section.
-function nestTokens (tokens)
+function nestTokens(tokens)
     tree = Array(Any,0)
     collector = tree
     sections = Array(Any, 0)
