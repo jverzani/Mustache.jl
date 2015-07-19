@@ -44,3 +44,7 @@ end
 @test render("{{:β}}", β=2) == "2"
 @test render("α - {{:β}}", β=2) == "α - 2"
 @test render("{{:α}}", α="β") == "β"
+
+## {{.}} test
+tpl = mt"{{#:vec}}{{.}} {{/:vec}}"
+@test render(tpl, vec=[1,2,3]) == "1 2 3 "
