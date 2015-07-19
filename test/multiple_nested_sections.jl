@@ -10,7 +10,7 @@ test_func = () -> render(failing_template,
                          @compat Dict("report" => [@compat Dict("times1" => test_data("x", 1:4), "times2" => test_data("y",4:8))]))
 
 res = test_func()
-@assert res == "[1,2,3,4,],[4,5,6,7,8,]" 
+@assert res == "[1,2,3,4,],[4,5,6,7,8,]"
 
 
 failing_template = mt"{{#report}}[{{#times1}}{{x}},[{{#times2}}{{y}},{{/times2}}],{{/times1}}]{{/report}}"
