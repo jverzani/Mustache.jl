@@ -59,11 +59,12 @@ function lookup_in_view(view::Dict, key)
         key = symbol(key[2:end])
     end
 
+    out = nothing
     if haskey(view, key)
-        view[key]
-    else
-        nothing
+        out = view[key]
     end
+
+    out
 end
 
 function lookup_in_view(view::Module, key)
@@ -76,12 +77,11 @@ function lookup_in_view(view::Module, key)
         end
     end
 
+    out = nothing
     if hasmatch
-        getfield(view, symbol(key))  ## view.key
-    else
-        nothing
+        out = getfield(view, symbol(key))  ## view.key
     end
-
+    out
 
 end
 
@@ -91,11 +91,12 @@ Requires.@require DataFrames begin
             key = key[2:end]
         end
         key = symbol(key)
+        out = nothing
         if haskey(view, key)
-            return view[1, key] ## first element only
-        else
-            return nothing
+            out = view[1, key] ## first element only
         end
+
+        out
     end
 end
 
@@ -112,10 +113,11 @@ function lookup_in_view(view, key)
         end
     end
 
+    out = nothing
     if has_match
-        getfield(view, symbol(key))  ## view.key
-    else
-        nothing
+        out = getfield(view, symbol(key))  ## view.key
     end
+
+    out
 end
 

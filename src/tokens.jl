@@ -210,7 +210,7 @@ function renderTokens(io, tokens, writer, context, template)
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
             value = lookup(context, tokenValue)
-
+            
             ##  many things based on value of value
             if isa(value, Dict)
                 for (k, v) in value
@@ -225,6 +225,23 @@ function renderTokens(io, tokens, writer, context, template)
                 for i in 1:size(value)[1]
                     renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
                 end
+            elseif isa(value, Function)
+                ## function get's passed
+                # When the value is a callable
+                # object, such as a function or lambda, the object will
+                # be invoked and passed the block of text. The text
+                # passed is the literal block, unrendered. {{tags}} will
+                # not have been expanded - the lambda should do that on
+                # its own. In this way you can implement filters or
+                # caching.
+                
+                function render(tokens)
+                    sprint(io -> renderTokens(io, tokens, writer, context, template))
+                end
+
+                out = (value())(token[5], render)
+                write(io, out)
+                
             elseif !falsy(value)
                 renderTokens(io, token[5], writer, context, template)
             end

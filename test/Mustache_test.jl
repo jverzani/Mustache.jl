@@ -48,3 +48,20 @@ end
 ## {{.}} test
 tpl = mt"{{#:vec}}{{.}} {{/:vec}}"
 @test render(tpl, vec=[1,2,3]) == "1 2 3 "
+
+## test of function, see http://mustache.github.io/mustache.5.html (Lambdas)
+
+tpl = mt"""{{#wrapped}}
+  {{name}} is awesome.
+{{/wrapped}}
+"""
+
+d = Dict()
+d["name"] =  "Willy"
+d["wrapped"] = function() 
+    function(text, render) 
+        "<b>" * render(text) * "</b>"
+    end
+    end
+
+@test Mustache.render(tpl, d) == "<b>\n  Willy is awesome.\n</b>\n" #?? extra \n??
