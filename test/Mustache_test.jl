@@ -65,3 +65,8 @@ d["wrapped"] = function()
     end
 
 @test Mustache.render(tpl, d) == "<b>\n  Willy is awesome.\n</b>\n" #?? extra \n??
+
+## Test of using Dict in {{#}}/{{/}} things
+tpl = mt"{{#:d}}{{x}} and {{y}}{{/:d}}"
+d = Dict(); d["x"] = "salt"; d["y"] = "pepper"
+@test Mustache.render(tpl, d=d) == "salt and pepper"

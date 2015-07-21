@@ -213,9 +213,10 @@ function renderTokens(io, tokens, writer, context, template)
             
             ##  many things based on value of value
             if isa(value, Dict)
-                for (k, v) in value
-                    renderTokens(io, token[5], writer, ctx_push(context, v), template)
-                end
+                renderTokens(io, token[5], writer, ctx_push(context, value), template)
+#                for (k, v) in value
+#                    renderTokens(io, token[5], writer, ctx_push(context, v), template)
+#                end
             elseif isa(value, Array)
                 for v in value
                     renderTokens(io, token[5], writer, ctx_push(context, v), template)
