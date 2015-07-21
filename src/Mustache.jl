@@ -80,5 +80,9 @@ function render_from_file(filepath, view)
         end
     end
 end
+function render_from_file(filepath::String; kwargs...)
+    d = [k => v for (k,v) in kwargs]
+    render_from_file(filepath, d)
+end
 
 end

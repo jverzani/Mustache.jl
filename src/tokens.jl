@@ -201,7 +201,6 @@ end
 ## was contained in that section.
 
 function renderTokens(io, tokens, writer, context, template)
-
     for i in 1:length(tokens)
         token = tokens[i]
         tokenValue = token[2]
@@ -214,9 +213,6 @@ function renderTokens(io, tokens, writer, context, template)
             ##  many things based on value of value
             if isa(value, Dict)
                 renderTokens(io, token[5], writer, ctx_push(context, value), template)
-#                for (k, v) in value
-#                    renderTokens(io, token[5], writer, ctx_push(context, v), template)
-#                end
             elseif isa(value, Array)
                 for v in value
                     renderTokens(io, token[5], writer, ctx_push(context, v), template)
@@ -257,8 +253,12 @@ function renderTokens(io, tokens, writer, context, template)
 
 
         elseif token[1] == ">"
-            ## need partials to do this
-
+            ## partials
+            fname = stripWhitepace(tokenValue)
+            if isfile(fname)
+                renderTokens(io, template_from_file(fname).tokens, writer, context, template)
+            end
+            
         elseif token[1] == "&"
             value = lookup(context, tokenValue)
             if value != nothing
