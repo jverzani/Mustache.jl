@@ -156,7 +156,7 @@ tpl = mt"""
 <table>
 <tr><th>name</th><th>summary</th></tr>
 {{#:D}}
-<tr><td>{{:names}}</td><td>{{summs}}</td></tr>
+<tr><td>{{:names}}</td><td>{{:summs}}</td></tr>
 {{/:D}}
 </body>
 </html>
@@ -241,9 +241,8 @@ end
 
 ## Differences from Mustache.js
 
-This project deviates from that of http://mustache.github.com in a few significant ways:
+This project deviates from that of Mustache.js in a few significant ways:
 
-* The partials tag (the `>` tag) is not implemented.
 * The tags are only demarcated with mustaches, this is not customizable
 * Julian structures are used, not JavaScript objects. As illustrated,
   one can use Dicts, Modules, DataFrames

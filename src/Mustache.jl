@@ -1,6 +1,7 @@
+VERSION >= v"0.4.0-dev+6521" && __precompile__()
 module Mustache
 
-# using DataFrames
+# using DataFrames # Once 0.4 hits, we load DataFrames, as it will be compiled and load in 0.5secs.
 using Requires
 using Compat
 
@@ -13,8 +14,12 @@ include("parse.jl")
 
 export @mt_str, @mt_mstr, render, render_from_file
 
-## Macro to comile simple parsing outside of loops
-## use as mt"{{a}} and {{b}}", say
+"""
+
+Macro to comile simple parsing outside of loops
+use as mt"{{a}} and {{b}}", say
+
+"""
 macro mt_str(s)
     parse(s)
 end
@@ -23,8 +28,23 @@ macro mt_mstr(s)
     parse(s)
 end
 
-## Main function for use with compiled strings
-## @param tokens  Created using mt_str macro, as in mt"abc do re me"
+"""
+
+Render a set of tokens with a view, using optional `io` object to print or store.
+
+Arguments
+---------
+
+* `io::IO`: Optional `IO` object.
+
+* `tokens`: Either Mustache tokens, or a string to parse into tokens
+
+* `view`: A view provides a context to look up unresolved symbols
+  demarcated by mustache braces. A view may be specified by a
+  dictionary, a module, a composite type, a vector, or keyword
+  arguments.
+
+"""
 function render(io::IO, tokens::MustacheTokens, view)
     _writer = Writer()
     render(io, _writer, tokens, view)
@@ -64,9 +84,13 @@ function template_from_file(filepath)
     return tpl
 end
 
-## Renders a template from `filepath` and `view`. If it has seen the file
-## before then it finds the compiled `MustacheTokens` in `TEMPLATES` rather
-## than calling `parse` a second time.
+"""
+
+Renders a template from `filepath` and `view`. If it has seen the file
+before then it finds the compiled `MustacheTokens` in `TEMPLATES` rather
+than calling `parse` a second time.
+
+"""
 function render_from_file(filepath, view)
     if haskey(TEMPLATES, filepath)
         render(TEMPLATES[filepath], view)

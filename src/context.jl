@@ -102,7 +102,6 @@ end
 
 ## Default is likely not great, but we use CompositeKind
 function lookup_in_view(view, key)
-
     nms = fieldnames(view)
     re = Regex(key)
     has_match = false
