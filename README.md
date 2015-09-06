@@ -1,12 +1,11 @@
-[![Mustache](http://pkg.julialang.org/badges/Mustache_release.svg)](http://pkg.julialang.org/?pkg=Mustache&ver=release)
-[![Mustache](http://pkg.julialang.org/badges/Mustache_nightly.svg)](http://pkg.julialang.org/?pkg=Mustache&ver=nightly)
-&nbsp;
+# Mustache
+
+[![Mustache](http://pkg.julialang.org/badges/Mustache_0.3.svg)](http://pkg.julialang.org/?pkg=Mustache&ver=0.3)
+[![Mustache](http://pkg.julialang.org/badges/Mustache_0.4.svg)](http://pkg.julialang.org/?pkg=Mustache&ver=0.4)
+
 Linux: [![Build Status](https://travis-ci.org/jverzani/Mustache.jl.svg?branch=master)](https://travis-ci.org/jverzani/Mustache.jl)
 &nbsp;
 Windows: [![Build Status](https://ci.appveyor.com/api/projects/status/github/jverzani/Mustache.jl?branch=master&svg=true)](https://ci.appveyor.com/project/jverzani/sympy-jl)
-
-# Mustache
-
 
 [Mustache](http://mustache.github.io/) is 
 
