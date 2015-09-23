@@ -195,11 +195,65 @@ function nestTokens(tokens)
 end
 
 
+## Helper function for dispatch based on value in renderTokens
+function renderTokensByValue(value::Dict, io, token, writer, context, template)
+    renderTokens(io, token[5], writer, ctx_push(context, value), template)
+end
+
+
+function renderTokensByValue(value::Array, io, token, writer, context, template)
+    for v in value
+        renderTokens(io, token[5], writer, ctx_push(context, v), template)
+    end
+end
+
+function renderTokensByValue(value::Function, io, token, writer, context, template)
+    for v in value
+        renderTokens(io, token[5], writer, ctx_push(context, v), template)
+    end
+end
+
+Requires.@require DataFrames begin
+    function renderTokensByValue(value::DataFrames.DataFrame, io, token, writer, context, template)
+        ## iterate along row, Call one for each row
+        for i in 1:size(value)[1]
+            renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
+        end
+    end
+end
+
+
+
+function renderTokensByValue(value::Function, io, token, writer, context, template)
+    ## function get's passed
+    # When the value is a callable
+    # object, such as a function or lambda, the object will
+    # be invoked and passed the block of text. The text
+    # passed is the literal block, unrendered. {{tags}} will
+    # not have been expanded - the lambda should do that on
+    # its own. In this way you can implement filters or
+    # caching.
+    
+    function render(tokens)
+        sprint(io -> renderTokens(io, tokens, writer, context, template))
+    end
+    
+    out = (value())(token[5], render)
+    write(io, out)
+end
+
+function renderTokensByValue(value::Any, io, token, writer, context, template)
+    if !falsy(value)
+        renderTokens(io, token[5], writer, context, template)
+    end
+end
+
+
+
 ## Low-level function that renders the given `tokens` using the given `writer`
 ## and `context`. The `template` string is only needed for templates that use
 ## higher-order sections to extract the portion of the original template that
 ## was contained in that section.
-
 function renderTokens(io, tokens, writer, context, template)
     for i in 1:length(tokens)
         token = tokens[i]
@@ -209,39 +263,40 @@ function renderTokens(io, tokens, writer, context, template)
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
             value = lookup(context, tokenValue)
-            
-            ##  many things based on value of value
-            if isa(value, Dict)
-                renderTokens(io, token[5], writer, ctx_push(context, value), template)
-            elseif isa(value, Array)
-                for v in value
-                    renderTokens(io, token[5], writer, ctx_push(context, v), template)
-                end
-            elseif Main.isdefined(:DataFrame) && isa(value, Main.DataFrame)
-                ## iterate along row, Call one for each row
-                for i in 1:size(value)[1]
-                    renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
-                end
-            elseif isa(value, Function)
-                ## function get's passed
-                # When the value is a callable
-                # object, such as a function or lambda, the object will
-                # be invoked and passed the block of text. The text
-                # passed is the literal block, unrendered. {{tags}} will
-                # not have been expanded - the lambda should do that on
-                # its own. In this way you can implement filters or
-                # caching.
-                
-                function render(tokens)
-                    sprint(io -> renderTokens(io, tokens, writer, context, template))
-                end
 
-                out = (value())(token[5], render)
-                write(io, out)
+            renderTokensByValue(value, io, token, writer, context, template)
+            ## ##  many things based on value of value
+            ## if isa(value, Dict)
+            ##     renderTokens(io, token[5], writer, ctx_push(context, value), template)
+            ## elseif isa(value, Array)
+            ##     for v in value
+            ##         renderTokens(io, token[5], writer, ctx_push(context, v), template)
+            ##     end
+            ## elseif Main.isdefined(:DataFrame) && isa(value, Main.DataFrame)
+            ##     ## iterate along row, Call one for each row
+            ##     for i in 1:size(value)[1]
+            ##         renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
+            ##     end
+            ## elseif isa(value, Function)
+            ##     ## function get's passed
+            ##     # When the value is a callable
+            ##     # object, such as a function or lambda, the object will
+            ##     # be invoked and passed the block of text. The text
+            ##     # passed is the literal block, unrendered. {{tags}} will
+            ##     # not have been expanded - the lambda should do that on
+            ##     # its own. In this way you can implement filters or
+            ##     # caching.
+
+            ##     function render(tokens)
+            ##         sprint(io -> renderTokens(io, tokens, writer, context, template))
+            ##     end
+
+            ##     out = (value())(token[5], render)
+            ##     write(io, out)
                 
-            elseif !falsy(value)
-                renderTokens(io, token[5], writer, context, template)
-            end
+            ## elseif !falsy(value)
+            ##     renderTokens(io, token[5], writer, context, template)
+            ## end
 
         elseif token[1] == "^"
             ## display if falsy, unlike #

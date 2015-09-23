@@ -68,6 +68,7 @@ function lookup_in_view(view::Dict, key)
 end
 
 function lookup_in_view(view::Module, key)
+    
     hasmatch = false
     re = Regex("^$key\$")
     for i in names(view, true)
@@ -87,6 +88,8 @@ end
 
 Requires.@require DataFrames begin
     function lookup_in_view(view::DataFrames.DataFrame, key)
+
+        
         if ismatch(r":", key)
             key = key[2:end]
         end
@@ -102,6 +105,7 @@ end
 
 ## Default is likely not great, but we use CompositeKind
 function lookup_in_view(view, key)
+    
     nms = fieldnames(view)
     re = Regex(key)
     has_match = false
