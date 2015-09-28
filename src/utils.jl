@@ -19,10 +19,10 @@ end
 ## Falsy is true if x is false, 0 length, "", ...
 falsy(x::Bool) = !x
 falsy(x::Array) = length(x) == 0
-falsy(x::String) = x == ""
-falsy(x::Nothing) = true
+falsy(x::AbstractString) = x == ""
+falsy(x::Void) = true
 falsy(x::Real) = x == 0
-falsy(x) = false                #  default
+falsy(x) = (x == nothing) || false                #  default
 
 ## escape_html with entities
 

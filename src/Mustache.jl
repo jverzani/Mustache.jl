@@ -61,20 +61,20 @@ render(tokens::MustacheTokens; kwargs...) = sprint(io -> render(io, tokens; kwar
 ##
 ## @param template a string containing the template for expansion
 ## @param view a Dict, Module, CompositeType, DataFrame holding variables for expansion
-function render(io::IO, template::String, view)
+function render(io::IO, template::AbstractString, view)
     _writer = Writer()
     render(io, _writer, parse(template), view)
 end
-function render(io::IO, template::String; kwargs...)
+function render(io::IO, template::AbstractString; kwargs...)
     _writer = Writer()
     view = [k => v for (k,v) in kwargs]
     render(io, _writer, parse(template), view)
 end
-render(template::String, view) = sprint(io -> render(io, template, view))
-render(template::String; kwargs...) = sprint(io -> render(io, template; kwargs...))
+render(template::AbstractString, view) = sprint(io -> render(io, template, view))
+render(template::AbstractString; kwargs...) = sprint(io -> render(io, template; kwargs...))
 
 ## Dict for storing parsed templates
-TEMPLATES = Dict{String, MustacheTokens}()
+TEMPLATES = Dict{AbstractString, MustacheTokens}()
 
 ## Load template from file
 function template_from_file(filepath)
@@ -104,7 +104,7 @@ function render_from_file(filepath, view)
         end
     end
 end
-function render_from_file(filepath::String; kwargs...)
+function render_from_file(filepath::AbstractString; kwargs...)
     d = [k => v for (k,v) in kwargs]
     render_from_file(filepath, d)
 end

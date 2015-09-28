@@ -1,11 +1,11 @@
 ## Scanner
 
 type Scanner
-    string::String
-    tail::String
+    string::AbstractString
+    tail::AbstractString
     pos::Integer
 end
-Scanner(string::String) = Scanner("", string, 0)
+Scanner(string::AbstractString) = Scanner("", string, 0)
 
 
 
@@ -32,7 +32,7 @@ function scan(s::Scanner, re::Regex)
 
     m.match
 end
-scan(s::Scanner, re::String) = scan(s, Regex(re))
+scan(s::Scanner, re::AbstractString) = scan(s, Regex(re))
 scan(s::Scanner, re::Char) = scan(s, string(re))
 
 ## Skips all text until the given regular expression can be matched. Returns
@@ -54,7 +54,7 @@ function scanUntil!(s::Scanner, re::Regex)
     return(ourmatch)
 end
 
-scanUntil!(s::Scanner, re::String) = scanUntil!(s, Regex(re))
+scanUntil!(s::Scanner, re::AbstractString) = scanUntil!(s, Regex(re))
 scanUntil!(s::Scanner, re::Char) = scanUntil!(s, string(re))
 
 
