@@ -223,6 +223,20 @@ end
 
 (A string is used -- and not a `mt` macro above -- so that string interpolation can happen.)
 
+### Partials
+
+Partials are used to include partial templates into a template.
+
+Partials begin with a greater than sign, like `{{> box.tpl }}`. In this example, the file `box.tpl` is opened and inserted into the template, then populated. A full path may be specified.
+
+They also inherit the calling context. 
+
+In this way you may want to think of partials as includes, imports,
+template expansion, nested templates, or subtemplates, even though
+those aren't literally the case here.
+
+
+
 ## Alternatives
 
 `Julia` provides some alternatives to this package which are better suited for many jobs:
