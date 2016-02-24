@@ -1,5 +1,6 @@
 ## Data frame test
 ## not run by default. Too time consuming and relies on external pacakgs
+using Mustache, DataFrames
 
 glm_tpl = mt"""
 \begin{table}

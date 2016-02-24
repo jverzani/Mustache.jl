@@ -52,7 +52,21 @@ end
 
 ## Lookup value in an object by key
 ## This of course varies based on the view.
-function lookup_in_view(view::Dict, key)
+function lookup_in_view(view, key)
+    if ismatch(r"DataFrame", string(typeof(view))) ## test for data frame
+        if ismatch(r":", key)  key = key[2:end] end
+        key = symbol(key)
+        out = nothing
+        if haskey(view, key)
+            out = view[1, key] ## first element only
+        end
+        out
+    else
+        _lookup_in_view(view, key)
+    end
+end
+
+function _lookup_in_view(view::Dict, key)
 
     ## is it a symbol?
     if ismatch(r"^:", key)
@@ -67,7 +81,7 @@ function lookup_in_view(view::Dict, key)
     out
 end
 
-function lookup_in_view(view::Module, key)
+function _lookup_in_view(view::Module, key)
     
     hasmatch = false
     re = Regex("^$key\$")
@@ -86,25 +100,23 @@ function lookup_in_view(view::Module, key)
 
 end
 
-Requires.@require DataFrames begin
-    function lookup_in_view(view::DataFrames.DataFrame, key)
-
-        
-        if ismatch(r":", key)
-            key = key[2:end]
-        end
-        key = symbol(key)
-        out = nothing
-        if haskey(view, key)
-            out = view[1, key] ## first element only
-        end
-
-        out
-    end
-end
+## function _lookup_in_view(view::DataFrames.DataFrame, key)
+    
+    
+##     if ismatch(r":", key)
+##         key = key[2:end]
+##     end
+##     key = symbol(key)
+##     out = nothing
+##     if haskey(view, key)
+##         out = view[1, key] ## first element only
+##     end
+    
+##         out
+## end
 
 ## Default is likely not great, but we use CompositeKind
-function lookup_in_view(view, key)
+function _lookup_in_view(view, key)
     
     nms = fieldnames(view)
     re = Regex(key)
