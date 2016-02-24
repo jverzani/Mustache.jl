@@ -53,4 +53,4 @@ end
 
 
 ## hueristic to avoid loading DataFrames
-is_dataframe(x) = !isa(x, Dict) && ismatch(r"DataFrame", string(typeof(x)))
+is_dataframe(x) = !isa(x, Dict) && !isa(x, Module) &&!isa(x, Array) && ismatch(r"DataFrame", string(typeof(x)))
