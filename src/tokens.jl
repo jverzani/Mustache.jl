@@ -194,37 +194,45 @@ function nestTokens(tokens)
     return(tree)
 end
 
+function renderTokensByValue(value, args...)
+    if ismatch(r"DataFrame", string(typeof(value))) ## test for data frame
+        for i in 1:size(value)[1]
+            renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
+        end
+    else
+        _renderTokensByValue(value, args...)
+    end
+end
 
 ## Helper function for dispatch based on value in renderTokens
-function renderTokensByValue(value::Dict, io, token, writer, context, template)
+function _renderTokensByValue(value::Dict, io, token, writer, context, template)
     renderTokens(io, token[5], writer, ctx_push(context, value), template)
 end
 
 
-function renderTokensByValue(value::Array, io, token, writer, context, template)
+function _renderTokensByValue(value::Array, io, token, writer, context, template)
     for v in value
         renderTokens(io, token[5], writer, ctx_push(context, v), template)
     end
 end
 
-function renderTokensByValue(value::Function, io, token, writer, context, template)
+function _renderTokensByValue(value::Function, io, token, writer, context, template)
     for v in value
         renderTokens(io, token[5], writer, ctx_push(context, v), template)
     end
 end
 
-Requires.@require DataFrames begin
-    function renderTokensByValue(value::DataFrames.DataFrame, io, token, writer, context, template)
-        ## iterate along row, Call one for each row
-        for i in 1:size(value)[1]
-            renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
-        end
-    end
-end
+## ## DataFrames
+## function renderTokensByValue(value::DataFrames.DataFrame, io, token, writer, context, template)
+##     ## iterate along row, Call one for each row
+##     for i in 1:size(value)[1]
+##         renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
+##     end
+## end
 
 
 
-function renderTokensByValue(value::Function, io, token, writer, context, template)
+function _renderTokensByValue(value::Function, io, token, writer, context, template)
     ## function get's passed
     # When the value is a callable
     # object, such as a function or lambda, the object will
@@ -242,7 +250,7 @@ function renderTokensByValue(value::Function, io, token, writer, context, templa
     write(io, out)
 end
 
-function renderTokensByValue(value::Any, io, token, writer, context, template)
+function _renderTokensByValue(value::Any, io, token, writer, context, template)
     if !falsy(value)
         renderTokens(io, token[5], writer, context, template)
     end

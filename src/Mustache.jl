@@ -1,8 +1,6 @@
 VERSION >= v"0.4.0-dev+6521" && __precompile__(true)
 module Mustache
 
-# using DataFrames # Once 0.4 hits, we load DataFrames, as it will be compiled and load in 0.5secs.
-using Requires
 using Compat
 
 include("utils.jl")
