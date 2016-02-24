@@ -195,7 +195,7 @@ function nestTokens(tokens)
 end
 
 function renderTokensByValue(value, io, token, writer, context, template)
-    if ismatch(r"DataFrame", string(typeof(value))) ## test for data frame
+    if is_dataframe(value)
         for i in 1:size(value)[1]
             renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
         end
