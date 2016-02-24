@@ -53,14 +53,14 @@ end
 ## Lookup value in an object by key
 ## This of course varies based on the view.
 function lookup_in_view(view, key)
-    if ismatch(r"DataFrame", string(typeof(view))) ## test for data frame
+    if is_dataframe(view)
         if ismatch(r":", key)  key = key[2:end] end
         key = symbol(key)
         out = nothing
         if haskey(view, key)
             out = view[1, key] ## first element only
         end
-        out
+        return out
     else
         _lookup_in_view(view, key)
     end

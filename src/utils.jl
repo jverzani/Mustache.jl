@@ -51,3 +51,6 @@ function escapeTags(tags)
     Regex("\\s*" * escapeRe(tags[2]))]
 end
 
+
+## hueristic to avoid loading DataFrames
+is_dataframe(x) = !isa(x, Dict) && ismatch(r"DataFrame", string(typeof(x)))
