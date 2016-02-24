@@ -52,7 +52,7 @@ end
 
 ## Lookup value in an object by key
 ## This of course varies based on the view.
-function lookup_in_view(view, args...)
+function lookup_in_view(view, key)
     if ismatch(r"DataFrame", string(typeof(view))) ## test for data frame
         if ismatch(r":", key)  key = key[2:end] end
         key = symbol(key)
@@ -62,7 +62,7 @@ function lookup_in_view(view, args...)
         end
         out
     else
-        _lookup_in_view(view, args...)
+        _lookup_in_view(view, key)
     end
 end
 

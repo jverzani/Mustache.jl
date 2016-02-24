@@ -194,13 +194,13 @@ function nestTokens(tokens)
     return(tree)
 end
 
-function renderTokensByValue(value, args...)
+function renderTokensByValue(value, io, token, writer, context, template)
     if ismatch(r"DataFrame", string(typeof(value))) ## test for data frame
         for i in 1:size(value)[1]
             renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
         end
     else
-        _renderTokensByValue(value, args...)
+        _renderTokensByValue(value, io, token, writer, context, template)
     end
 end
 
