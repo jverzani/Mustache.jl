@@ -242,7 +242,7 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
     # its own. In this way you can implement filters or
     # caching.
     
-    function render(tokens)
+    render = (tokens) -> begin
         sprint(io -> renderTokens(io, tokens, writer, context, template))
     end
     
