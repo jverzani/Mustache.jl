@@ -216,12 +216,6 @@ function _renderTokensByValue(value::Array, io, token, writer, context, template
     end
 end
 
-function _renderTokensByValue(value::Function, io, token, writer, context, template)
-    for v in value
-        renderTokens(io, token[5], writer, ctx_push(context, v), template)
-    end
-end
-
 ## ## DataFrames
 ## function renderTokensByValue(value::DataFrames.DataFrame, io, token, writer, context, template)
 ##     ## iterate along row, Call one for each row
