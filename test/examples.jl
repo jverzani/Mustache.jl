@@ -46,7 +46,7 @@ _names = Array(String, 0)
 _summaries = Array(String, 0)
 m = Main
 for s in sort(map(string, names(m)))
-    v = symbol(s)
+    v = @compat(Symbol(s))
     if isdefined(m,v)
         push!(_names, s)
         push!(_summaries, summary(eval(m,v)))
