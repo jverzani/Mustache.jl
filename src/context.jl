@@ -52,6 +52,7 @@ end
 
 ## Lookup value in an object by key
 ## This of course varies based on the view.
+## we special case dataframes here, so that we don't have to assume package is loaded
 function lookup_in_view(view, key)
     if is_dataframe(view)
         if ismatch(r":", key)  key = key[2:end] end
@@ -100,24 +101,8 @@ function _lookup_in_view(view::Module, key)
 
 end
 
-## function _lookup_in_view(view::DataFrames.DataFrame, key)
-    
-    
-##     if ismatch(r":", key)
-##         key = key[2:end]
-##     end
-##     key = symbol(key)
-##     out = nothing
-##     if haskey(view, key)
-##         out = view[1, key] ## first element only
-##     end
-    
-##         out
-## end
-
 ## Default is likely not great, but we use CompositeKind
 function _lookup_in_view(view, key)
-    
     nms = fieldnames(view)
     re = Regex(key)
     has_match = false

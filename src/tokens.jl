@@ -266,6 +266,7 @@ function renderTokens(io, tokens, writer, context, template)
             ## or display conditionally
             value = lookup(context, tokenValue)
 
+            context = Context(value, context) # <<<
             renderTokensByValue(value, io, token, writer, context, template)
             ## ##  many things based on value of value
             ## if isa(value, Dict)
