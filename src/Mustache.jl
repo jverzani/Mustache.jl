@@ -48,7 +48,7 @@ function render(io::IO, tokens::MustacheTokens, view)
     render(io, _writer, tokens, view)
 end
 function render(io::IO, tokens::MustacheTokens; kwargs...)
-    d = [k => v for (k,v) in kwargs]
+    d = Dict(kwargs) # [k => v for (k,v) in kwargs]
     render(io, tokens, d)
 end
 
@@ -65,7 +65,7 @@ function render(io::IO, template::AbstractString, view)
 end
 function render(io::IO, template::AbstractString; kwargs...)
     _writer = Writer()
-    view = [k => v for (k,v) in kwargs]
+    view = Dict(kwargs) # [k => v for (k,v) in kwargs]
     render(io, _writer, parse(template), view)
 end
 render(template::AbstractString, view) = sprint(io -> render(io, template, view))
@@ -103,7 +103,7 @@ function render_from_file(filepath, view)
     end
 end
 function render_from_file(filepath::AbstractString; kwargs...)
-    d = [k => v for (k,v) in kwargs]
+    d = Dict(kwargs) # [k => v for (k,v) in kwargs]
     render_from_file(filepath, d)
 end
 
