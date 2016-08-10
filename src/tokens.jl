@@ -316,6 +316,15 @@ function renderTokens(io, tokens, writer, context, template)
             if isfile(fname)
                 renderTokens(io, template_from_file(fname).tokens, writer, context, template)
             end
+
+        elseif token[1] == "<"
+            ## partials without parse
+            fname = stripWhitepace(tokenValue)
+            if isfile(fname)
+                print(io, open(readall, fname))
+            else
+                warn("File $fname not found")
+            end
             
         elseif token[1] == "&"
             value = lookup(context, tokenValue)

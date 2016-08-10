@@ -5,7 +5,7 @@ nonSpaceRe = r"\S"
 eqRe = r"\s*="
 curlyRe = r"\s*\}"
 #tagRe = r"#|\^|\/|>|\{|&|=|!"
-tagRe = r"^[#^/>{&=!]"
+tagRe = r"^[#^/<>{&=!]"
 
 
 isWhitespace(x) = ismatch(whiteRe, x)

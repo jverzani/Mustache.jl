@@ -235,7 +235,7 @@ In this way you may want to think of partials as includes, imports,
 template expansion, nested templates, or subtemplates, even though
 those aren't literally the case here.
 
-
+The partial specified by `{{< box.tpl }}` is not parsed, rather included as is into the file. This can be much faster.
 
 ## Alternatives
 
