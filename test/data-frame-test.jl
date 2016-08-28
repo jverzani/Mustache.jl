@@ -22,7 +22,7 @@ function glm_table(mod)
     mat = DataFrame(variable=tbl.rownms)
     for j in 1:size(tbl.mat)[2]
         nm = "col$j"
-        mat[@compat(Symbol(nm))] = map(x -> @sprintf("%.2f", x), tbl.mat[:,j])
+        mat[Symbol(nm)] = map(x -> @sprintf("%.2f", x), tbl.mat[:,j])
     end
 
     Mustache.render(glm_tpl,Dict("colnms"=>colnms, "mat"=>mat))

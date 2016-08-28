@@ -56,7 +56,7 @@ end
 function lookup_in_view(view, key)
     if is_dataframe(view)
         if ismatch(r":", key)  key = key[2:end] end
-        key = @compat Symbol(key)
+        key = Symbol(key)
         out = nothing
         if haskey(view, key)
             out = view[1, key] ## first element only
@@ -71,7 +71,7 @@ function _lookup_in_view(view::Dict, key)
 
     ## is it a symbol?
     if ismatch(r"^:", key)
-        key = @compat Symbol(key[2:end])
+        key = Symbol(key[2:end])
     end
 
     out = nothing
@@ -95,7 +95,7 @@ function _lookup_in_view(view::Module, key)
 
     out = nothing
     if hasmatch
-        out = getfield(view, (@compat Symbol(key)))  ## view.key
+        out = getfield(view, Symbol(key))  ## view.key
     end
     out
 
@@ -115,7 +115,7 @@ function _lookup_in_view(view, key)
 
     out = nothing
     if has_match
-        out = getfield(view, (@compat Symbol(key)))  ## view.key
+        out = getfield(view, Symbol(key))  ## view.key
     end
 
     out
