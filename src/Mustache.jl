@@ -1,9 +1,7 @@
 VERSION >= v"0.4.0-dev+6521" && __precompile__(true)
 module Mustache
 
-if VERSION < v"0.5.0-dev+3831" # steal from Compat
-    Base.Symbol(args...) = symbol(args...)::Symbol
-end
+using Compat
 
 include("utils.jl")
 include("tokens.jl")
