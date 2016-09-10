@@ -76,7 +76,7 @@ TEMPLATES = Dict{AbstractString, MustacheTokens}()
 
 ## Load template from file
 function template_from_file(filepath)
-    f = open(readall, filepath)
+    f = open(readstring, filepath)
     tpl = parse(f)
 #    f = open(filepath)
 #    tpl = parse(readstring(f))
