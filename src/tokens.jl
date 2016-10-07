@@ -342,7 +342,7 @@ function renderTokens(io, tokens, writer, context, template)
             value = lookup(context, tokenValue)
             ## could generalize here. But for now, we special case Nullable values coming from data frames.
             if isa(value, Nullable)
-                value = sprint(io -> isnull(value) ? showcompact(io, value) : print(io, get(value)))
+                value = isnull(value) ? "" : get(value)
             end
             if value != nothing
                 print(io, escape_html(value))
