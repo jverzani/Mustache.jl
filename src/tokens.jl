@@ -340,8 +340,10 @@ function renderTokens(io, tokens, writer, context, template)
 
         elseif token[1] == "name"
             value = lookup(context, tokenValue)
-            if value != nothing
-                print(io, escape_html(value))
+            if isa(value, Nullable)
+                !isnull(value) && print(io, escape_html(get(value)))
+            else
+                value != nothing && print(io, escape_html(value))
             end
 
         elseif token[1] == "text"
