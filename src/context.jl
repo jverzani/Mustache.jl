@@ -43,7 +43,7 @@ function lookup(ctx::Context, key)
         ctx._cache[key] = value
     end
 
-    if is(value, Function)
+    if value === Function
         value = value()
     end
 
