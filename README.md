@@ -252,16 +252,15 @@ tpl = """
 {{^.[1]}}{{.}}{{/.[1]}}
 {{/:vec}}
 """
-render(tpl, vec = ["A1", "B2", "C3"])  # "A1, B2, C3"
+render(tpl, vec = ["A1", "B2", "C3"])  # basically "<bold>A1</bold>B2 C3"
 ```
 
 This was inspired by
 [this](http://stackoverflow.com/questions/11147373/only-show-the-first-item-in-list-using-mustache)
-question, but the syntax chosen was more Julian. This syntax-- as
-implemented for now -- does not nest. That is, it won't work with the
-outer vector in a vector of vectors, say. The parent `vec` should be a
-vector of replacement values only.
-
+question, but the syntax chosen was more Julian. This syntax -- as
+implemented for now -- does not allow for iteration. That is
+constructs like `{{#.[1]}}` don't introduce iteration, but only offer
+a conditional check.
 
 ### Partials
 
