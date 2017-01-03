@@ -223,6 +223,46 @@ end
 
 (A string is used -- and not a `mt` macro above -- so that string interpolation can happen.)
 
+### Iterating over vectors
+
+Iterating over an unnamed vector uses `{{.}}` to refer to the item:
+
+```
+tpl = "{{#:vec}}{{.}} {{/:vec}}"
+render(tpl, vec = ["A1", "B2", "C3"])  # "A1 B2 C3 "
+```
+
+Not the extra space after `C3`. There is *experimental* support for
+indexing with the iteration of a vector that allows on to work around
+this. The syntax `.[ind]` refers to the value `vec[ind]`.
+
+To print commas one can use this pattern:
+
+```
+tpl = "{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}"
+render(tpl, vec = ["A1", "B2", "C3"])  # "A1, B2, C3"
+```
+
+To put the first value in bold, but no others, say:
+
+```
+tpl = """
+{{#:vec}}
+{{#.[1]}}<bold>{{.}}</bold>{{/.[1]}}
+{{^.[1]}}{{.}}{{/.[1]}}
+{{/:vec}}
+"""
+render(tpl, vec = ["A1", "B2", "C3"])  # "A1, B2, C3"
+```
+
+This was inspired by
+[this](http://stackoverflow.com/questions/11147373/only-show-the-first-item-in-list-using-mustache)
+question, but the syntax chosen was more Julian. This syntax-- as
+implemented for now -- does not nest. That is, it won't work with the
+outer vector in a vector of vectors, say. The parent `vec` should be a
+vector of replacement values only.
+
+
 ### Partials
 
 Partials are used to include partial templates into a template.

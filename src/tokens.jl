@@ -2,6 +2,12 @@ type MustacheTokens
     tokens
 end
 
+type AnIndex
+    ind
+    value
+end
+Base.string(ind::AnIndex) = string(ind.value)
+
 ## after parsing off to squash, nest and render the tokens
 
 ## Make the intial set of tokens before squashing and nesting
@@ -94,9 +100,7 @@ function make_tokens(template, tags)
             error("Unclosed tag at " * string(scanner.pos))
         end
 
-
         token = Any[_type, value, start, scanner.pos]
-
 
         push!(tokens, token)
 
@@ -224,6 +228,23 @@ end
 ##     end
 ## end
 
+## what to do with an index value `.[ind]`?
+## We have `.[ind]` being of a leaf type (values are not pushed onto a Context) so of simple usage
+function _renderTokensByValue(value::AnIndex, io, token, writer, context, template)
+    if token[1] == "#"
+        # print if match
+        if value.value == context.view
+            renderTokens(io, token[5], writer, context, template)
+        end
+    elseif token[1] == "^"
+        # print if *not* a match
+        if value.value != context.view
+            renderTokens(io, token[5], writer, context, template)
+        end
+    else
+        renderTokens(io, token[5], writer, ctx_push(context, value.value), template)
+    end
+end
 
 
 function _renderTokensByValue(value::Function, io, token, writer, context, template)
@@ -265,8 +286,9 @@ function renderTokens(io, tokens, writer, context, template)
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
             value = lookup(context, tokenValue)
-
-            context = Context(value, context) # <<<
+            if !isa(value, AnIndex)
+                context = Context(value, context)
+            end
             renderTokensByValue(value, io, token, writer, context, template)
             ## ##  many things based on value of value
             ## if isa(value, Dict)
@@ -303,11 +325,18 @@ function renderTokens(io, tokens, writer, context, template)
 
         elseif token[1] == "^"
             ## display if falsy, unlike #
+            
             value = lookup(context, tokenValue)
 
-            if falsy(value)
-                renderTokens(io, token[5], writer, context, template)
+            if !isa(value, AnIndex)
+                context = Context(value, context)
             end
+            #context = Context(value, context) # <<<
+            renderTokensByValue(value, io, token, writer, context, template)
+            
+#            if falsy(value)
+#                renderTokens(io, token[5], writer, context, template)
+#            end
 
 
         elseif token[1] == ">"
@@ -347,7 +376,7 @@ function renderTokens(io, tokens, writer, context, template)
             end
 
         elseif token[1] == "text"
-            print(io, tokenValue)
+            print(io, string(tokenValue))
         end
 
     end

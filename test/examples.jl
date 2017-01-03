@@ -6,7 +6,7 @@ mtrender = render
 tpl = mt"the value of x is {{x}} and that of y is {{y}}"
 
 ## a dict
-out = mtrender(tpl, {"x"=>1, "y"=>2})
+out = mtrender(tpl, Dict("x"=>1, "y"=>2))
 println(out)
 
 ## A module
@@ -31,7 +31,7 @@ mtrender(tpl, Beta(1, 2))
 ## conditional text
 using Mustache
 tpl = "{{#b}}this doesn't show{{/b}}{{#a}}this does show{{/a}}"
-mtrender(tpl, {"a" => 1})
+mtrender(tpl, Dict("a" => 1))
 
 
 
@@ -54,7 +54,7 @@ for s in sort(map(string, names(m)))
 end
 
 using DataFrames
-d = DataFrame({"names" => _names, "summs" => _summaries})
+d = DataFrame(names = _names, summs = _summaries)
 
 tpl = "
 <html>
@@ -90,8 +90,8 @@ mtrender(tpl, d)
 ## array of Dicts
 using Mustache
 
-A = [{"a" => "eh", "b" => "bee"},
-     {"a" => "ah", "b" => "buh"}]
+A = [Dict("a" => "eh", "b" => "bee"),
+     Dict("a" => "ah", "b" => "buh")]
 
 ## Contrast to data frame:
 # D = DataFrame(quote
@@ -101,4 +101,13 @@ A = [{"a" => "eh", "b" => "bee"},
 
 tpl = mt"{{#A}} pronounce a as {{a}} and b as {{b}}.{{/A}}"
 
-mtrender(tpl, {"A" => A})
+mtrender(tpl, Dict("A" => A))
+
+
+## use .[ind] to index within a vector:
+
+tpl = mt"{{#:vec}}{{.[1]}}{{/:vec}}" # just first one
+mtrender(tpl, vec=["A1","B2","C3"])
+
+tpl = mt"{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}" # serial commas
+mtrender(tpl, vec=["A1","B2","C3"])
