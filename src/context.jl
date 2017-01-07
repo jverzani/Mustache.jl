@@ -1,15 +1,14 @@
 ## context
 
-
 ## A context stores objects where named values are looked up.
 type Context
-    view ## of what? a Dict, Module, CompositeKind, DataFrame
+    view ## of what? a Dict, Module, CompositeKind, DataFrame.parent.
     parent ## a context or nothing
     _cache::Dict
 end
 function Context(view, parent=nothing)
     d = Dict()
-    d["."] = view
+    d["."] = isa(view, AnIndex) ? view.value : view
     Context(view, parent, d)
 end
 
@@ -20,6 +19,7 @@ end
 
 ## Lookup value by key in the context
 function lookup(ctx::Context, key)
+    
     if haskey(ctx._cache, key)
         value = ctx._cache[key]
     else
@@ -29,13 +29,28 @@ function lookup(ctx::Context, key)
             ## does name have a .?
             if ismatch(r"\.", key)
                 ## do something with "."
-                error("Not implemented. Can use Composite Kinds in the view.")
+                ## we use .[ind] to refer to value in parent of given index;
+                m = match(r"^\.\[(.*)\]$", key)
+                m == nothing && error("Not implemented. Can use Composite Kinds in the view.")
+
+                idx = m.captures[1]
+                vals = context.parent.view
+
+                if isa(vals, Vector)
+                    if idx == "end"
+                        value = AnIndex(:end, vals[end])
+                    else
+                        ind = Base.parse(Int, idx[1:end])
+                        value = AnIndex(ind, vals[ind])
+                    end
+                    break
+                end
             else
                 ## strip leading, trailing whitespace in key
                 value = lookup_in_view(context.view, stripWhitepace(key))
             end
-
             context = context.parent
+
 
         end
 
@@ -66,6 +81,7 @@ function lookup_in_view(view, key)
         _lookup_in_view(view, key)
     end
 end
+
 
 function _lookup_in_view(view::Dict, key)
 
