@@ -20,9 +20,9 @@ function make_tokens(template, tags)
 
     scanner = Scanner(template)
 
-    sections = Array(Any,0)
-    tokens = Array(Any,0)
-    spaces = Array(Integer,0)
+    sections = @compat Array{Any}(0)
+    tokens = @compat Array{Any}(0)
+    spaces = @compat Array{Integer}(0)
     hasTag = false
     nonSpace = false
 
@@ -32,7 +32,7 @@ function make_tokens(template, tags)
                 delete!(tokens, pop!(spaces))
             end
         else
-            spaces = Array(Integer, 0)
+            spaces = @compat Array{Integer}(0)
         end
 
         hasTag = false
@@ -138,7 +138,7 @@ end
 
 ## take single character tokens and collaps into chunks
 function squashTokens(tokens)
-    squashedTokens = Array(Any, 0)
+    squashedTokens = @compat Array{Any}(0)
     lastToken = nothing
 
     for i in 1:length(tokens)
@@ -162,9 +162,9 @@ end
 ## all tokens that appear in that section and 2) the index in the original
 ## template that represents the end of that section.
 function nestTokens(tokens)
-    tree = Array(Any,0)
+    tree = @compat Array{Any}(0)
     collector = tree
-    sections = Array(Any, 0)
+    sections = @compat Array{Any}(0)
 
     for i in 1:length(tokens)
         token = tokens[i]
@@ -174,7 +174,7 @@ function nestTokens(tokens)
         if token[1] == "^" || token[1] == "#"
             push!(sections, token)
             push!(collector, token)
-            push!(token, Array(Any, 0))
+            push!(token, @compat Array{Any}(0))
             collector = token[5]
         elseif token[1] == "/"
             section = pop!(sections)
@@ -256,11 +256,11 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
     # not have been expanded - the lambda should do that on
     # its own. In this way you can implement filters or
     # caching.
-    
+
     render = (tokens) -> begin
         sprint(io -> renderTokens(io, tokens, writer, context, template))
     end
-    
+
     out = (value())(token[5], render)
     write(io, out)
 end
@@ -318,14 +318,14 @@ function renderTokens(io, tokens, writer, context, template)
 
             ##     out = (value())(token[5], render)
             ##     write(io, out)
-                
+
             ## elseif !falsy(value)
             ##     renderTokens(io, token[5], writer, context, template)
             ## end
 
         elseif token[1] == "^"
             ## display if falsy, unlike #
-            
+
             value = lookup(context, tokenValue)
 
             if !isa(value, AnIndex)
@@ -333,7 +333,7 @@ function renderTokens(io, tokens, writer, context, template)
             end
             #context = Context(value, context) # <<<
             renderTokensByValue(value, io, token, writer, context, template)
-            
+
 #            if falsy(value)
 #                renderTokens(io, token[5], writer, context, template)
 #            end
@@ -354,7 +354,7 @@ function renderTokens(io, tokens, writer, context, template)
             else
                 warn("File $fname not found")
             end
-            
+
         elseif token[1] == "&"
             value = lookup(context, tokenValue)
             if value != nothing
