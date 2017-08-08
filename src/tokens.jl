@@ -1,8 +1,8 @@
-type MustacheTokens
+mutable struct MustacheTokens
     tokens
 end
 
-type AnIndex
+mutable struct AnIndex
     ind
     value
 end
@@ -15,7 +15,7 @@ function make_tokens(template, tags)
 
 
     tags = ["{{", "}}"]         # we hard code tags!
-    tagRes = ["\{\{", "\}\}"]   # escaped to be regular expressions
+    tagRes = [r"{{", r"}}"]   # escaped to be regular expressions
 
 
     scanner = Scanner(template)

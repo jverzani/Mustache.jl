@@ -5,7 +5,7 @@ tpl = mt"a:{{x}} b:{{{y}}}"
 
 x, y = "ex", "why"
 d = Dict("x"=>"ex", "y"=>"why")
-type ThrowAway
+mutable struct ThrowAway
     x
     y
 end
@@ -58,8 +58,8 @@ tpl = mt"""{{#wrapped}}
 
 d = Dict()
 d["name"] =  "Willy"
-d["wrapped"] = function() 
-    function(text, render) 
+d["wrapped"] = function()
+    function(text, render)
         "<b>" * render(text) * "</b>"
     end
     end

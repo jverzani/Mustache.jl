@@ -1,6 +1,6 @@
 ## writer
 
-type Writer
+mutable struct Writer
     _cache::Dict
     _partialCache::Dict
     _loadPartial ## Function or nothing
@@ -52,4 +52,3 @@ function render(io::IO, w::Writer, template, view)
     f = compile(io, w, template, ["{{", "}}"])
     f(w, view)
 end
-

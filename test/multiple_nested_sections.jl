@@ -29,11 +29,11 @@ test_func = () -> render(failing_template,
 
 
 ## issue #31 -- nested sections
-type Location
+mutable struct Location
   lat::Float64
   lon::Float64
 end
-type Thing
+mutable struct Thing
   location::Location
   name::AbstractString
 end

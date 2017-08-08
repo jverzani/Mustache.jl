@@ -14,7 +14,7 @@ x = 1; y = "two"
 mtrender(tpl, Main)
 
 ## a CompositeKind
-type ThrowAway
+mutable struct ThrowAway
     x
     y
 end

@@ -1,7 +1,7 @@
 ## context
 
 ## A context stores objects where named values are looked up.
-type Context
+mutable struct Context
     view ## of what? a Dict, Module, CompositeKind, DataFrame.parent.
     parent ## a context or nothing
     _cache::Dict
@@ -19,7 +19,7 @@ end
 
 ## Lookup value by key in the context
 function lookup(ctx::Context, key)
-    
+
     if haskey(ctx._cache, key)
         value = ctx._cache[key]
     else
@@ -99,7 +99,7 @@ function _lookup_in_view(view::Dict, key)
 end
 
 function _lookup_in_view(view::Module, key)
-    
+
     hasmatch = false
     re = Regex("^$key\$")
     for i in names(view, true)
@@ -119,7 +119,7 @@ end
 
 ## Default is likely not great, but we use CompositeKind
 function _lookup_in_view(view, key)
-    nms = fieldnames(view)
+    nms = fieldnames(typeof(view))
     re = Regex(key)
     has_match = false
     for i in nms
@@ -136,4 +136,3 @@ function _lookup_in_view(view, key)
 
     out
 end
-

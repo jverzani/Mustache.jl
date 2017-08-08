@@ -1,6 +1,6 @@
 ## Scanner
 
-type Scanner
+mutable struct Scanner
     string::AbstractString
     tail::AbstractString
     pos::Integer
@@ -56,6 +56,3 @@ end
 
 scanUntil!(s::Scanner, re::AbstractString) = scanUntil!(s, Regex(re))
 scanUntil!(s::Scanner, re::Char) = scanUntil!(s, string(re))
-
-
-
