@@ -15,7 +15,7 @@ function make_tokens(template, tags)
 
 
     tags = ["{{", "}}"]         # we hard code tags!
-    tagRes = [r"{{", r"}}"]   # escaped to be regular expressions
+    tagRes = [r"{{", r"}}"]
 
 
     scanner = Scanner(template)
