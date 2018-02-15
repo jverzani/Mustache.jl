@@ -19,7 +19,7 @@ This package ports over most of the [mustache.js](https://github.com/janl/mustac
 Following the main [documentation](http://mustache.github.io/mustache.5.html) for `Mustache.js` we have a "typical Mustache template" defined by:
 
 
-```
+```julia
 using Mustache
 
 tpl = mt"""
@@ -33,7 +33,7 @@ Well, {{taxed_value}} dollars, after taxes.
 
 The values with braces (mustaches on their side) are looked up in a view, such as a dictionary or module. For example,
 
-```
+```julia
 d = Dict()
 d["name"] = "Chris"
 d["value"] = 10000
@@ -70,7 +70,7 @@ the template. The above example used a dictionary. A Module may also
 be used, such as `Main`:
 
 
-```
+```julia
 name, value, taxed_value, in_ca = "Christine", 10000, 10000 - (10000 * 0.4), false
 render(tpl, Main) |> print
 ```
@@ -86,7 +86,7 @@ You have just won 10000 dollars!
 Further, keyword
 arguments can be used when the variables in the templates are symbols:
 
-```
+```julia
 goes_together = mt"{{{:x}}} and {{{:y}}}."
 render(goes_together, x="Salt", y="pepper")
 render(goes_together, x="Bread", y="butter")
@@ -94,7 +94,7 @@ render(goes_together, x="Bread", y="butter")
 
 As well, one can use Composite Kinds. This may make writing `show` methods easier:
 
-```
+```julia
 using Distributions
 tpl = "Beta distribution with alpha={{α}}, beta={{β}}"
 render(tpl, Beta(1, 2))
@@ -144,7 +144,7 @@ dictionaries. The special variable `{{.}}` can be used to iterate over non-named
 For data frames the variable names are specified as
 symbols or strings. Here is a template for making a web page:
 
-```
+```julia
 tpl = mt"""
 <html>
 <head>
@@ -162,12 +162,12 @@ tpl = mt"""
 ```
 This can be used to generate a web page for `whos`-like values:
 
-```
-_names = Array(String, 0)
-_summaries = Array(String, 0)
+```julia
+_names = Array{String}(0)
+_summaries = Array{String}(0)
 m = Main
 for s in sort(map(string, names(m)))
-    v = symbol(s)
+    v = Symbol(s)
     if isdefined(m,v)
         push!(_names, s)
         push!(_summaries, summary(eval(m,v)))
@@ -184,9 +184,9 @@ print(out)
 
 This can be compared to using an array of `Dict`s, convenient if you have data by the row:
 
-```
-A = [{"a" => "eh", "b" => "bee"},
-     {"a" => "ah", "b" => "buh"}]
+```julia
+A = [Dict("a" => "eh", "b" => "bee"),
+     Dict("a" => "ah", "b" => "buh")]
 tpl = mt"{{#:A}}Pronounce a as {{a}} and b as {{b}}. {{/:A}}"
 render(tpl, A=A) |> print
 ```
@@ -199,7 +199,7 @@ Pronounce a as eh and b as bee. Pronounce a as ah and b as buh.
 
 The same approach can be made to make a LaTeX table from a data frame:
 
-```
+```julia
 
 function df_to_table(df, label="label", caption="caption")
 	fmt = repeat("c", length(df))
@@ -226,7 +226,7 @@ end
 
 Iterating over an unnamed vector uses `{{.}}` to refer to the item:
 
-```
+```julia
 tpl = "{{#:vec}}{{.}} {{/:vec}}"
 render(tpl, vec = ["A1", "B2", "C3"])  # "A1 B2 C3 "
 ```
@@ -237,14 +237,14 @@ this. The syntax `.[ind]` refers to the value `vec[ind]`.
 
 To print commas one can use this pattern:
 
-```
+```julia
 tpl = "{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}"
 render(tpl, vec = ["A1", "B2", "C3"])  # "A1, B2, C3"
 ```
 
 To put the first value in bold, but no others, say:
 
-```
+```julia
 tpl = """
 {{#:vec}}
 {{#.[1]}}<bold>{{.}}</bold>{{/.[1]}}
