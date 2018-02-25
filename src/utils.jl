@@ -18,7 +18,7 @@ end
 ## this is for falsy value
 ## Falsy is true if x is false, 0 length, "", ...
 falsy(x::Bool) = !x
-falsy(x::Array) = length(x) == 0
+falsy(x::Array) = isempty(x)
 falsy(x::AbstractString) = x == ""
 falsy(x::Void) = true
 falsy(x::Real) = x == 0
