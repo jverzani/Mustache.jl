@@ -215,8 +215,12 @@ end
 
 
 function _renderTokensByValue(value::Array, io, token, writer, context, template)
-    for v in value
-        renderTokens(io, token[5], writer, ctx_push(context, v), template)
+    if falsy(value)
+        renderTokens(io, token[5], writer, ctx_push(context, ""), template)
+    else
+        for v in value
+            renderTokens(io, token[5], writer, ctx_push(context, v), template)
+        end
     end
 end
 
@@ -325,12 +329,11 @@ function renderTokens(io, tokens, writer, context, template)
 
         elseif token[1] == "^"
             ## display if falsy, unlike #
-
             value = lookup(context, tokenValue)
-
             if !isa(value, AnIndex)
                 context = Context(value, context)
             end
+
             #context = Context(value, context) # <<<
             renderTokensByValue(value, io, token, writer, context, template)
 
