@@ -20,7 +20,7 @@ end
 falsy(x::Bool) = !x
 falsy(x::Array) = length(x) == 0
 falsy(x::AbstractString) = x == ""
-falsy(x::Void) = true
+falsy(x::Nothing) = true
 falsy(x::Real) = x == 0
 falsy(x) = (x == nothing) || false                #  default
 
