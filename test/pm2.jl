@@ -73,4 +73,3 @@ d = Dict(); d["x"] = "salt"; d["y"] = "pepper"
 
 ## issue #51 inverted section
 @test Mustache.render("""{{^repos}}No repos :({{/repos}}""", Dict("repos" => [])) == "No repos :("    
-@test Mustache.render("{{^repos}}foo{{/repos}}",Dict("repos" => [Dict("name" => "repo name")])) == ""
