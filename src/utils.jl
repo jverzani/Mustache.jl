@@ -8,10 +8,10 @@ curlyRe = r"\s*\}"
 tagRe = r"^[#^/<>{&=!]"
 
 
-isWhitespace(x) = ismatch(whiteRe, x)
+isWhitespace(x) = occursin(whiteRe, x)
 function stripWhitepace(x)
-    y = replace(x, r"^\s+", "")
-    replace(y, r"\s+$", "")
+    y = replace(x, r"^\s+" => "")
+    replace(y, r"\s+$" => "")
 end
 
 
@@ -36,14 +36,14 @@ entityMap = [("&", "&amp;"),
 function escape_html(x)
     y = string(x)
     for (k,v) in entityMap
-        y = replace(y, k, v)
+        y = replace(y, k => v)
     end
     y
 end
 
 ## Make these work
 function escapeRe(string)
-    replace(string, r"[\-\[\]{}()*+?.,\\\^$|#\s]", "\\\$&");
+    replace(string, r"[\-\[\]{}()*+?.,\\\^$|#\s]" => "\\\$&");
 end
 
 function escapeTags(tags)
@@ -53,4 +53,4 @@ end
 
 
 ## hueristic to avoid loading DataFrames
-is_dataframe(x) = !isa(x, Dict) && !isa(x, Module) &&!isa(x, Array) && ismatch(r"DataFrame", string(typeof(x)))
+is_dataframe(x) = !isa(x, Dict) && !isa(x, Module) &&!isa(x, Array) && occursin(r"DataFrame", string(typeof(x)))

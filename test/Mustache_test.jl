@@ -1,5 +1,6 @@
 using Mustache
-using Base.Test
+using Compat
+using Compat.Test
 
 tpl = mt"a:{{x}} b:{{{y}}}"
 
