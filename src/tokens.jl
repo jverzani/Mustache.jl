@@ -20,9 +20,9 @@ function make_tokens(template, tags)
 
     scanner = Scanner(template)
 
-    sections = @compat Array{Any}(0)
-    tokens = @compat Array{Any}(0)
-    spaces = @compat Array{Integer}(0)
+    sections = Array{Any}(undef,0)
+    tokens = Array{Any}(undef, 0)
+    spaces = Array{Integer}(undef, 0)
     hasTag = false
     nonSpace = false
 
@@ -32,7 +32,7 @@ function make_tokens(template, tags)
                 delete!(tokens, pop!(spaces))
             end
         else
-            spaces = @compat Array{Integer}(0)
+            spaces = Array{Integer}(undef,0)
         end
 
         hasTag = false
@@ -55,8 +55,8 @@ function make_tokens(template, tags)
                     nonSpace = true
                 end
 
-                push!(tokens, Any["text", chr, start, start + endof(chr)])
-                start += endof(chr)
+                push!(tokens, Any["text", chr, start, start + lastindex(chr)])
+                start += lastindex(chr)
 
                 if chr == "\n"
                     #stripSpace(hasTag, nonSpace)
@@ -138,7 +138,7 @@ end
 
 ## take single character tokens and collaps into chunks
 function squashTokens(tokens)
-    squashedTokens = @compat Array{Any}(0)
+    squashedTokens = Array{Any}(undef, 0)
     lastToken = nothing
 
     for i in 1:length(tokens)
@@ -162,9 +162,9 @@ end
 ## all tokens that appear in that section and 2) the index in the original
 ## template that represents the end of that section.
 function nestTokens(tokens)
-    tree = @compat Array{Any}(0)
+    tree = Array{Any}(undef, 0)
     collector = tree
-    sections = @compat Array{Any}(0)
+    sections = Array{Any}(undef, 0)
 
     for i in 1:length(tokens)
         token = tokens[i]
@@ -174,7 +174,7 @@ function nestTokens(tokens)
         if token[1] == "^" || token[1] == "#"
             push!(sections, token)
             push!(collector, token)
-            push!(token, @compat Array{Any}(0))
+            push!(token, Array{Any}(undef, 0))
             collector = token[5]
         elseif token[1] == "/"
             section = pop!(sections)
@@ -372,11 +372,10 @@ function renderTokens(io, tokens, writer, context, template)
 
         elseif token[1] == "name"
             value = lookup(context, tokenValue)
-            if isa(value, Nullable)
-                !isnull(value) && print(io, escape_html(get(value)))
-            else
-                value != nothing && print(io, escape_html(value))
-            end
+            # we had Nullable field support here, but this is dropped
+            # in v"0.7.0" in favor of Union{T, Nothing} so we check for nothing
+            # we could add a check for Missing too
+            value != nothing && print(io, escape_html(value))
 
         elseif token[1] == "text"
             print(io, string(tokenValue))

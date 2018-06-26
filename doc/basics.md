@@ -92,7 +92,7 @@ render(tpl, {"a" => d}) | print
 The variable lookup happens within the specified view. The default view is `Main`. One can specify a Dict or a CompositeType as well. For iterable objects, an array can be used.
 
 ```julia
-type ThrowAway
+mutable struct ThrowAway
   x
   y
 end

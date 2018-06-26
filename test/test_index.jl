@@ -1,5 +1,6 @@
 ## Experimental syntax for indexing within vectors:
-using Base.Test
+using Compat
+using Compat.Test
 
 ## use # to include
 tpl = mt"{{#:vec}}{{#.[1]}}{{.}}{{/.[1]}}{{/:vec}}"

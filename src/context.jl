@@ -27,7 +27,7 @@ function lookup(ctx::Context, key)
         value = nothing
         while value == nothing && context != nothing
             ## does name have a .?
-            if ismatch(r"\.", key)
+            if occursin(r"\.", key)
                 ## do something with "."
                 ## we use .[ind] to refer to value in parent of given index;
                 m = match(r"^\.\[(.*)\]$", key)
@@ -70,7 +70,7 @@ end
 ## we special case dataframes here, so that we don't have to assume package is loaded
 function lookup_in_view(view, key)
     if is_dataframe(view)
-        if ismatch(r":", key)  key = key[2:end] end
+        if occursin(r":", key)  key = key[2:end] end
         key = Symbol(key)
         out = nothing
         if haskey(view, key)
@@ -86,7 +86,7 @@ end
 function _lookup_in_view(view::Dict, key)
 
     ## is it a symbol?
-    if ismatch(r"^:", key)
+    if occursin(r"^:", key)
         key = Symbol(key[2:end])
     end
 
@@ -102,8 +102,8 @@ function _lookup_in_view(view::Module, key)
 
     hasmatch = false
     re = Regex("^$key\$")
-    for i in names(view, true)
-        if ismatch(re, string(i))
+    for i in names(view, all=true)
+        if occursin(re, string(i))
             hasmatch = true
             break
         end
@@ -123,7 +123,7 @@ function _lookup_in_view(view, key)
     re = Regex(key)
     has_match = false
     for i in nms
-        if ismatch(Regex(key), string(i))
+        if occursin(Regex(key), string(i))
             has_match=true
             break
         end
