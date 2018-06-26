@@ -372,11 +372,10 @@ function renderTokens(io, tokens, writer, context, template)
 
         elseif token[1] == "name"
             value = lookup(context, tokenValue)
-            if isa(value, Missing)
-                !ismissing(value) && print(io, escape_html(get(value)))
-            else
-                value != nothing && print(io, escape_html(value))
-            end
+            # we had Nullable field support here, but this is dropped
+            # in v"0.7.0" in favor of Union{T, Nothing} so we check for nothing
+            # we could add a check for Missing too
+            value != nothing && print(io, escape_html(value))
 
         elseif token[1] == "text"
             print(io, string(tokenValue))
