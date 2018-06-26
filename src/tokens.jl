@@ -20,9 +20,9 @@ function make_tokens(template, tags)
 
     scanner = Scanner(template)
 
-    sections = @compat Array{Any}(undef,0)
-    tokens = @compat Array{Any}(undef, 0)
-    spaces = @compat Array{Integer}(undef, 0)
+    sections = Array{Any}(undef,0)
+    tokens = Array{Any}(undef, 0)
+    spaces = Array{Integer}(undef, 0)
     hasTag = false
     nonSpace = false
 
@@ -32,7 +32,7 @@ function make_tokens(template, tags)
                 delete!(tokens, pop!(spaces))
             end
         else
-            spaces = @compat Array{Integer}(undef,0)
+            spaces = Array{Integer}(undef,0)
         end
 
         hasTag = false
@@ -138,7 +138,7 @@ end
 
 ## take single character tokens and collaps into chunks
 function squashTokens(tokens)
-    squashedTokens = @compat Array{Any}(undef, 0)
+    squashedTokens = Array{Any}(undef, 0)
     lastToken = nothing
 
     for i in 1:length(tokens)
@@ -162,9 +162,9 @@ end
 ## all tokens that appear in that section and 2) the index in the original
 ## template that represents the end of that section.
 function nestTokens(tokens)
-    tree = @compat Array{Any}(undef, 0)
+    tree = Array{Any}(undef, 0)
     collector = tree
-    sections = @compat Array{Any}(undef, 0)
+    sections = Array{Any}(undef, 0)
 
     for i in 1:length(tokens)
         token = tokens[i]
@@ -174,7 +174,7 @@ function nestTokens(tokens)
         if token[1] == "^" || token[1] == "#"
             push!(sections, token)
             push!(collector, token)
-            push!(token, @compat Array{Any}(undef, 0))
+            push!(token, Array{Any}(undef, 0))
             collector = token[5]
         elseif token[1] == "/"
             section = pop!(sections)
