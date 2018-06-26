@@ -1,7 +1,6 @@
 __precompile__(true)
 module Mustache
 
-VERSION <= v"0.6.3" && using Missings
 import Compat: @compat, lastindex, occursin, replace, names, Nothing, undef
 
 include("utils.jl")
