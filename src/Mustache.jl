@@ -1,7 +1,7 @@
 VERSION < v"0.7.0-beta2.199" && __precompile__()
 module Mustache
 
-import Compat: @compat, lastindex, occursin, replace, names, Nothing, undef
+#import Compat: @compat, lastindex, occursin, replace, names, Nothing, undef
 
 include("utils.jl")
 include("tokens.jl")
