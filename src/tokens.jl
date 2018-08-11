@@ -353,7 +353,7 @@ function renderTokens(io, tokens, writer, context, template)
             ## partials without parse
             fname = stripWhitepace(tokenValue)
             if isfile(fname)
-                print(io, open(readstring, fname))
+                print(io, open(x -> read(x, String), fname))
             else
                 warn("File $fname not found")
             end
