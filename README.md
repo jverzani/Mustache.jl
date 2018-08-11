@@ -1,6 +1,7 @@
 # Mustache
 
 [![Mustache](http://pkg.julialang.org/badges/Mustache_0.6.svg)](http://pkg.julialang.org/?pkg=Mustache)
+[![Mustache](http://pkg.julialang.org/badges/Mustache_0.7.svg)](http://pkg.julialang.org/?pkg=Mustache)
 
 Linux: [![Build Status](https://travis-ci.org/jverzani/Mustache.jl.svg?branch=master)](https://travis-ci.org/jverzani/Mustache.jl)
 &nbsp;
