@@ -204,7 +204,10 @@ function renderTokensByValue(value, io, token, writer, context, template)
             renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
         end
     else
-        _renderTokensByValue(value, io, token, writer, context, template)
+        inverted = token[1] == "^"
+        if (inverted && falsy(value)) || !falsy(value)
+            _renderTokensByValue(value, io, token, writer, context, template)
+        end
     end
 end
 
@@ -215,9 +218,10 @@ end
 
 
 function _renderTokensByValue(value::Array, io, token, writer, context, template)
-    if falsy(value)
-        renderTokens(io, token[5], writer, ctx_push(context, ""), template)
-    else
+   inverted = token[1] == "^"
+   if (inverted && falsy(value))
+       renderTokens(io, token[5], writer, ctx_push(context, ""), template)
+   else
         for v in value
             renderTokens(io, token[5], writer, ctx_push(context, v), template)
         end
@@ -270,7 +274,8 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
 end
 
 function _renderTokensByValue(value::Any, io, token, writer, context, template)
-    if !falsy(value)
+    inverted = token[1] == "^"
+    if (inverted && falsy(value)) || !falsy(value)
         renderTokens(io, token[5], writer, context, template)
     end
 end
@@ -328,6 +333,7 @@ function renderTokens(io, tokens, writer, context, template)
             ## end
 
         elseif token[1] == "^"
+            
             ## display if falsy, unlike #
             value = lookup(context, tokenValue)
             if !isa(value, AnIndex)
