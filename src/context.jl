@@ -17,6 +17,19 @@ function ctx_push(ctx::Context, view)
     Context(view, ctx) ## add context as a parent
 end
 
+# we have some rules here
+# * Each part of a dotted name should resolve only against its parent.
+# * Any falsey value prior to the last part of the name should yield ''. 
+# * The first part of a dotted name should resolve as any other name.
+function lookup_dotted(ctx::Context, dotted)
+    for key in split(dotted, ".")
+        nctx = lookup(Context(ctx.view), key)
+        falsy(nctx) && return nothing
+        ctx = Context(nctx, ctx)
+    end
+    ctx.view
+end
+
 ## Lookup value by key in the context
 function lookup(ctx::Context, key)
 
@@ -28,10 +41,15 @@ function lookup(ctx::Context, key)
         while value == nothing && context != nothing
             ## does name have a .?
             if occursin(r"\.", key)
+
+                value = lookup_dotted(context, key)
+                value != nothing && break
+                
                 ## do something with "."
                 ## we use .[ind] to refer to value in parent of given index;
                 m = match(r"^\.\[(.*)\]$", key)
-                m == nothing && error("Not implemented. Can use Composite Kinds in the view.")
+                m == nothing && break
+#                m == nothing && error("Not implemented. Can use Composite Kinds in the view.")
 
                 idx = m.captures[1]
                 vals = context.parent.view
@@ -47,7 +65,7 @@ function lookup(ctx::Context, key)
                 end
             else
                 ## strip leading, trailing whitespace in key
-                value = lookup_in_view(context.view, stripWhitepace(key))
+                value = lookup_in_view(context.view, stripWhitespace(key))
             end
             context = context.parent
 
