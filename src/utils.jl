@@ -9,7 +9,7 @@ tagRe = r"^[#^/<>{&=!]"
 
 
 isWhitespace(x) = occursin(whiteRe, x)
-function stripWhitepace(x)
+function stripWhitespace(x)
     y = replace(x, r"^\s+" => "")
     replace(y, r"\s+$" => "")
 end

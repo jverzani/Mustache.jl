@@ -66,17 +66,17 @@ tpl = """[{{^missing}}Cannot find key 'missing'!{{/missing}}]"""
 	## Dotted names should be valid for Inverted Section tags.
 tpl = """\"{{^a.b.c}}Not Here{{/a.b.c}}\" == \"\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>true)))) == """\"\" == \"\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>true)))) == """\"\" == \"\""""
 
 	## Dotted names should be valid for Inverted Section tags.
 tpl = """\"{{^a.b.c}}Not Here{{/a.b.c}}\" == \"Not Here\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>false)))) == """\"Not Here\" == \"Not Here\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>false)))) == """\"Not Here\" == \"Not Here\""""
 
 	## Dotted names that cannot be resolved should be considered falsey.
 tpl = """\"{{^a.b.c}}Not Here{{/a.b.c}}\" == \"Not Here\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}())) == """\"Not Here\" == \"Not Here\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}())) == """\"Not Here\" == \"Not Here\""""
 
 	## Inverted sections should not alter surrounding whitespace.
 tpl = """ | {{^boolean}}	|	{{/boolean}} | 

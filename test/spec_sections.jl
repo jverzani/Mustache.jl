@@ -117,17 +117,17 @@ tpl = """\"{{#list}}({{.}}){{/list}}\""""
 	## Dotted names should be valid for Section tags.
 tpl = """\"{{#a.b.c}}Here{{/a.b.c}}\" == \"Here\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>true)))) == """\"Here\" == \"Here\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>true)))) == """\"Here\" == \"Here\""""
 
 	## Dotted names should be valid for Section tags.
 tpl = """\"{{#a.b.c}}Here{{/a.b.c}}\" == \"\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>false)))) == """\"\" == \"\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>false)))) == """\"\" == \"\""""
 
 	## Dotted names that cannot be resolved should be considered falsey.
 tpl = """\"{{#a.b.c}}Here{{/a.b.c}}\" == \"\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}())) == """\"\" == \"\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}())) == """\"\" == \"\""""
 
 	## Sections should not alter surrounding whitespace.
 tpl = """ | {{#boolean}}	|	{{/boolean}} | 

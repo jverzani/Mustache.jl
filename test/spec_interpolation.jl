@@ -88,42 +88,42 @@ tpl = """I ({{&cannot}}) be seen!"""
 	## Dotted names should be considered a form of shorthand for sections.
 tpl = """\"{{person.name}}\" == \"{{#person}}{{name}}{{/person}}\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("person"=>Dict{Any,Any}("name"=>"Joe"))) == """\"Joe\" == \"Joe\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("person"=>Dict{Any,Any}("name"=>"Joe"))) == """\"Joe\" == \"Joe\""""
 
 	## Dotted names should be considered a form of shorthand for sections.
 tpl = """\"{{{person.name}}}\" == \"{{#person}}{{{name}}}{{/person}}\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("person"=>Dict{Any,Any}("name"=>"Joe"))) == """\"Joe\" == \"Joe\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("person"=>Dict{Any,Any}("name"=>"Joe"))) == """\"Joe\" == \"Joe\""""
 
 	## Dotted names should be considered a form of shorthand for sections.
 tpl = """\"{{&person.name}}\" == \"{{#person}}{{&name}}{{/person}}\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("person"=>Dict{Any,Any}("name"=>"Joe"))) == """\"Joe\" == \"Joe\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("person"=>Dict{Any,Any}("name"=>"Joe"))) == """\"Joe\" == \"Joe\""""
 
 	## Dotted names should be functional to any level of nesting.
 tpl = """\"{{a.b.c.d.e.name}}\" == \"Phil\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>Dict{Any,Any}("d"=>Dict{Any,Any}("e"=>Dict{Any,Any}("name"=>"Phil"))))))) == """\"Phil\" == \"Phil\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>Dict{Any,Any}("d"=>Dict{Any,Any}("e"=>Dict{Any,Any}("name"=>"Phil"))))))) == """\"Phil\" == \"Phil\""""
 
 	## Any falsey value prior to the last part of the name should yield ''.
 tpl = """\"{{a.b.c}}\" == \"\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}())) == """\"\" == \"\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}())) == """\"\" == \"\""""
 
 	## Each part of a dotted name should resolve only against its parent.
 tpl = """\"{{a.b.c.name}}\" == \"\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("c"=>Dict{Any,Any}("name"=>"Jim"),"a"=>Dict{Any,Any}("b"=>Dict{Any,Any}()))) == """\"\" == \"\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("c"=>Dict{Any,Any}("name"=>"Jim"),"a"=>Dict{Any,Any}("b"=>Dict{Any,Any}()))) == """\"\" == \"\""""
 
 	## The first part of a dotted name should resolve as any other name.
 tpl = """\"{{#a}}{{b.c.d.e.name}}{{/a}}\" == \"Phil\""""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>Dict{Any,Any}("d"=>Dict{Any,Any}("e"=>Dict{Any,Any}("name"=>"Wrong")))),"a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>Dict{Any,Any}("d"=>Dict{Any,Any}("e"=>Dict{Any,Any}("name"=>"Phil"))))))) == """\"Phil\" == \"Phil\""""
+	@test Mustache.render(tpl, Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>Dict{Any,Any}("d"=>Dict{Any,Any}("e"=>Dict{Any,Any}("name"=>"Wrong")))),"a"=>Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>Dict{Any,Any}("d"=>Dict{Any,Any}("e"=>Dict{Any,Any}("name"=>"Phil"))))))) == """\"Phil\" == \"Phil\""""
 
 	## Dotted names should be resolved against former resolutions.
 tpl = """{{#a}}{{b.c}}{{/a}}"""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>"ERROR"),"a"=>Dict{Any,Any}("b"=>Dict{Any,Any}()))) == """"""
+	@test Mustache.render(tpl, Dict{Any,Any}("b"=>Dict{Any,Any}("c"=>"ERROR"),"a"=>Dict{Any,Any}("b"=>Dict{Any,Any}()))) == """"""
 
 	## Interpolation should not alter surrounding whitespace.
 tpl = """| {{string}} |"""

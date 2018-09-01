@@ -350,14 +350,14 @@ function renderTokens(io, tokens, writer, context, template)
 
         elseif token[1] == ">"
             ## partials
-            fname = stripWhitepace(tokenValue)
+            fname = stripWhitespace(tokenValue)
             if isfile(fname)
                 renderTokens(io, template_from_file(fname).tokens, writer, context, template)
             end
 
         elseif token[1] == "<"
             ## partials without parse
-            fname = stripWhitepace(tokenValue)
+            fname = stripWhitespace(tokenValue)
             if isfile(fname)
                 print(io, open(x -> read(x, String), fname))
             else
