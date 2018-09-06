@@ -54,13 +54,15 @@ function lookup(ctx::Context, key)
                 idx = m.captures[1]
                 vals = context.parent.view
 
-                if isa(vals, Vector)
-                    if idx == "end"
-                        value = AnIndex(-1, vals[end])
-                    else
-                        ind = Base.parse(Int, idx[1:end])
-                        value = AnIndex(ind, vals[ind])
-                    end
+                # this has limited support for indices: "end", or a number, but no
+                # arithmetic, such as `end-1`.
+                if isa(vals, Vector) # supports getindex(v, i)?
+                   if idx == "end"
+                       value = AnIndex(-1, vals[end])
+                   else
+                       ind = Base.parse(Int, idx) 
+                       value = AnIndex(ind, vals[ind])
+                   end
                     break
                 end
             else

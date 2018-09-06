@@ -45,8 +45,6 @@ mutable struct AnIndex
 end
 Base.string(ind::AnIndex) = string(ind.value)
 
-## after parsing off to squash, nest and render the tokens
-
 ## Make the intial set of tokens before nesting
 function make_tokens(template, tags)
 
@@ -114,7 +112,8 @@ function make_tokens(template, tags)
         ## is the tag "standalone?
         ## standalone comments get special treatment
         ## here we identify if a tag is standalone
-        ## This is *alot* of work for this task
+        ## This is *alot* of work for this task.
+        ## XXX Speed this up
         ls, rs = false, false
         first_line = first_line &&  !occursin(r"\n", text_value)
         last_line = !occursin(r"\n", scanner.tail)
@@ -138,12 +137,10 @@ function make_tokens(template, tags)
         end
         standalone = ls && rs
 
-
-        ##println((standalone, ls, rs, _type, text_value, scanner.tail, token_value))
         
         # remove \n and space for standalone tags
         still_first_line = false
-        if standalone && _type in ("!", "^", "/", "#", ">")
+        if standalone && _type in ("!", "^", "/", "#", ">", "|")
             if first_line
                 text_value = replace(text_value, r"^ *" => "")
             else
@@ -170,17 +167,17 @@ function make_tokens(template, tags)
 
 
         # account for matching/nested sections
-        if _type == "#" || _type == "^"
+        if _type == "#" || _type == "^" || _type ==  "|"
             push!(sections, token_token)
         elseif _type == "/"
             ## section nestinng
             if length(sections) == 0
-                error("Unopened section $value at $start")
+                error("Unopened section $token_value at $token_start")
             end
 
             openSection = pop!(sections)
             if openSection.value != token_value
-                error("Unclosed section" * openSection.value * " at $start")
+                error("Unclosed section" * openSection.value * " at $token_start")
             end
 
         elseif _type == "name" || _type == "{" || _type == "&"
@@ -219,7 +216,7 @@ function nestTokens(tokens)
         ## a {{#name}}...{{/name}} will iterate over name
         ## a {{^name}}...{{/name}} does ... if we have no name
         ## start nesting
-        if token._type == "^" || token._type == "#"
+        if token._type == "^" || token._type == "#" || token._type == "|"
             push!(sections, token)
             push!(collector, token)
             token.collector = Array{Any}(undef, 0)
@@ -248,11 +245,15 @@ end
 
 _toString(::Val{:name}, token) = "{{$(token.value)}}"
 _toString(::Val{:text}, token) = token.value
+_toString(::Val{Symbol("#")}, token) = "{{#$(token.value)}}"
+_toString(::Val{Symbol("^")}, token) = "{{^$(token.value)}}"
+_toString(::Val{Symbol("|")}, token) = "{{|$(token.value)}}"
+_toString(::Val{Symbol("/")}, token) = "{{/$(token.value)}}"
+_toString(::Val{Symbol(">")}, token) = "{{>$(token.value)}}"
+_toString(::Val{Symbol("<")}, token) = "{{<$(token.value)}}"
 _toString(::Val{Symbol("=")}, token) = ""
 _toString(::Val{Symbol("{")}, token) = "{{{{$(token.value)}}}"
-_toString(::Val{Symbol("^")}, token) = "{{^$(token.value)}}"
-_toString(::Val{Symbol("#")}, token) = "{{#$(token.value)}}"
-_toString(::Val{Symbol("/")}, token) = "{{/$(token.value)}}"
+_toString(::Val{Symbol("&")}, token) = "{{{&$(token.value)}}"
 
           
           
@@ -299,7 +300,8 @@ end
 ## what to do with an index value `.[ind]`?
 ## We have `.[ind]` being of a leaf type (values are not pushed onto a Context) so of simple usage
 function _renderTokensByValue(value::AnIndex, io, token, writer, context, template)
-    if token._type == "#"
+    
+    if token._type == "#" || token._type == "|"
         # print if match
         if value.value == context.view
             renderTokens(io, token.collector, writer, context, template)
@@ -325,10 +327,14 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
     # its own. In this way you can implement filters or
     # caching.
 
-
     #    out = (value())(token.collector, render)
     if token._type == "name"
         out = value()
+    elseif token._type == "|"
+        # pass evaluated values
+        view = context.parent.view
+        sec_value = render(MustacheTokens(token.collector), view)
+        out = render(value(sec_value), view)
     else
         ## How to get raw section value?
         ## desc: Lambdas used for sections should receive the raw section string.
@@ -361,7 +367,7 @@ function renderTokens(io, tokens, writer, context, template)
         token = tokens[i]
         tokenValue = token.value
 
-        if token._type == "#"
+        if token._type == "#" || token._type == "|"
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
             value = lookup(context, tokenValue)
@@ -400,7 +406,7 @@ function renderTokens(io, tokens, writer, context, template)
             if isfile(fname)
                 print(io, open(x -> read(x, String), fname))
             else
-                warn("File $fname not found")
+                @warn("File $fname not found")
             end
 
         elseif token._type == "&"

@@ -5,7 +5,16 @@ nonSpaceRe = r"\S"
 eqRe = r"\s*="
 curlyRe = r"\s*\}"
 #tagRe = r"#|\^|\/|>|\{|&|=|!"
-tagRe = r"^[#^/<>{&=!]"
+# # section
+# ^ inversion
+# / close section
+# > partials
+# { dont' escape
+# &
+# =
+# !
+# | lamda "section" with *evaluated* value
+tagRe = r"^[#^/<>{&=!|]"
 
 
 isWhitespace(x) = occursin(whiteRe, x)
