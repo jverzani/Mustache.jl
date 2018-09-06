@@ -1,8 +1,8 @@
 ## Scanner
 
 mutable struct Scanner
-    string::AbstractString
-    tail::AbstractString
+    string::String
+    tail::String
     pos::Integer
 end
 Scanner(string::AbstractString) = Scanner("", string, 0)
@@ -17,12 +17,13 @@ end
 
 ## Tries to match the given regular expression at the current position.
 ## Returns the matched text if it can match, the empty string otherwise.
-function scan(s::Scanner, re::Regex)
-    if !occursin(re, s.tail)
-        return ""
-    end
+function scan!(s::Scanner, re::Regex)
 
     m = match(re, s.tail)
+    if m == nothing
+        return  ""
+    end
+    
     if m.offset >= 1
         ## move past match
         no_chars = lastindex(m.match) + m.offset - 1
@@ -32,14 +33,14 @@ function scan(s::Scanner, re::Regex)
 
     m.match
 end
-scan(s::Scanner, re::AbstractString) = scan(s, Regex(re))
-scan(s::Scanner, re::Char) = scan(s, string(re))
+scan!(s::Scanner, re::AbstractString) = scan!(s, Regex(re))
+scan!(s::Scanner, re::Char) = scan!(s, string(re))
 
 ## Skips all text until the given regular expression can be matched. Returns
 ## the skipped string, which is the entire tail if no match can be made.
 function scanUntil!(s::Scanner, re::Regex)
     m = match(re, s.tail)
-           
+    
     if m == nothing
         ourmatch = s.tail
         s.pos += lastindex(s.tail)
@@ -48,6 +49,9 @@ function scanUntil!(s::Scanner, re::Regex)
         pos = m.offset
         j = prevind(s.tail, pos)
         k = nextind(s.tail, pos-1)
+
+#        println((pos, s.tail, s.tail[1:j], s.tail[k:lastindex(s.tail)]))
+        
         ourmatch = s.tail[1:j]
         s.tail = s.tail[k:lastindex(s.tail)]
         s.pos += pos

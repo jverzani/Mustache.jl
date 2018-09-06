@@ -1,111 +1,177 @@
-mutable struct MustacheTokens
-    tokens
+
+mutable struct Token
+_type::String
+value::String
+start::Int
+pos::Int
+collector::Vector
+Token(_type, value, start, pos) = new(_type, value, start, pos, Any[])
 end
 
+mutable struct MustacheTokens
+tokens::Vector{Token}
+end
+MustacheTokens() = MustacheTokens(Token[])
+
+
+Base.length(tokens::MustacheTokens) = length(tokens.tokens)
+Base.lastindex(tokens::MustacheTokens) = lastindex(tokens.tokens)
+Base.getindex(tokens::MustacheTokens, ind) = getindex(tokens.tokens, ind)
+Base.pop!(tokens::MustacheTokens) = pop!(tokens.tokens)
+
+function Base.push!(tokens::MustacheTokens, token::Token)
+    # squash if possible
+    if length(tokens) == 0
+        push!(tokens.tokens, token)
+        return
+    end
+    
+    lastToken = tokens[end]
+    if !falsy(lastToken) && lastToken._type == "text" ==  token._type
+        lastToken.value *= token.value
+        lastToken.pos = token.pos
+    else
+        token._type == "text" && falsy(token.value) && return
+        push!(tokens.tokens, token)
+    end
+end
+
+
+
+
 mutable struct AnIndex
-    ind
-    value
+    ind::Int
+    value::String
 end
 Base.string(ind::AnIndex) = string(ind.value)
 
 ## after parsing off to squash, nest and render the tokens
 
-## Make the intial set of tokens before squashing and nesting
+## Make the intial set of tokens before nesting
 function make_tokens(template, tags)
 
 
     tags = ["{{", "}}"]         # we hard code tags!
     tagRes = [r"{{", r"}}"]
-
+    st_standalone = r"\n *$"
+    end_standalone = r"^ +\n"
+    # also have tagRe regular expression to process
 
     scanner = Scanner(template)
 
-    sections = Array{Any}(undef,0)
-    tokens = Array{Any}(undef, 0)
-    spaces = Array{Integer}(undef, 0)
-    hasTag = false
-    nonSpace = false
+    sections = MustacheTokens()
+    tokens = MustacheTokens()
+    
 
-    function stripSpace(hasTag, nonSpace)
-        if hasTag && !nonSpace
-            while length(spaces) > 0
-                delete!(tokens, pop!(spaces))
-            end
-        else
-            spaces = Array{Integer}(undef,0)
-        end
-
-        hasTag = false
-        nonSpace = false
-    end
-
+    first_line = true
     while !eos(scanner)
-        start = scanner.pos
+        # in a loop we
+        # * scanUntil to match opening tag
+        # * scan to identify _type
+        # * scanUntil to grab token value
+        # * scan to end of closing tag
+        # we end with text, type, value and associated positions
+        text_start, text_end = scanner.pos, -1
+        token_start = text_start
+        text_value = token_value = ""
 
-        value = scanUntil!(scanner, tagRes[1])
 
-        if !falsy(value)
-#            for i in 1:length(value)
-#                chr = string(value[i])
-            for val in value
-                chr = string(val)
-                if isWhitespace(chr)
-                    push!(spaces, length(tokens))
-                else
-                    nonSpace = true
-                end
+        # scan to match opening tag
+        text_value = scanUntil!(scanner, tagRes[1])
+        token_start += lastindex(text_value)
 
-                push!(tokens, Any["text", chr, start, start + lastindex(chr)])
-                start += lastindex(chr)
-
-                if chr == "\n"
-                    #stripSpace(hasTag, nonSpace)
-                end
-
-            end
-        end
-
-        if scan(scanner, tagRes[1]) == ""
+        # No more? If so, save token and leave
+        if scan!(scanner, tagRes[1]) == ""
+            text_token = Token("text", text_value, text_start, text_end)
+            push!(tokens, text_token)
             break
         end
 
-        hasTag = true
-
         ## find type #,/,^,{, ...
-        _type = scan(scanner, tagRe)
-
+        _type = scan!(scanner, tagRe)
 
         if _type == ""
             _type = "name"
         end
 
+        # grab value within tag
         if _type == "="
-            value = scanUntil!(scanner, eqRe)
-            scan(scanner, eqRe)
+            token_value = scanUntil!(scanner, eqRe)
+            scan!(scanner, eqRe)
             scanUntil!(scanner, tagRes[2])
-        elseif _type == ""
-            ## XXX hard code tags
-            value = scanUntil!(scanner, r"\\s*\}\}\}")
-            scan(scanner, curlyRe)
-            scanUntil!(scanner, tagRes[2])
-            _type = "&"
-        elseif _type == "{"
-            value = scanUntil!(scanner, tagRes[2])
-            scan(scanner, r"}")
+        elseif _type == "{" # Hard code tags
+            token_value = scanUntil!(scanner, tagRes[2])
+            scan!(scanner, r"}")
         else
-            value = scanUntil!(scanner, tagRes[2])
+            token_value = scanUntil!(scanner, tagRes[2])
         end
 
-        if scan(scanner, tagRes[2]) == ""
+        # unclosed tag?
+        if scan!(scanner, tagRes[2]) == ""
             error("Unclosed tag at " * string(scanner.pos))
         end
 
-        token = Any[_type, value, start, scanner.pos]
+        ## is the tag "standalone?
+        ## standalone comments get special treatment
+        ## here we identify if a tag is standalone
+        ## This is *alot* of work for this task
+        ls, rs = false, false
+        first_line = first_line &&  !occursin(r"\n", text_value)
+        last_line = !occursin(r"\n", scanner.tail)
+        
+        if first_line
+            ls = occursin(r"^ *$", text_value)
+        else
+            ls = occursin(r"\n *$", text_value)
+        end
+        
+        if ls
+            if last_line
+                if occursin(r"^ *$", scanner.tail)
+                    rs = true
+                end
+            else
+                if occursin(r"^ *\n", scanner.tail)
+                    rs = true
+                end
+            end
+        end
+        standalone = ls && rs
 
-        push!(tokens, token)
 
+        ##println((standalone, ls, rs, _type, text_value, scanner.tail, token_value))
+        
+        # remove \n and space for standalone tags
+        still_first_line = false
+        if standalone && _type in ("!", "^", "/", "#", ">")
+            if first_line
+                text_value = replace(text_value, r"^ *" => "")
+            else
+                text_value = replace(text_value, r" *$" => "")
+            end
+
+            ## desc: "\r\n" should be considered a newline for standalone tags.
+            if last_line
+                scanner.tail = replace(scanner.tail, r"^ *"=>"")
+            else
+                scanner.tail = replace(scanner.tail, r"^ *\r{0,1}\n"=>"")
+                still_first_line = true # clobbered \n, so keep as first line
+            end
+        end
+        first_line = still_first_line
+
+
+        # Now we can add tokens
+        # add text_token, token_token
+        text_token = Token("text", text_value, text_start, text_end)
+        token_token = Token(_type, token_value, token_start, scanner.pos)
+        push!(tokens, text_token)
+        push!(tokens, token_token)
+
+
+        # account for matching/nested sections
         if _type == "#" || _type == "^"
-            push!(sections, token)
+            push!(sections, token_token)
         elseif _type == "/"
             ## section nestinng
             if length(sections) == 0
@@ -113,46 +179,28 @@ function make_tokens(template, tags)
             end
 
             openSection = pop!(sections)
-            if openSection[2] != value
-                error("Unclosed section" * openSection[2] * " at $start")
+            if openSection.value != token_value
+                error("Unclosed section" * openSection.value * " at $start")
             end
 
         elseif _type == "name" || _type == "{" || _type == "&"
             nonSpace = true
         elseif _type == "="
-            tags = split(value, spaceRe)
+            tags = split(token_value, spaceRe)
             if length(tags) != 2
-                error("Invalid tags at $start:" * join(tags, ", "))
+                error("Invalid tags at $token_start:" * join(tags, ", "))
             end
 
         end
+
     end
 
     if length(sections) > 0
         openSection = pop!(sections)
-        error("Unclosed section " * string(openSection[2]) * "at " * string(scanner.pos))
+        error("Unclosed section " * string(openSection.value) * "at " * string(scanner.pos))
     end
 
     return(tokens)
-end
-
-## take single character tokens and collaps into chunks
-function squashTokens(tokens)
-    squashedTokens = Array{Any}(undef, 0)
-    lastToken = nothing
-
-    for i in 1:length(tokens)
-        token = tokens[i]
-        if !falsy(lastToken) && token[1] == "text"  && lastToken[1] == "text"
-            lastToken[2] *= token[2]
-            lastToken[4] = token[4]
-        else
-            lastToken = token
-            push!(squashedTokens, token)
-        end
-    end
-
-    return(squashedTokens)
 end
 
 
@@ -164,47 +212,59 @@ end
 function nestTokens(tokens)
     tree = Array{Any}(undef, 0)
     collector = tree
-    sections = Array{Any}(undef, 0)
+    sections = MustacheTokens() #Array{Any}(undef, 0)
 
     for i in 1:length(tokens)
         token = tokens[i]
         ## a {{#name}}...{{/name}} will iterate over name
         ## a {{^name}}...{{/name}} does ... if we have no name
         ## start nesting
-        if token[1] == "^" || token[1] == "#"
+        if token._type == "^" || token._type == "#"
             push!(sections, token)
             push!(collector, token)
-            push!(token, Array{Any}(undef, 0))
-            collector = token[5]
-        elseif token[1] == "/"
+            token.collector = Array{Any}(undef, 0)
+            collector = token.collector
+        elseif token._type == "/"
             section = pop!(sections)
-            collector = length(sections) > 0 ? sections[end][5] : tree
+            collector = length(sections) > 0 ? sections[end].collector : tree
         else
             push!(collector, token)
-        end
-    end
-
-    function print_tree(x, k)
-        for i in x
-            if length(i) > 4
-                println(" " ^ (k-1), (k, i[1:4]))
-                print_tree(i[5], k+1)
-            else
-                println(" " ^ (k-1), (k, i))
-            end
         end
     end
 
     return(tree)
 end
 
+## In lambdas with section this is used to go from the tokens to an unevaluated string
+function toString(tokens)
+    io = IOBuffer()
+    for token in tokens
+        write(io, _toString(Val{Symbol(token._type)}(), token))
+    end
+    out = String(take!(io))
+    close(io)
+    out
+end
+
+_toString(::Val{:name}, token) = "{{$(token.value)}}"
+_toString(::Val{:text}, token) = token.value
+_toString(::Val{Symbol("=")}, token) = ""
+_toString(::Val{Symbol("{")}, token) = "{{{{$(token.value)}}}"
+_toString(::Val{Symbol("^")}, token) = "{{^$(token.value)}}"
+_toString(::Val{Symbol("#")}, token) = "{{#$(token.value)}}"
+_toString(::Val{Symbol("/")}, token) = "{{/$(token.value)}}"
+
+          
+          
+# render tokens with values given in context
 function renderTokensByValue(value, io, token, writer, context, template)
+
     if is_dataframe(value)
         for i in 1:size(value)[1]
-            renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
+            renderTokens(io, token.collector, writer, ctx_push(context, value[i,:]), template)
         end
     else
-        inverted = token[1] == "^"
+        inverted = token._type == "^"
         if (inverted && falsy(value)) || !falsy(value)
             _renderTokensByValue(value, io, token, writer, context, template)
         end
@@ -213,17 +273,17 @@ end
 
 ## Helper function for dispatch based on value in renderTokens
 function _renderTokensByValue(value::Dict, io, token, writer, context, template)
-    renderTokens(io, token[5], writer, ctx_push(context, value), template)
+    renderTokens(io, token.collector, writer, ctx_push(context, value), template)
 end
 
 
 function _renderTokensByValue(value::Array, io, token, writer, context, template)
-   inverted = token[1] == "^"
+   inverted = token._type == "^"
    if (inverted && falsy(value))
-       renderTokens(io, token[5], writer, ctx_push(context, ""), template)
+       renderTokens(io, token.collector, writer, ctx_push(context, ""), template)
    else
         for v in value
-            renderTokens(io, token[5], writer, ctx_push(context, v), template)
+            renderTokens(io, token.collector, writer, ctx_push(context, v), template)
         end
     end
 end
@@ -232,25 +292,25 @@ end
 ## function renderTokensByValue(value::DataFrames.DataFrame, io, token, writer, context, template)
 ##     ## iterate along row, Call one for each row
 ##     for i in 1:size(value)[1]
-##         renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
+##         renderTokens(io, token.collector, writer, ctx_push(context, value[i,:]), template)
 ##     end
 ## end
 
 ## what to do with an index value `.[ind]`?
 ## We have `.[ind]` being of a leaf type (values are not pushed onto a Context) so of simple usage
 function _renderTokensByValue(value::AnIndex, io, token, writer, context, template)
-    if token[1] == "#"
+    if token._type == "#"
         # print if match
         if value.value == context.view
-            renderTokens(io, token[5], writer, context, template)
+            renderTokens(io, token.collector, writer, context, template)
         end
-    elseif token[1] == "^"
+    elseif token._type == "^"
         # print if *not* a match
         if value.value != context.view
-            renderTokens(io, token[5], writer, context, template)
+            renderTokens(io, token.collector, writer, context, template)
         end
     else
-        renderTokens(io, token[5], writer, ctx_push(context, value.value), template)
+        renderTokens(io, token.collector, writer, ctx_push(context, value.value), template)
     end
 end
 
@@ -265,18 +325,28 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
     # its own. In this way you can implement filters or
     # caching.
 
-    render = (tokens) -> begin
-        sprint(io -> renderTokens(io, tokens, writer, context, template))
-    end
 
-    out = (value())(token[5], render)
+    #    out = (value())(token.collector, render)
+    if token._type == "name"
+        out = value()
+    else
+        ## How to get raw section value?
+        ## desc: Lambdas used for sections should receive the raw section string.
+
+        sec_value = toString(token.collector)
+        view = context.parent.view        
+        tpl = value(sec_value)
+        out = render(tpl, view)
+
+    end
     write(io, out)
+
 end
 
 function _renderTokensByValue(value::Any, io, token, writer, context, template)
-    inverted = token[1] == "^"
+    inverted = token._type == "^"
     if (inverted && falsy(value)) || !falsy(value)
-        renderTokens(io, token[5], writer, context, template)
+        renderTokens(io, token.collector, writer, context, template)
     end
 end
 
@@ -289,50 +359,19 @@ end
 function renderTokens(io, tokens, writer, context, template)
     for i in 1:length(tokens)
         token = tokens[i]
-        tokenValue = token[2]
+        tokenValue = token.value
 
-        if token[1] == "#"
+        if token._type == "#"
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
             value = lookup(context, tokenValue)
+
             if !isa(value, AnIndex)
                 context = Context(value, context)
             end
             renderTokensByValue(value, io, token, writer, context, template)
-            ## ##  many things based on value of value
-            ## if isa(value, Dict)
-            ##     renderTokens(io, token[5], writer, ctx_push(context, value), template)
-            ## elseif isa(value, Array)
-            ##     for v in value
-            ##         renderTokens(io, token[5], writer, ctx_push(context, v), template)
-            ##     end
-            ## elseif Main.isdefined(:DataFrame) && isa(value, Main.DataFrame)
-            ##     ## iterate along row, Call one for each row
-            ##     for i in 1:size(value)[1]
-            ##         renderTokens(io, token[5], writer, ctx_push(context, value[i,:]), template)
-            ##     end
-            ## elseif isa(value, Function)
-            ##     ## function get's passed
-            ##     # When the value is a callable
-            ##     # object, such as a function or lambda, the object will
-            ##     # be invoked and passed the block of text. The text
-            ##     # passed is the literal block, unrendered. {{tags}} will
-            ##     # not have been expanded - the lambda should do that on
-            ##     # its own. In this way you can implement filters or
-            ##     # caching.
 
-            ##     function render(tokens)
-            ##         sprint(io -> renderTokens(io, tokens, writer, context, template))
-            ##     end
-
-            ##     out = (value())(token[5], render)
-            ##     write(io, out)
-
-            ## elseif !falsy(value)
-            ##     renderTokens(io, token[5], writer, context, template)
-            ## end
-
-        elseif token[1] == "^"
+        elseif token._type == "^"
             
             ## display if falsy, unlike #
             value = lookup(context, tokenValue)
@@ -348,14 +387,14 @@ function renderTokens(io, tokens, writer, context, template)
                 renderTokensByValue(value, io, token, writer, context, template)
             end
 
-        elseif token[1] == ">"
+        elseif token._type == ">"
             ## partials
             fname = stripWhitespace(tokenValue)
             if isfile(fname)
                 renderTokens(io, template_from_file(fname).tokens, writer, context, template)
             end
 
-        elseif token[1] == "<"
+        elseif token._type == "<"
             ## partials without parse
             fname = stripWhitespace(tokenValue)
             if isfile(fname)
@@ -364,30 +403,34 @@ function renderTokens(io, tokens, writer, context, template)
                 warn("File $fname not found")
             end
 
-        elseif token[1] == "&"
+        elseif token._type == "&"
             value = lookup(context, tokenValue)
             if value != nothing
                 print(io, value)
             end
 
-        elseif token[1] == "{"
+        elseif token._type == "{"
             value = lookup(context, tokenValue)
-            if value != nothing
-                print(io, value)
+            if !falsy(value)
+                val = isa(value, Function) ? render(value(), context.view) : value
+                print(io, val)
             end
 
-        elseif token[1] == "name"
+        elseif token._type == "name"
             value = lookup(context, tokenValue)
+
             # we had Nullable field support here, but this is dropped
             # in v"0.7.0" in favor of Union{T, Nothing} so we check for nothing
             # we could add a check for Missing too
-            value != nothing && print(io, escape_html(value))
+            if !falsy(value)
+                val = isa(value, Function) ? render(value(), context.view) : value
+                print(io, escape_html(val))
+            end
 
-        elseif token[1] == "text"
+        elseif token._type == "text"
             print(io, string(tokenValue))
         end
 
     end
 
-    #    return(buffer)
 end

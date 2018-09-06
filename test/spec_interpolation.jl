@@ -1,6 +1,5 @@
 using Mustache
 using Test
-strip_rns(x) = replace(replace(replace(x, "\n"=>""), "\r"=>""), r"\s"=>"")
 
 @testset " interpolation " begin
 

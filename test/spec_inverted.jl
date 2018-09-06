@@ -1,6 +1,5 @@
 using Mustache
 using Test
-strip_rns(x) = replace(replace(replace(x, "\n"=>""), "\r"=>""), r"\s"=>"")
 
 @testset " inverted " begin
 
@@ -40,13 +39,10 @@ tpl = """{{^bool}}
 {{/bool}}
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("two"=>"second","bool"=>false)))
-	expected = strip_rns("""* first
+	@test Mustache.render(tpl, Dict{Any,Any}("two"=>"second","bool"=>false)) == """* first
 * second
 * third
-""")
-	@test val == expected
+"""
 
 	## Nested falsey sections should have their contents rendered.
 tpl = """| A {{^bool}}B {{^bool}}C{{/bool}} D{{/bool}} E |"""
@@ -111,13 +107,10 @@ tpl = """| This Is
 | A Line
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)))
-	expected = strip_rns("""| This Is
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)) == """| This Is
 |
 | A Line
-""")
-	@test val == expected
+"""
 
 	## Standalone indented lines should be removed from the template.
 tpl = """| This Is
@@ -127,13 +120,10 @@ tpl = """| This Is
 | A Line
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)))
-	expected = strip_rns("""| This Is
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)) == """| This Is
 |
 | A Line
-""")
-	@test val == expected
+"""
 
 	## "\r\n" should be considered a newline for standalone tags.
 tpl = """|
@@ -141,34 +131,25 @@ tpl = """|
 {{/boolean}}
 |"""
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)))
-	expected = strip_rns("""|
-|""")
-	@test val == expected
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)) == """|
+|"""
 
 	## Standalone tags should not require a newline to precede them.
 tpl = """  {{^boolean}}
 ^{{/boolean}}
 /"""
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)))
-	expected = strip_rns("""^
-/""")
-	@test val == expected
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)) == """^
+/"""
 
 	## Standalone tags should not require a newline to follow them.
 tpl = """^{{^boolean}}
 /
   {{/boolean}}"""
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)))
-	expected = strip_rns("""^
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)) == """^
 /
-""")
-	@test val == expected
+"""
 
 	## Superfluous in-tag whitespace should be ignored.
 tpl = """|{{^ boolean }}={{/ boolean }}|"""

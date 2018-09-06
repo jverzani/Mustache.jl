@@ -56,7 +56,7 @@ function lookup(ctx::Context, key)
 
                 if isa(vals, Vector)
                     if idx == "end"
-                        value = AnIndex(:end, vals[end])
+                        value = AnIndex(-1, vals[end])
                     else
                         ind = Base.parse(Int, idx[1:end])
                         value = AnIndex(ind, vals[ind])
@@ -76,10 +76,7 @@ function lookup(ctx::Context, key)
         ctx._cache[key] = value
     end
 
-    if value === Function
-        value = value()
-    end
-
+   
     return(value)
 end
 
@@ -102,18 +99,13 @@ end
 
 
 function _lookup_in_view(view::Dict, key)
-
     ## is it a symbol?
     if occursin(r"^:", key)
         key = Symbol(key[2:end])
     end
+    
+    get(view, key, nothing)
 
-    out = nothing
-    if haskey(view, key)
-        out = view[key]
-    end
-
-    out
 end
 
 function _lookup_in_view(view::Module, key)

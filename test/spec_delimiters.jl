@@ -1,6 +1,5 @@
 using Mustache
 using Test
-strip_rns(x) = replace(replace(replace(x, "\n"=>""), "\r"=>""), r"\s"=>"")
 
 @testset " delimiters " begin
 
@@ -8,10 +7,12 @@ strip_rns(x) = replace(replace(replace(x, "\n"=>""), "\r"=>""), r"\s"=>"")
 	## The equals sign (used on both sides) should permit delimiter changes.
 tpl = """{{=<% %>=}}(<%text%>)"""
 
+	@test Mustache.render(tpl, Dict{Any,Any}("text"=>"Hey!")) == """(Hey!)"""
 
 	## Characters with special meaning regexen should be valid delimiters.
 tpl = """({{=[ ]=}}[text])"""
 
+	@test Mustache.render(tpl, Dict{Any,Any}("text"=>"It worked!")) == """(It worked!)"""
 
 	## Delimiters set outside sections should persist.
 tpl = """[
@@ -28,7 +29,7 @@ tpl = """[
 ]
 """
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("section"=>true,"data"=>"I got interpolated.")) == """[
+	@test Mustache.render(tpl, Dict{Any,Any}("section"=>true,"data"=>"I got interpolated.")) == """[
   I got interpolated.
   |data|
 
@@ -52,7 +53,7 @@ tpl = """[
 ]
 """
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("section"=>false,"data"=>"I got interpolated.")) == """[
+	@test Mustache.render(tpl, Dict{Any,Any}("section"=>false,"data"=>"I got interpolated.")) == """[
   I got interpolated.
   |data|
 
@@ -67,7 +68,7 @@ tpl = """[ {{>include}} ]
 [ |>include| ]
 """
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("value"=>"yes")) == """[ .yes. ]
+	@test Mustache.render(tpl, Dict{Any,Any}("value"=>"yes")) == """[ .yes. ]
 [ .yes. ]
 """
 
@@ -76,6 +77,9 @@ tpl = """[ {{>include}} ]
 [ .{{value}}.  .|value|. ]
 """
 
+	@test Mustache.render(tpl, Dict{Any,Any}("value"=>"yes")) == """[ .yes.  .yes. ]
+[ .yes.  .|value|. ]
+"""
 
 	## Surrounding whitespace should be left untouched.
 tpl = """| {{=@ @=}} |"""
@@ -95,12 +99,9 @@ tpl = """Begin.
 End.
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}()))
-	expected = strip_rns("""Begin.
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """Begin.
 End.
-""")
-	@test val == expected
+"""
 
 	## Indented standalone lines should be removed from the template.
 tpl = """Begin.
@@ -108,44 +109,35 @@ tpl = """Begin.
 End.
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}()))
-	expected = strip_rns("""Begin.
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """Begin.
 End.
-""")
-	@test val == expected
+"""
 
 	## "\r\n" should be considered a newline for standalone tags.
 tpl = """|
 {{= @ @ =}}
 |"""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}()) == """|
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """|
 |"""
 
 	## Standalone tags should not require a newline to precede them.
 tpl = """  {{=@ @=}}
 ="""
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}()))
-	expected = strip_rns("""=""")
-	@test val == expected
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """="""
 
 	## Standalone tags should not require a newline to follow them.
 tpl = """=
   {{=@ @=}}"""
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}()))
-	expected = strip_rns("""=
-""")
-	@test val == expected
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """=
+"""
 
 	## Superfluous in-tag whitespace should be ignored.
 tpl = """|{{= @   @ =}}|"""
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}()) == """||"""
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """||"""
 end
 
 
