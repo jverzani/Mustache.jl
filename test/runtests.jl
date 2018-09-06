@@ -8,6 +8,6 @@ include("spec_comments.jl")
 #include("spec_delimiters.jl") # not implemented
 include("spec_interpolation.jl")
 include("spec_inverted.jl")
-include("spec_partials.jl")
+#include("spec_partials.jl") # need separate writing
 include("spec_sections.jl")
-
+include("spec_lambdas.jl")

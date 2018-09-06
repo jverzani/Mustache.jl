@@ -5,7 +5,16 @@ nonSpaceRe = r"\S"
 eqRe = r"\s*="
 curlyRe = r"\s*\}"
 #tagRe = r"#|\^|\/|>|\{|&|=|!"
-tagRe = r"^[#^/<>{&=!]"
+# # section
+# ^ inversion
+# / close section
+# > partials
+# { dont' escape
+# &
+# =
+# !
+# | lamda "section" with *evaluated* value
+tagRe = r"^[#^/<>{&=!|]"
 
 
 isWhitespace(x) = occursin(whiteRe, x)
@@ -21,6 +30,7 @@ falsy(x::Bool) = !x
 falsy(x::Array) = isempty(x)
 falsy(x::AbstractString) = x == ""
 falsy(x::Nothing) = true
+falsy(x::Missing) = true
 falsy(x::Real) = x == 0
 falsy(x) = (x == nothing) || false                #  default
 

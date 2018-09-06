@@ -1,6 +1,5 @@
 # Mustache
 
-[![Mustache](http://pkg.julialang.org/badges/Mustache_0.6.svg)](http://pkg.julialang.org/?pkg=Mustache)
 [![Mustache](http://pkg.julialang.org/badges/Mustache_0.7.svg)](http://pkg.julialang.org/?pkg=Mustache)
 
 Linux: [![Build Status](https://travis-ci.org/jverzani/Mustache.jl.svg?branch=master)](https://travis-ci.org/jverzani/Mustache.jl)
@@ -35,11 +34,11 @@ Well, {{taxed_value}} dollars, after taxes.
 The values with braces (mustaches on their side) are looked up in a view, such as a dictionary or module. For example,
 
 ```julia
-d = Dict()
-d["name"] = "Chris"
-d["value"] = 10000
-d["taxed_value"] = 10000 - (10000 * 0.4)
-d["in_ca"] = true
+d = Dict(
+"name" => "Chris",
+"value" => 10000,
+"taxed_value" => 10000 - (10000 * 0.4),
+"in_ca" => true)
 
 render(tpl, d)
 ```
@@ -49,18 +48,17 @@ Yielding
 ```
 Hello Chris
 You have just won 10000 dollars!
-
 Well, 6000.0 dollars, after taxes.
 ```
 
 The `render` function pieces things together. Like `print`, the first
 argument is for an optional `IO` instance. In the above example, where
-one is not provided, the `sprint` function is employed.
+one is not provided, a string is returned.
 
 
 The second argument is a either a string or a mustache template. As
 seen, templates can be made through the `mt` non-standard string
-literal. The advantage of using `mt`, is the template will be
+literal. The advantage of using `mt` is that the template will be
 processed at compile time so its reuse will be faster.
 
 The templates use tags comprised of matching mustaches (`{}`), either two or three, to
@@ -107,7 +105,7 @@ gives
 "Beta distribution with alpha=1.0, beta=2.0"
 ```
 
-### Variables
+## Variables
 
 Tags representing variables have the form `{{varname}}`,
 `{{:symbol}}`, or their triple-braced versions `{{{varname}}}` or
@@ -115,7 +113,10 @@ Tags representing variables have the form `{{varname}}`,
 entities such as `<`. The following are escaped when only double
 braces are used: "&", "<", ">", "'", "\", and "/".
 
-### Sections
+If the variable refers to a function, the value will be the result of
+calling the function with no arguments passed in.
+
+## Sections
 
 In the main example, the template included:
 
@@ -127,9 +128,19 @@ Well, {{taxed_value}} dollars, after taxes.
 
 Tags beginning with `#varname` and closed with `/varname` create
 sections. The part between them is used only if the variable is
-defined. Related, if the tag begins with `^varname` and ends with
-`/varname` the text between these tags is included only if the
-variable is *not* defined.
+defined.
+
+If the section name refers to a function, that function will be passed
+the unevaluated string within the section, as expected by the Mustache
+specification. (If the tag "|" is used, the section value will be
+rendered first, an enhancement to the specification.)
+
+### Inverted
+
+Related, if the tag begins with `^varname` and ends with `/varname`
+the text between these tags is included only if the variable is *not*
+defined or is `falsy`.
+
 
 ### Iteration
 
@@ -140,9 +151,9 @@ given by the item.
 
 This is useful for collections of named objects, such as DataFrames
 (where the collection is comprised of rows) or arrays of
-dictionaries. The special variable `{{.}}` can be used to iterate over non-named collections.
+dictionaries.
 
-For data frames the variable names are specified as
+For data frames, the variable names are specified as
 symbols or strings. Here is a template for making a web page:
 
 ```julia
@@ -164,14 +175,13 @@ tpl = mt"""
 This can be used to generate a web page for `whos`-like values:
 
 ```julia
-_names = Array{String}(0)
-_summaries = Array{String}(0)
-m = Main
-for s in sort(map(string, names(m)))
+_names = String[]
+_summaries = String[]
+for s in sort(map(string, names(Main)))
     v = Symbol(s)
     if isdefined(m,v)
         push!(_names, s)
-        push!(_summaries, summary(eval(m,v)))
+        push!(_summaries, summary(eval(v)))
     end
 end
 
@@ -221,20 +231,24 @@ render(tpl, DF=df)
 end
 ```
 
-(A string is used -- and not a `mt` macro above -- so that string interpolation can happen.)
+(A string is used above -- and not a `mt` macro -- so that string interpolation can happen.)
 
 ### Iterating over vectors
 
-Iterating over an unnamed vector uses `{{.}}` to refer to the item:
+Though it isn't part of the Mustache specification, when iterating
+over an unnamed vector, Mustache.jl uses `{{.}}` to refer to the item:
 
 ```julia
 tpl = "{{#:vec}}{{.}} {{/:vec}}"
 render(tpl, vec = ["A1", "B2", "C3"])  # "A1 B2 C3 "
 ```
 
-Not the extra space after `C3`. There is *experimental* support for
-indexing with the iteration of a vector that allows on to work around
-this. The syntax `.[ind]` refers to the value `vec[ind]`.
+Note the extra space after `C3`.
+
+There is also *limited* support for indexing with the iteration of a vector that
+allows one to treat the last element differently. The syntax `.[ind]`
+refers to the value `vec[ind]`. (There is no support for the usual
+arithmetic on indices.)
 
 To print commas one can use this pattern:
 
@@ -281,20 +295,47 @@ The partial specified by `{{< box.tpl }}` is not parsed, rather included as is i
 `Julia` provides some alternatives to this package which are better suited for many jobs:
 
 * For simple substitution inside a string there is string
-  [interpolation](http://julia.readthedocs.org/en/latest/manual/strings/).
+  [interpolation](https://docs.julialang.org/en/latest/manual/strings/).
 
 * For piecing together pieces of text either the `string` function or
-  string concatenation (the `*` operator) are useful.
+  string concatenation (the `*` operator) are useful. (Also an
+  `IOBuffer` is useful for larger tasks of this type.)
 
 * For formatting numbers and text, the
-  [Formatting.jl](https://github.com/JuliaLang/Formatting.jl) package
-  is available.
+  [Formatting.jl](https://github.com/JuliaLang/Formatting.jl) package,
+  the [Format](https://github.com/JuliaString/Format.jl) package, the
+  [StringLiterals](https://github.com/JuliaString/StringLiterals.jl)
+  package are available.
 
+* [Flax](https://github.com/essenciary/Flax.jl) may be of interest for
+  certain tasks where performance is important.
 
 ## Differences from Mustache.js
 
 This project deviates from that of Mustache.js in a few significant ways:
 
-* The tags are only demarcated with mustaches, this is not customizable
+* There is currently no support for alternative delimiters, just the
+  curly brace is available. Otherwise, the mustache spec tests pass.
+
 * Julian structures are used, not JavaScript objects. As illustrated,
-  one can use Dicts, Modules, DataFrames
+  one can use Dicts, Modules, DataFrames, functions, ...
+
+* In the Mustache spec, when lamdas are used as section names, the
+function is passed the unvevaluated section:
+
+```
+template = "<{{#lambda}}{{x}}{{/lambda}}>"
+data = Dict("x" => "Error!", "lambda" => (txt) ->  txt == "{{x}}" ? "yes" : "no") 
+Mustache.render(template, data) ## "<yes>", as txt == "{{x}}"
+```
+
+The tag "|" is similar to the section tag "#", but will receive the *evaluated* section:
+
+```
+template = "<{{|lambda}}{{x}}{{/lambda}}>"
+data = Dict("x" => "Error!", "lambda" => (txt) ->  txt == "{{x}}" ? "yes" : "no") 
+Mustache.render(template, data) ## "<no>", as "Error!" != "{{x}}"
+```
+
+
+

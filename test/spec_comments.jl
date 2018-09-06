@@ -1,6 +1,5 @@
 using Mustache
 using Test
-strip_rns(x) = replace(replace(replace(x, "\n"=>""), "\r"=>""), r"\s"=>"")
 
 @testset " comments " begin
 
@@ -26,12 +25,9 @@ tpl = """Begin.
 End.
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}()))
-	expected = strip_rns("""Begin.
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """Begin.
 End.
-""")
-	@test val == expected
+"""
 
 	## All standalone comment lines should be removed.
 tpl = """Begin.
@@ -39,42 +35,30 @@ tpl = """Begin.
 End.
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}()))
-	expected = strip_rns("""Begin.
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """Begin.
 End.
-""")
-	@test val == expected
+"""
 
 	## "\r\n" should be considered a newline for standalone tags.
 tpl = """|
 {{! Standalone Comment }}
 |"""
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}()))
-	expected = strip_rns("""|
-|""")
-	@test val == expected
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """|
+|"""
 
 	## Standalone tags should not require a newline to precede them.
 tpl = """  {{! I'm Still Standalone }}
 !"""
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}()))
-	expected = strip_rns("""!""")
-	@test val == expected
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """!"""
 
 	## Standalone tags should not require a newline to follow them.
 tpl = """!
   {{! I'm Still Standalone }}"""
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}()))
-	expected = strip_rns("""!
-""")
-	@test val == expected
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """!
+"""
 
 	## All standalone comment lines should be removed.
 tpl = """Begin.
@@ -84,27 +68,21 @@ Something's going on here...
 End.
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}()))
-	expected = strip_rns("""Begin.
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """Begin.
 End.
-""")
-	@test val == expected
+"""
 
 	## All standalone comment lines should be removed.
 tpl = """Begin.
-  {{!
+  {{!s
     Something's going on here...
   }}
 End.
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}()))
-	expected = strip_rns("""Begin.
+	@test Mustache.render(tpl, Dict{Any,Any}()) == """Begin.
 End.
-""")
-	@test val == expected
+"""
 
 	## Inline comments should not strip whitespace
 tpl = """  12 {{! 34 }}

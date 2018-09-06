@@ -1,6 +1,5 @@
 using Mustache
 using Test
-strip_rns(x) = replace(replace(replace(x, "\n"=>""), "\r"=>""), r"\s"=>"")
 
 @testset " sections " begin
 
@@ -42,9 +41,7 @@ tpl = """{{#a}}
 {{/a}}
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("c"=>Dict{Any,Any}("three"=>3),"e"=>Dict{Any,Any}("five"=>5),"b"=>Dict{Any,Any}("two"=>2),"a"=>Dict{Any,Any}("one"=>1),"d"=>Dict{Any,Any}("four"=>4))))
-	expected = strip_rns("""1
+	@test Mustache.render(tpl, Dict{Any,Any}("c"=>Dict{Any,Any}("three"=>3),"e"=>Dict{Any,Any}("five"=>5),"b"=>Dict{Any,Any}("two"=>2),"a"=>Dict{Any,Any}("one"=>1),"d"=>Dict{Any,Any}("four"=>4))) == """1
 121
 12321
 1234321
@@ -53,8 +50,7 @@ tpl = """{{#a}}
 12321
 121
 1
-""")
-	@test val == expected
+"""
 
 	## Lists should be iterated; list items should visit the context stack.
 tpl = """\"{{#list}}{{item}}{{/list}}\""""
@@ -76,13 +72,10 @@ tpl = """{{#bool}}
 {{/bool}}
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("two"=>"second","bool"=>true)))
-	expected = strip_rns("""* first
+	@test Mustache.render(tpl, Dict{Any,Any}("two"=>"second","bool"=>true)) == """* first
 * second
 * third
-""")
-	@test val == expected
+"""
 
 	## Nested truthy sections should have their contents rendered.
 tpl = """| A {{#bool}}B {{#bool}}C{{/bool}} D{{/bool}} E |"""
@@ -162,13 +155,10 @@ tpl = """| This Is
 | A Line
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("boolean"=>true)))
-	expected = strip_rns("""| This Is
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>true)) == """| This Is
 |
 | A Line
-""")
-	@test val == expected
+"""
 
 	## Indented standalone lines should be removed from the template.
 tpl = """| This Is
@@ -178,13 +168,10 @@ tpl = """| This Is
 | A Line
 """
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("boolean"=>true)))
-	expected = strip_rns("""| This Is
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>true)) == """| This Is
 |
 | A Line
-""")
-	@test val == expected
+"""
 
 	## "\r\n" should be considered a newline for standalone tags.
 tpl = """|
@@ -192,34 +179,25 @@ tpl = """|
 {{/boolean}}
 |"""
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("boolean"=>true)))
-	expected = strip_rns("""|
-|""")
-	@test val == expected
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>true)) == """|
+|"""
 
 	## Standalone tags should not require a newline to precede them.
 tpl = """  {{#boolean}}
 #{{/boolean}}
 /"""
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("boolean"=>true)))
-	expected = strip_rns("""#
-/""")
-	@test val == expected
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>true)) == """#
+/"""
 
 	## Standalone tags should not require a newline to follow them.
 tpl = """#{{#boolean}}
 /
   {{/boolean}}"""
 
-	## XXX space issue
-	val = strip_rns(Mustache.render(tpl, Dict{Any,Any}("boolean"=>true)))
-	expected = strip_rns("""#
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>true)) == """#
 /
-""")
-	@test val == expected
+"""
 
 	## Superfluous in-tag whitespace should be ignored.
 tpl = """|{{# boolean }}={{/ boolean }}|"""

@@ -52,19 +52,12 @@ tpl = mt"{{#:vec}}{{.}} {{/:vec}}"
 ## test of function, see http://mustache.github.io/mustache.5.html (Lambdas)
 
 tpl = mt"""{{#wrapped}}
-  {{name}} is awesome.
+{{name}} is awesome.
 {{/wrapped}}
 """
 
-d = Dict()
-d["name"] =  "Willy"
-d["wrapped"] = function()
-    function(text, render)
-        "<b>" * render(text) * "</b>"
-    end
-    end
-
-@test Mustache.render(tpl, d) == "<b>\n  Willy is awesome.\n</b>\n" #?? extra \n??
+d = Dict("name" => "Willy", "wrapped" => (txt) -> "<b>" * txt * "</b>")
+@test Mustache.render(tpl, d) == "<b>Willy is awesome.\n</b>"
 
 ## Test of using Dict in {{#}}/{{/}} things
 tpl = mt"{{#:d}}{{x}} and {{y}}{{/:d}}"
@@ -74,3 +67,17 @@ d = Dict(); d["x"] = "salt"; d["y"] = "pepper"
 ## issue #51 inverted section
 @test Mustache.render("""{{^repos}}No repos :({{/repos}}""", Dict("repos" => [])) == "No repos :("    
 @test Mustache.render("{{^repos}}foo{{/repos}}",Dict("repos" => [Dict("name" => "repo name")])) == ""
+
+
+## Added a new tag "|" for applying a function to a section
+tpl = """{{|lambda}}{{value}}{{/lambda}} dollars."""
+d = Dict("value"=>"1.23456789", "lambda"=>(txt) -> "<b>" * string(round(parse(Float64, txt), digits=2)) * "</b>")
+@test Mustache.render(tpl, d) == "<b>1.23</b> dollars."
+
+tpl = """{{|lambda}}key{{/lambda}} dollars."""
+d = Dict("lambda" => (txt) -> begin
+         d = Dict("key" => "value")
+         d[txt]
+         end
+         )
+@test Mustache.render(tpl, d) == "value dollars."

@@ -27,6 +27,7 @@ macro mt_mstr(s)
 end
 
 """
+    render([io], tokens, view)
 
 Render a set of tokens with a view, using optional `io` object to print or store.
 
