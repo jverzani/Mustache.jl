@@ -4,8 +4,9 @@ _type::String
 value::String
 start::Int
 pos::Int
+tags::Vector{String}
 collector::Vector
-Token(_type, value, start, pos) = new(_type, value, start, pos, Any[])
+Token(_type, value, start, pos, tags) = new(_type, value, start, pos, tags, Any[])
 end
 
 mutable struct MustacheTokens
@@ -47,10 +48,11 @@ Base.string(ind::AnIndex) = string(ind.value)
 
 ## Make the intial set of tokens before nesting
 function make_tokens(template, tags)
+    
+    rtags = [asRegex(tags[1]), asRegex(tags[2])]
+    
 
-
-    tags = ["{{", "}}"]         # we hard code tags!
-    tagRes = [r"{{", r"}}"]
+    
     st_standalone = r"\n *$"
     end_standalone = r"^ +\n"
     # also have tagRe regular expression to process
@@ -63,6 +65,7 @@ function make_tokens(template, tags)
 
     first_line = true
     while !eos(scanner)
+
         # in a loop we
         # * scanUntil to match opening tag
         # * scan to identify _type
@@ -73,14 +76,18 @@ function make_tokens(template, tags)
         token_start = text_start
         text_value = token_value = ""
 
+        ## XXX to incorporate different tokens, need to make regular expressions changeable
+        ## eqRe, spaceRe, tagRe, ...
 
         # scan to match opening tag
-        text_value = scanUntil!(scanner, tagRes[1])
+
+        
+        text_value = scanUntil!(scanner, rtags[1])
         token_start += lastindex(text_value)
 
         # No more? If so, save token and leave
-        if scan!(scanner, tagRes[1]) == ""
-            text_token = Token("text", text_value, text_start, text_end)
+        if scan!(scanner, rtags[1]) == ""
+            text_token = Token("text", text_value, text_start, text_end, copy(tags))
             push!(tokens, text_token)
             break
         end
@@ -94,18 +101,18 @@ function make_tokens(template, tags)
 
         # grab value within tag
         if _type == "="
-            token_value = scanUntil!(scanner, eqRe)
+            token_value = stripWhitespace(scanUntil!(scanner, eqRe))
             scan!(scanner, eqRe)
-            scanUntil!(scanner, tagRes[2])
+            scanUntil!(scanner, rtags[2])
         elseif _type == "{" # Hard code tags
-            token_value = scanUntil!(scanner, tagRes[2])
+            token_value = scanUntil!(scanner, rtags[2])
             scan!(scanner, r"}")
         else
-            token_value = scanUntil!(scanner, tagRes[2])
+            token_value = scanUntil!(scanner, rtags[2])
         end
 
         # unclosed tag?
-        if scan!(scanner, tagRes[2]) == ""
+        if scan!(scanner, rtags[2]) == ""
             error("Unclosed tag at " * string(scanner.pos))
         end
 
@@ -140,12 +147,9 @@ function make_tokens(template, tags)
         
         # remove \n and space for standalone tags
         still_first_line = false
-        if standalone && _type in ("!", "^", "/", "#", ">", "|")
-            if first_line
-                text_value = replace(text_value, r"^ *" => "")
-            else
-                text_value = replace(text_value, r" *$" => "")
-            end
+        if standalone && _type in ("!", "^", "/", "#", "<", ">", "|", "=")
+
+            text_value = replace(text_value, r" *$" => "")
 
             ## desc: "\r\n" should be considered a newline for standalone tags.
             if last_line
@@ -160,8 +164,8 @@ function make_tokens(template, tags)
 
         # Now we can add tokens
         # add text_token, token_token
-        text_token = Token("text", text_value, text_start, text_end)
-        token_token = Token(_type, token_value, token_start, scanner.pos)
+        text_token = Token("text", text_value, text_start, text_end, copy(tags))
+        token_token = Token(_type, token_value, token_start, scanner.pos, copy(tags))
         push!(tokens, text_token)
         push!(tokens, token_token)
 
@@ -183,11 +187,11 @@ function make_tokens(template, tags)
         elseif _type == "name" || _type == "{" || _type == "&"
             nonSpace = true
         elseif _type == "="
-            tags = split(token_value, spaceRe)
+            tags[1], tags[2] = String.(split(token_value, spaceRe))
             if length(tags) != 2
                 error("Invalid tags at $token_start:" * join(tags, ", "))
             end
-
+            rtags[1], rtags[2] = asRegex.(tags)
         end
 
     end
@@ -233,27 +237,28 @@ function nestTokens(tokens)
 end
 
 ## In lambdas with section this is used to go from the tokens to an unevaluated string
+## XXX Token should have tags embedded in it
 function toString(tokens)
     io = IOBuffer()
     for token in tokens
-        write(io, _toString(Val{Symbol(token._type)}(), token))
+        write(io, _toString(Val{Symbol(token._type)}(), token, token.tags...))
     end
     out = String(take!(io))
     close(io)
     out
 end
 
-_toString(::Val{:name}, token) = "{{$(token.value)}}"
-_toString(::Val{:text}, token) = token.value
-_toString(::Val{Symbol("#")}, token) = "{{#$(token.value)}}"
-_toString(::Val{Symbol("^")}, token) = "{{^$(token.value)}}"
-_toString(::Val{Symbol("|")}, token) = "{{|$(token.value)}}"
-_toString(::Val{Symbol("/")}, token) = "{{/$(token.value)}}"
-_toString(::Val{Symbol(">")}, token) = "{{>$(token.value)}}"
-_toString(::Val{Symbol("<")}, token) = "{{<$(token.value)}}"
-_toString(::Val{Symbol("=")}, token) = ""
-_toString(::Val{Symbol("{")}, token) = "{{{{$(token.value)}}}"
-_toString(::Val{Symbol("&")}, token) = "{{{&$(token.value)}}"
+_toString(::Val{:name}, token, ltag, rtag) = ltag * token.value * rtag
+_toString(::Val{:text}, token, ltag, rtag) = token.value
+_toString(::Val{Symbol("#")}, token, ltag, rtag) = ltag * "#" * token_value * rtag
+_toString(::Val{Symbol("^")}, token, ltag, rtag) = ltag * "^" * token_value * rtag
+_toString(::Val{Symbol("|")}, token, ltag, rtag) = ltag * "|" * token_value * rtag
+_toString(::Val{Symbol("/")}, token, ltag, rtag) = ltag * "/" * token_value * rtag
+_toString(::Val{Symbol(">")}, token, ltag, rtag) = ltag * ">" * token_value * rtag
+_toString(::Val{Symbol("<")}, token, ltag, rtag) = ltag * "<" * token_value * rtag
+_toString(::Val{Symbol("&")}, token, ltag, rtag) = ltag * "&" * token_value * rtag
+_toString(::Val{Symbol("{")}, token, ltag, rtag) = ltag * "{" * token_value * rtag
+_toString(::Val{Symbol("=")}, token, ltag, rtag) = ""
 
           
           
@@ -338,7 +343,6 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
     else
         ## How to get raw section value?
         ## desc: Lambdas used for sections should receive the raw section string.
-
         sec_value = toString(token.collector)
         view = context.parent.view        
         tpl = value(sec_value)
@@ -366,6 +370,7 @@ function renderTokens(io, tokens, writer, context, template)
     for i in 1:length(tokens)
         token = tokens[i]
         tokenValue = token.value
+
 
         if token._type == "#" || token._type == "|"
             ## iterate over value if Dict, Array or DataFrame,

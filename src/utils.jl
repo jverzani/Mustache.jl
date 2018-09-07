@@ -1,3 +1,5 @@
+
+tags = ["{{", "}}"]
 ## regular expressions to use
 whiteRe = r"\s*"
 spaceRe = r"\s+"
@@ -10,11 +12,21 @@ curlyRe = r"\s*\}"
 # / close section
 # > partials
 # { dont' escape
-# &
-# =
-# !
+# & unescape a variable
+# = set delimiters {{=<% %>=}} will set delimiters to <% %>
+# ! comments
 # | lamda "section" with *evaluated* value
 tagRe = r"^[#^/<>{&=!|]"
+
+function asRegex(txt)
+    for i in ("[","]")
+        txt = replace(txt, Regex("\\$i") => "\\$i")
+    end
+    for i in ("(", ")", "{","}", "|")
+        txt = replace(txt, Regex("[$i]") => "[$i]")
+    end
+    Regex(txt)
+end
 
 
 isWhitespace(x) = occursin(whiteRe, x)
