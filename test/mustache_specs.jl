@@ -40,6 +40,29 @@ using Test
         desc = t["desc"]
         
         
+using Mustache
+using YAML
+using Test
+
+ghub = "https://raw.githubusercontent.com/mustache/spec/72233f3ffda9e33915fd3022d0a9ebbcce265acd/specs/{{:spec}}.yml"
+
+specs = ["comments",
+          "delimiters",
+          "interpolation",
+          "inverted",
+          "partials",
+          "sections"#,
+          #"~lambdas"
+          ]
+
+
+D = Dict()
+for spec in specs
+    nm = Mustache.render(ghub, spec=spec)
+    D[spec] = YAML.load_file(download(nm))
+end
+
+
         val = try
             Mustache.render(t["template"], t["data"])
         catch err
@@ -71,8 +94,8 @@ end
 
 
 # partials are different, as they refer to an external file
-# tihs shoudl clean up temp files, 
-# XXX fix tests 7,8,9,10, 11 for space issues.
+# tihs should clean up temp files, but we don't run as part of test suite
+# test 7 fails, but I think that one is wrong
 using Test
 function test_partials()
     for spec in specs

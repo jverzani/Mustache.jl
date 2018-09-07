@@ -77,7 +77,7 @@ end
     template = "{{= | | =}}\nHello, (|&lambda|)!"
     expected = "Hello, (|planet| => world)!"
     data = Dict("planet"=>"world", "lambda"=> () -> "|planet| => {{planet}}")
-    @test_skip Mustache.render(template, data) == expected
+    @test Mustache.render(template, data) == expected
     
 #   - name: Interpolation - Multiple Calls
 #     desc: Interpolated lambdas should not be cached.
@@ -171,7 +171,7 @@ end
 template = "{{= | | =}}<|#lambda|-|/lambda|>"
 expected =  "<-{{planet}} => Earth->"
 data = Dict("planet"=>"Earth", "lambda"=> (txt) -> txt * "{{planet}} => |planet|" * txt)
-@test_skip Mustache.render(template, data) == expected
+@test Mustache.render(template, data) == expected
 
 #   - name: Section - Multiple Calls
 #     desc: Lambdas used for sections should not be cached.

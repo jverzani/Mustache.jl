@@ -4,9 +4,10 @@ _type::String
 value::String
 start::Int
 pos::Int
-tags::Vector{String}
+tags::Tuple{String, String}
+indent::String
 collector::Vector
-Token(_type, value, start, pos, tags) = new(_type, value, start, pos, tags, Any[])
+Token(_type, value, start, pos, tags, indent="") = new(_type, value, start, pos, tags, indent, Any[])
 end
 
 mutable struct MustacheTokens
@@ -87,7 +88,7 @@ function make_tokens(template, tags)
 
         # No more? If so, save token and leave
         if scan!(scanner, rtags[1]) == ""
-            text_token = Token("text", text_value, text_start, text_end, copy(tags))
+            text_token = Token("text", text_value, text_start, text_end, (tags[1],tags[2]))
             push!(tokens, text_token)
             break
         end
@@ -149,7 +150,9 @@ function make_tokens(template, tags)
         still_first_line = false
         if standalone && _type in ("!", "^", "/", "#", "<", ">", "|", "=")
 
-            text_value = replace(text_value, r" *$" => "")
+            if !(_type in ("<",">"))
+                 text_value = replace(text_value, r" *$" => "")
+            end
 
             ## desc: "\r\n" should be considered a newline for standalone tags.
             if last_line
@@ -164,8 +167,13 @@ function make_tokens(template, tags)
 
         # Now we can add tokens
         # add text_token, token_token
-        text_token = Token("text", text_value, text_start, text_end, copy(tags))
-        token_token = Token(_type, token_value, token_start, scanner.pos, copy(tags))
+            text_token = Token("text", text_value, text_start, text_end, (tags[1],tags[2]))
+        if _type != ">"
+            token_token = Token(_type, token_value, token_start, scanner.pos, (tags[1],tags[2]))
+        else
+            indent = match(r"\h*$", text_value).match
+            token_token = Token(_type, token_value, token_start, scanner.pos, (tags[1],tags[2]), indent)
+        end
         push!(tokens, text_token)
         push!(tokens, token_token)
 
@@ -334,7 +342,7 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
 
     #    out = (value())(token.collector, render)
     if token._type == "name"
-        out = value()
+        out = render(value(), context.view)
     elseif token._type == "|"
         # pass evaluated values
         view = context.parent.view
@@ -343,10 +351,12 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
     else
         ## How to get raw section value?
         ## desc: Lambdas used for sections should receive the raw section string.
+        ## Lambdas used for sections should parse with the current delimiters.
         sec_value = toString(token.collector)
         view = context.parent.view        
         tpl = value(sec_value)
-        out = render(tpl, view)
+
+        out = render(parse(tpl, token.tags),  view)
 
     end
     write(io, out)
@@ -399,10 +409,17 @@ function renderTokens(io, tokens, writer, context, template)
             end
 
         elseif token._type == ">"
-            ## partials
+            ## partials: desc: Each line of the partial should be indented before rendering.
             fname = stripWhitespace(tokenValue)
             if isfile(fname)
-                renderTokens(io, template_from_file(fname).tokens, writer, context, template)
+                indent = token.indent
+                buf = IOBuffer()
+                for (rowno, l) in enumerate(eachline(fname, keep=true))
+                    # we don't strip indent from first line, so we don't indent that
+                    print(buf, rowno > 1 ? indent : "", l)
+                end
+                renderTokens(io, parse(String(take!(buf))), writer, context, template)
+                close(buf)
             end
 
         elseif token._type == "<"
@@ -416,25 +433,24 @@ function renderTokens(io, tokens, writer, context, template)
 
         elseif token._type == "&"
             value = lookup(context, tokenValue)
-            if value != nothing
-                print(io, value)
+            if !falsy(value)
+                ## desc: A lambda's return value should parse with the default delimiters.
+                ##       parse(value()) ensures that
+                val = isa(value, Function) ? render(parse(value()), context.view) : value
+                print(io, val)
             end
 
         elseif token._type == "{"
             value = lookup(context, tokenValue)
             if !falsy(value)
-                val = isa(value, Function) ? render(value(), context.view) : value
+                val = isa(value, Function) ? render(parse(value()), context.view) : value
                 print(io, val)
             end
 
         elseif token._type == "name"
             value = lookup(context, tokenValue)
-
-            # we had Nullable field support here, but this is dropped
-            # in v"0.7.0" in favor of Union{T, Nothing} so we check for nothing
-            # we could add a check for Missing too
             if !falsy(value)
-                val = isa(value, Function) ? render(value(), context.view) : value
+                val = isa(value, Function) ? render(parse(value()), context.view) : value
                 print(io, escape_html(val))
             end
 
