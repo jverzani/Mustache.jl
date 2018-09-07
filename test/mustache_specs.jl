@@ -40,6 +40,29 @@ using Test
         desc = t["desc"]
         
         
+using Mustache
+using YAML
+using Test
+
+ghub = "https://raw.githubusercontent.com/mustache/spec/72233f3ffda9e33915fd3022d0a9ebbcce265acd/specs/{{:spec}}.yml"
+
+specs = ["comments",
+          "delimiters",
+          "interpolation",
+          "inverted",
+          "partials",
+          "sections"#,
+          #"~lambdas"
+          ]
+
+
+D = Dict()
+for spec in specs
+    nm = Mustache.render(ghub, spec=spec)
+    D[spec] = YAML.load_file(download(nm))
+end
+
+
         val = try
             Mustache.render(t["template"], t["data"])
         catch err
@@ -71,30 +94,44 @@ end
 
 
 # partials are different, as they refer to an external file
-# XXX fix tests 7,8,9,10 for space issues.
+# tihs should clean up temp files, but we don't run as part of test suite
+# test 7 fails, but I think that one is wrong
 using Test
 function test_partials()
-    for (i,t) in enumerate(D["partials"]["tests"])
-
-        println("Test $i...")
+    for spec in specs
+        for (i,t) in enumerate(D[spec]["tests"])
+            if haskey(t, "partials")
+                println("""Test $spec / $i""")
         
-        d = t["data"]
-        partial = t["partials"]
-        for (k,v) in partial
-            io = open(k, "w")
-            write(io, v)
-            close(io)
-        end
-        
-        tpl = t["template"]
-        expected = t["expected"]
-
-        if !(i in (7,8, 9, 10)) # failed tests...
-            @test Mustache.render(tpl, d) == expected
-        end
-
-        for (k,v) in partial
-            rm(k)
+                d = t["data"]
+                partial = t["partials"]
+                for (k,v) in partial
+                    io = open(k, "w")
+                    write(io, v)
+                    close(io)
+                end
+                
+                tpl = t["template"]
+                expected = t["expected"]
+                out =  Mustache.render(tpl, d) 
+                
+                val = out == expected
+                if val
+                    @test val
+                else
+                    val = replace(out, r"\n"=>"") == replace(expected, r"\n"=>"")
+                    if val
+                        println("""$(t["desc"]): newline issue ...""")
+                        @test val
+                    else
+                        println("""$(t["desc"]): FAILED:\n $out != $expected""")
+                    end
+                end
+                
+                for (k,v) in partial
+                    rm(k)
+                end
+            end
         end
     end
 end

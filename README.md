@@ -12,7 +12,7 @@ Windows: [![Build Status](https://ci.appveyor.com/api/projects/status/github/jve
     config files, source code - anything. It works by expanding tags in a
     template using values provided in a hash or object.
 
-This package ports over most of the [mustache.js](https://github.com/janl/mustache.js) implementation for use in [Julia](http://julialang.org). All credit should go there. All bugs are my own.
+This package ports over the [mustache.js](https://github.com/janl/mustache.js) implementation for use in [Julia](http://julialang.org). All credit should go there. All bugs are my own.
 
 ## Examples
 
@@ -314,8 +314,6 @@ The partial specified by `{{< box.tpl }}` is not parsed, rather included as is i
 
 This project deviates from that of Mustache.js in a few significant ways:
 
-* There is currently no support for alternative delimiters, just the
-  curly brace is available. Otherwise, the mustache spec tests pass.
 
 * Julian structures are used, not JavaScript objects. As illustrated,
   one can use Dicts, Modules, DataFrames, functions, ...
