@@ -167,7 +167,7 @@ function make_tokens(template, tags)
 
         # Now we can add tokens
         # add text_token, token_token
-            text_token = Token("text", text_value, text_start, text_end, (tags[1],tags[2]))
+        text_token = Token("text", text_value, text_start, text_end, (tags[1],tags[2]))
         if _type != ">"
             token_token = Token(_type, token_value, token_start, scanner.pos, (tags[1],tags[2]))
         else
@@ -191,7 +191,6 @@ function make_tokens(template, tags)
             if openSection.value != token_value
                 error("Unclosed section" * openSection.value * " at $token_start")
             end
-
         elseif _type == "name" || _type == "{" || _type == "&"
             nonSpace = true
         elseif _type == "="
@@ -235,7 +234,21 @@ function nestTokens(tokens)
             collector = token.collector
         elseif token._type == "/"
             section = pop!(sections)
-            collector = length(sections) > 0 ? sections[end].collector : tree
+            if length(sections) > 0
+                push!(sections[end].collector, token)
+                collector = sections[end].collector
+            else
+                collector = tree
+            end
+#            collector = length(sections) > 0 ? sections[end].collector : tree
+
+
+            # if length(sections) > 0
+            #     collector = sections[end].collector
+            # else
+            #     collector=true
+            # end
+#            push!(collector, token)
         else
             push!(collector, token)
         end
@@ -258,15 +271,22 @@ end
 
 _toString(::Val{:name}, token, ltag, rtag) = ltag * token.value * rtag
 _toString(::Val{:text}, token, ltag, rtag) = token.value
-_toString(::Val{Symbol("#")}, token, ltag, rtag) = ltag * "#" * token_value * rtag
-_toString(::Val{Symbol("^")}, token, ltag, rtag) = ltag * "^" * token_value * rtag
-_toString(::Val{Symbol("|")}, token, ltag, rtag) = ltag * "|" * token_value * rtag
-_toString(::Val{Symbol("/")}, token, ltag, rtag) = ltag * "/" * token_value * rtag
-_toString(::Val{Symbol(">")}, token, ltag, rtag) = ltag * ">" * token_value * rtag
-_toString(::Val{Symbol("<")}, token, ltag, rtag) = ltag * "<" * token_value * rtag
-_toString(::Val{Symbol("&")}, token, ltag, rtag) = ltag * "&" * token_value * rtag
-_toString(::Val{Symbol("{")}, token, ltag, rtag) = ltag * "{" * token_value * rtag
+_toString(::Val{Symbol("^")}, token, ltag, rtag) = ltag * "^" * token.value * rtag
+_toString(::Val{Symbol("|")}, token, ltag, rtag) = ltag * "|" * token.value * rtag
+_toString(::Val{Symbol("/")}, token, ltag, rtag) = ltag * "/" * token.value * rtag 
+_toString(::Val{Symbol(">")}, token, ltag, rtag) = ltag * ">" * token.value * rtag
+_toString(::Val{Symbol("<")}, token, ltag, rtag) = ltag * "<" * token.value * rtag
+_toString(::Val{Symbol("&")}, token, ltag, rtag) = ltag * "&" * token.value * rtag
+_toString(::Val{Symbol("{")}, token, ltag, rtag) = ltag * "{" * token.value * rtag
 _toString(::Val{Symbol("=")}, token, ltag, rtag) = ""
+function _toString(::Val{Symbol("#")}, token, ltag, rtag)
+    out = ltag * "#" * token.value * rtag 
+    if !isempty(token.collector)
+        out *= toString(token.collector)
+    end
+    out
+end
+
 
           
           
@@ -355,7 +375,6 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
         sec_value = toString(token.collector)
         view = context.parent.view        
         tpl = value(sec_value)
-
         out = render(parse(tpl, token.tags),  view)
 
     end
