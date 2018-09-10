@@ -81,3 +81,21 @@ d = Dict("lambda" => (txt) -> begin
          end
          )
 @test Mustache.render(tpl, d) == "value dollars."
+
+
+
+## test nested section with filtering lambda
+tpl = """
+{{#lambda}}
+{{#iterable}}
+{{#iterable2}}
+{{.}}
+{{/iterable2}}
+{{/iterable}}
+{{/lambda}}
+"""
+
+
+d = Dict("iterable"=>Dict("iterable2"=>["a","b","c"]), "lambda"=>(txt) -> "XXX $txt XXX")
+expected = "XXX a\nb\nc\n XXX"
+@test Mustache.render(tpl, d) == expected

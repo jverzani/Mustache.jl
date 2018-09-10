@@ -1,12 +1,11 @@
 
-tags = ["{{", "}}"]
 ## regular expressions to use
 whiteRe = r"\s*"
 spaceRe = r"\s+"
 nonSpaceRe = r"\S"
 eqRe = r"\s*="
 curlyRe = r"\s*\}"
-#tagRe = r"#|\^|\/|>|\{|&|=|!"
+
 # # section
 # ^ inversion
 # / close section

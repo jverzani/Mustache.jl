@@ -38,33 +38,16 @@ using Test
         tpl = replace(tpl, r"\"" => "\\\"")
         data = t["data"]
         desc = t["desc"]
+
+
+        if haskey(t, "partials")
+            for (k,v) in t["partials"]
+                data[k] = v
+            end
+        end
         
-        
-using Mustache
-using YAML
-using Test
-
-ghub = "https://raw.githubusercontent.com/mustache/spec/72233f3ffda9e33915fd3022d0a9ebbcce265acd/specs/{{:spec}}.yml"
-
-specs = ["comments",
-          "delimiters",
-          "interpolation",
-          "inverted",
-          "partials",
-          "sections"#,
-          #"~lambdas"
-          ]
-
-
-D = Dict()
-for spec in specs
-    nm = Mustache.render(ghub, spec=spec)
-    D[spec] = YAML.load_file(download(nm))
-end
-
-
         val = try
-            Mustache.render(t["template"], t["data"])
+            Mustache.render(t["template"], data)
         catch err
             "Failed"
         end
