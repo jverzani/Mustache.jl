@@ -47,152 +47,342 @@ mutable struct AnIndex
 end
 Base.string(ind::AnIndex) = string(ind.value)
 
+
+
+
+
+peekchar = Tokenize.Lexers.peekchar
+next_token = Tokenize.Lexers.next_token
+readchar = Tokenize.Lexers.readchar
+readutf = Tokenize.Lexers.readutf
+
+
+function peekaheadmatch(io::IOBuffer, m=['{','{'])
+    if !io.readable || io.ptr > io.size
+        return false
+    end
+    i,N = 1, length(m)
+    ch1, trailing = readutf(io)
+    ch1 != m[1] && return false
+    offset = 0
+    while true
+        i == N && return true
+        i += 1
+
+        offset += trailing + 1
+        if io.ptr + offset > io.size
+            return false
+        end
+        chn, trailing = readutf(io, offset)
+        chn != m[i] && return false
+    end
+    return false
+end
+
+# ...{{.... -> (..., {{....)
+function scan_until_pos!(io, tags, firstline)
+    out = IOBuffer()
+    while !end_of_road(io)
+        if peekaheadmatch(io, tags)
+            val = String(take!(out))
+            close(out)
+            return val, firstline
+        else
+            c = read(io, Char)
+            firstline = firstline && !(c== '\n')
+            print(out, c)
+        end
+    end
+    val = String(take!(out))
+    close(out)
+    return val, firstline
+end
+            
+
+
+
+# skip over tags
+function scan_past!(io, tags = ('{','{'))
+    for i in 1:length(tags)
+        t = read(io, Char)
+    end
+end
+
+
+function end_of_road(io)
+    !io.readable && return true
+    io.ptr > io.size && return true
+    return false
+end
+
+
+
+
+WHITESPACE = (' ', '\t')
+function popfirst!_whitespace(io)
+
+    while !end_of_road(io)
+        c::Char = peekchar(io)
+        !(c in WHITESPACE) && break
+        read(io, Char)
+    end
+    
+end
+
+# is tag possibly standalone
+function is_l_standalone(txt, firstline)
+    if firstline
+        occursin(r"^ *$", txt)
+    else
+        occursin(r"\n *$", txt)
+    end
+end
+
+function is_r_standalone(io)
+    end_of_road(io) && return true
+    offset = 0
+    ch::Char, trailing::Int = readutf(io)
+    while true
+        ch == '\n' && return true
+        !(ch in WHITESPACE) && return false
+        offset += trailing + 1
+        io.ptr + offset > io.size && return true
+        ch, trailing = readutf(io, offset)
+    end
+    return false
+end
+
+    
+
+
+
 ## Make the intial set of tokens before nesting
 ## This will mutate tags
 function make_tokens(template, tags)
     
-    rtags = [asRegex(tags[1]), asRegex(tags[2])]
+    #rtags = [asRegex(tags[1]), asRegex(tags[2])]
 
     # also have tagRe regular expression to process
-    scanner = Scanner(template)
+    #scanner = Scanner(template)
+
     sections = MustacheTokens()
     tokens = MustacheTokens()
     
 
-    first_line = true
-    while !eos(scanner)
+    #first_line = true
+    # while !eos(scanner)
 
-        # in a loop we
-        # * scanUntil to match opening tag
-        # * scan to identify _type
-        # * scanUntil to grab token value
-        # * scan to end of closing tag
-        # we end with text, type, value and associated positions
-        text_start, text_end = scanner.pos, -1
-        token_start = text_start
-        text_value = token_value = ""
+    #     # in a loop we
+    #     # * scanUntil to match opening tag
+    #     # * scan to identify _type
+    #     # * scanUntil to grab token value
+    #     # * scan to end of closing tag
+    #     # we end with text, type, value and associated positions
+    #     text_start, text_end = scanner.pos, -1
+    #     token_start = text_start
+    #     text_value = token_value = ""
 
-        # scan to match opening tag
-        text_value = scanUntil!(scanner, rtags[1])
-        token_start += lastindex(text_value)
+    #     # scan to match opening tag
+    #     text_value = scanUntil!(scanner, rtags[1])
+    #     token_start += lastindex(text_value)
 
-        # No more? If so, save token and leave
-        if scan!(scanner, rtags[1]) == ""
-            text_token = Token("text", text_value, text_start, text_end, (tags[1],tags[2]))
-            push!(tokens, text_token)
-            break
-        end
+    #     # No more? If so, save token and leave
+    #     if scan!(scanner, rtags[1]) == ""
+    #         text_token = Token("text", text_value, text_start, text_end, (tags[1],tags[2]))
+    #         push!(tokens, text_token)
+    #         break
+    #     end
 
-        ## find type of tag: #,/,^,{, ...
-        _type = scan!(scanner, tagRe)
+    #     ## find type of tag: #,/,^,{, ...
+    #     _type = scan!(scanner, tagRe)
 
-        if _type == ""
-            _type = "name"
-        end
+    #     if _type == ""
+    #         _type = "name"
+    #     end
 
-        # grab value within tag
-        if _type == "="
-            token_value = stripWhitespace(scanUntil!(scanner, eqRe))
-            scan!(scanner, eqRe)
-            scanUntil!(scanner, rtags[2])
-        elseif _type == "{" # don't escape
-            token_value = scanUntil!(scanner, rtags[2])
-            scan!(scanner, r"}")
-        else
-            token_value = scanUntil!(scanner, rtags[2])
-        end
+    #     # grab value within tag
+    #     if _type == "="
+    #         token_value = stripWhitespace(scanUntil!(scanner, eqRe))
+    #         scan!(scanner, eqRe)
+    #         scanUntil!(scanner, rtags[2])
+    #     elseif _type == "{" # don't escape
+    #         token_value = scanUntil!(scanner, rtags[2])
+    #         scan!(scanner, r"}")
+    #     else
+    #         token_value = scanUntil!(scanner, rtags[2])
+    #     end
 
-        # unclosed tag?
-        if scan!(scanner, rtags[2]) == ""
-            error("Unclosed tag at " * string(scanner.pos))
-        end
+    #     # unclosed tag?
+    #     if scan!(scanner, rtags[2]) == ""
+    #         error("Unclosed tag at " * string(scanner.pos))
+    #     end
 
-        ## is the tag "standalone?
-        ## standalone comments get special treatment
-        ## here we identify if a tag is standalone
-        ## This is *alot* of work for this task.
-        ## XXX Speed this up
-        ls, rs = false, false
-        first_line = first_line &&  !occursin(r"\n", text_value)
-        last_line = !occursin(r"\n", scanner.tail)
+    #     ## is the tag "standalone?
+    #     ## standalone comments get special treatment
+    #     ## here we identify if a tag is standalone
+    #     ## This is *alot* of work for this task.
+    #     ## XXX Speed this up
+    #     ls, rs = false, false
+    #     first_line = first_line &&  !occursin(r"\n", text_value)
+    #     last_line = !occursin(r"\n", scanner.tail)
         
-        if first_line
-            ls = occursin(r"^ *$", text_value)
-        else
-            ls = occursin(r"\n *$", text_value)
-        end
+    #     if first_line
+    #         ls = occursin(r"^ *$", text_value)
+    #     else
+    #         ls = occursin(r"\n *$", text_value)
+    #     end
         
-        if ls
-            if last_line
-                if occursin(r"^ *$", scanner.tail)
-                    rs = true
-                end
+    #     if ls
+    #         if last_line
+    #             if occursin(r"^ *$", scanner.tail)
+    #                 rs = true
+    #             end
+    #         else
+    #             if occursin(r"^ *\n", scanner.tail)
+    #                 rs = true
+    #             end
+    #         end
+    #     end
+    #     standalone = ls && rs
+
+        
+    #     # remove \n and space for standalone tags
+    #     still_first_line = false
+    #     if standalone && _type in ("!", "^", "/", "#", "<", ">", "|", "=")
+    #         if !(_type in ("<",">"))
+    #              text_value = replace(text_value, r" *$" => "")
+    #         end
+
+    #         ## desc: "\r\n" should be considered a newline for standalone tags.
+    #         if last_line
+    #             scanner.tail = replace(scanner.tail, r"^ *"=>"")
+    #         else
+    #             scanner.tail = replace(scanner.tail, r"^ *\r{0,1}\n"=>"")
+    #             still_first_line = true # clobbered \n, so keep as first line
+    #         end
+    #     end
+    #     first_line = still_first_line
+
+
+    #     # Now we can add tokens
+    #     # add text_token, token_token
+    #     text_token = Token("text", text_value, text_start, text_end, (tags[1],tags[2]))
+    #     if _type != ">"
+    #         token_token = Token(_type, token_value, token_start, scanner.pos, (tags[1],tags[2]))
+    #     else
+    #         if first_line && occursin(r"^\h*$", text_value)
+    #             m = match(r"^(\h*)$", text_value)
+    #         else
+    #             m = match(r"\n([\s\t\h]*)$", text_value)
+    #         end
+    #         indent = m == nothing ? "" : m.captures[1]
+    #         token_token = Token(_type, token_value, token_start, scanner.pos, (tags[1],tags[2]), indent)
+    #     end
+    #     push!(tokens, text_token)
+    #     push!(tokens, token_token)
+
+
+    io = IOBuffer(template)
+
+    ltag, rtag = tags
+    ltags = collect(ltag)
+    rtags = collect(rtag)
+
+    tokens = Any[]
+
+    firstline = true
+    while !end_of_road(io)
+        # we have
+        # ...text... {{ tag }} ...rest...
+        # each lap makes token of ...text... and {{tag}} leaving ...rest...
+        
+        b0 = 0
+        text_value, firstline = scan_until_pos!(io, ltags, firstline)
+        b1 = position(io)
+
+        if end_of_road(io)
+            token = Mustache.Token("text", text_value, b0, b1, (ltag, rtag))
+            push!(tokens, token)
+            return tokens
+        end
+        scan_past!(io, ltags)
+
+        text_token = Mustache.Token("text", text_value, b0, b1, (ltag, rtag))
+
+        # grab tag token
+        t0 = position(io)
+        token_value, firstline = scan_until_pos!(io, rtags, firstline)
+        t1 = position(io)
+        
+        if end_of_road(io)
+            error("tag not closed")
+        end
+        scan_past!(io, rtags)
+
+
+
+        # what kinda tag did we get?
+        _type = token_value[1:1]
+        if _type in  ("#", "^", "/", ">", "<", "!", "|", "=", "{")
+            token_value = stripWhitespace(token_value[2:end])
+            
+            if _type == "="
+                token_value = stripWhitespace(token_value[1:end-1]) # strip off trailing =
+                tag_token = Mustache.Token("=", token_value, t0, t1, (ltag, rtag))
+                ts = String.(split(token_value, r"[ \t]+"))
+                length(ts) != 2 && error("Change of delimiter must be a pair $ts")
+                ltag, rtag = ts
+                ltags, rtags = collect(ltag), collect(rtag)
+                
+            elseif _type == "{"
+                # strip "}" if present in io
+                c = peekchar(io)
+                c == '}' && read(io, Char)
+                tag_token = Mustache.Token(_type, token_value, t0, t1, (ltag, rtag))
             else
-                if occursin(r"^ *\n", scanner.tail)
-                    rs = true
-                end
+                tag_token = Mustache.Token(_type, token_value, t0, t1, (ltag, rtag))
             end
+        else
+            token_value = Mustache.stripWhitespace(token_value)
+            tag_token = Mustache.Token("name", token_value, t0, t1, (ltag, rtag))
         end
-        standalone = ls && rs
+        if tag_token._type == "name"
+            firstline = false
+        end
 
-        
-        # remove \n and space for standalone tags
-        still_first_line = false
+        # are we standalone?
+        # yes if firstline and all whitespace
+        # yes if !firstline and match \nwhitespace
+        # AND
+        # match rest with space[EOF,\n]
+        standalone = is_r_standalone(io) && is_l_standalone(text_value, firstline)
         if standalone && _type in ("!", "^", "/", "#", "<", ">", "|", "=")
-            if !(_type in ("<",">"))
-                 text_value = replace(text_value, r" *$" => "")
-            end
-
-            ## desc: "\r\n" should be considered a newline for standalone tags.
-            if last_line
-                scanner.tail = replace(scanner.tail, r"^ *"=>"")
-            else
-                scanner.tail = replace(scanner.tail, r"^ *\r{0,1}\n"=>"")
-                still_first_line = true # clobbered \n, so keep as first line
-            end
+            
+            # we strip text_value back to \n or beginning
+            text_token.value = replace(text_token.value, r" *$" => "")
+            # strip whitspace at outset of io and "\n"
+            popfirst!_whitespace(io)
+            !end_of_road(io) && read(io, Char) # will be \n
         end
-        first_line = still_first_line
-
-
-        # Now we can add tokens
-        # add text_token, token_token
-        text_token = Token("text", text_value, text_start, text_end, (tags[1],tags[2]))
-        if _type != ">"
-            token_token = Token(_type, token_value, token_start, scanner.pos, (tags[1],tags[2]))
-        else
-            if first_line && occursin(r"^\h*$", text_value)
-                m = match(r"^(\h*)$", text_value)
-            else
-                m = match(r"\n([\s\t\h]*)$", text_value)
-            end
-            indent = m == nothing ? "" : m.captures[1]
-            token_token = Token(_type, token_value, token_start, scanner.pos, (tags[1],tags[2]), indent)
-        end
+        
+            
         push!(tokens, text_token)
-        push!(tokens, token_token)
-
+        push!(tokens, tag_token)
+        
 
         # account for matching/nested sections
         if _type == "#" || _type == "^" || _type ==  "|"
-            push!(sections, token_token)
+            push!(sections, tag_token)
         elseif _type == "/"
             ## section nestinng
             if length(sections) == 0
-                error("Unopened section $token_value at $token_start")
+                error("Unopened section $token_value at $t0")
             end
 
             openSection = pop!(sections)
             if openSection.value != token_value
-                error("Unclosed section" * openSection.value * " at $token_start")
+                error("Unclosed section: " * openSection.value * " at $t0")
             end
-        elseif _type == "name" || _type == "{" || _type == "&"
-            nonSpace = true
-        elseif _type == "="
-            tags[1], tags[2] = String.(split(token_value, spaceRe))
-            if length(tags) != 2
-                error("Invalid tags at $token_start:" * join(tags, ", "))
-            end
-            rtags[1], rtags[2] = asRegex.(tags)
         end
 
     end
