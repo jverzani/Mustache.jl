@@ -1,7 +1,4 @@
-VERSION < v"0.7.0-beta2.199" && __precompile__()
 module Mustache
-
-#import Compat: @compat, lastindex, occursin, replace, names, Nothing, undef
 
 include("utils.jl")
 include("tokens.jl")
@@ -13,9 +10,9 @@ include("parse.jl")
 export @mt_str, @mt_mstr, render, render_from_file
 
 """
+    mt"string"
 
-Macro to comile simple parsing outside of loops
-use as mt"{{a}} and {{b}}", say
+Macro to parse tokens from a string. Useful when template is to be reused.
 
 """
 macro mt_str(s)

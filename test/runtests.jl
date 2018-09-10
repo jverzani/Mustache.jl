@@ -5,9 +5,9 @@ include("test_index.jl")
 
 # spec tests
 include("spec_comments.jl")
-include("spec_delimiters.jl") # not implemented
+include("spec_delimiters.jl")
 include("spec_interpolation.jl")
 include("spec_inverted.jl")
-#include("spec_partials.jl") # need separate writing
+include("spec_partials.jl")
 include("spec_sections.jl")
 include("spec_lambdas.jl")

@@ -68,7 +68,7 @@ tpl = """[ {{>include}} ]
 [ |>include| ]
 """
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("value"=>"yes")) == """[ .yes. ]
+	@test Mustache.render(tpl, Dict{Any,Any}("value"=>"yes","include"=>".{{value}}.")) == """[ .yes. ]
 [ .yes. ]
 """
 
@@ -77,7 +77,7 @@ tpl = """[ {{>include}} ]
 [ .{{value}}.  .|value|. ]
 """
 
-	@test_skip Mustache.render(tpl, Dict{Any,Any}("value"=>"yes")) == """[ .yes.  .yes. ]
+	@test Mustache.render(tpl, Dict{Any,Any}("value"=>"yes","include"=>".{{value}}. {{= | | =}} .|value|.")) == """[ .yes.  .yes. ]
 [ .yes.  .|value|. ]
 """
 

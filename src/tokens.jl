@@ -48,18 +48,13 @@ end
 Base.string(ind::AnIndex) = string(ind.value)
 
 ## Make the intial set of tokens before nesting
+## This will mutate tags
 function make_tokens(template, tags)
     
     rtags = [asRegex(tags[1]), asRegex(tags[2])]
-    
 
-    
-    st_standalone = r"\n *$"
-    end_standalone = r"^ +\n"
     # also have tagRe regular expression to process
-
     scanner = Scanner(template)
-
     sections = MustacheTokens()
     tokens = MustacheTokens()
     
@@ -77,12 +72,7 @@ function make_tokens(template, tags)
         token_start = text_start
         text_value = token_value = ""
 
-        ## XXX to incorporate different tokens, need to make regular expressions changeable
-        ## eqRe, spaceRe, tagRe, ...
-
         # scan to match opening tag
-
-        
         text_value = scanUntil!(scanner, rtags[1])
         token_start += lastindex(text_value)
 
@@ -93,7 +83,7 @@ function make_tokens(template, tags)
             break
         end
 
-        ## find type #,/,^,{, ...
+        ## find type of tag: #,/,^,{, ...
         _type = scan!(scanner, tagRe)
 
         if _type == ""
@@ -105,7 +95,7 @@ function make_tokens(template, tags)
             token_value = stripWhitespace(scanUntil!(scanner, eqRe))
             scan!(scanner, eqRe)
             scanUntil!(scanner, rtags[2])
-        elseif _type == "{" # Hard code tags
+        elseif _type == "{" # don't escape
             token_value = scanUntil!(scanner, rtags[2])
             scan!(scanner, r"}")
         else
@@ -149,7 +139,6 @@ function make_tokens(template, tags)
         # remove \n and space for standalone tags
         still_first_line = false
         if standalone && _type in ("!", "^", "/", "#", "<", ">", "|", "=")
-
             if !(_type in ("<",">"))
                  text_value = replace(text_value, r" *$" => "")
             end
@@ -171,7 +160,12 @@ function make_tokens(template, tags)
         if _type != ">"
             token_token = Token(_type, token_value, token_start, scanner.pos, (tags[1],tags[2]))
         else
-            indent = match(r"\h*$", text_value).match
+            if first_line && occursin(r"^\h*$", text_value)
+                m = match(r"^(\h*)$", text_value)
+            else
+                m = match(r"\n([\s\t\h]*)$", text_value)
+            end
+            indent = m == nothing ? "" : m.captures[1]
             token_token = Token(_type, token_value, token_start, scanner.pos, (tags[1],tags[2]), indent)
         end
         push!(tokens, text_token)
@@ -240,15 +234,6 @@ function nestTokens(tokens)
             else
                 collector = tree
             end
-#            collector = length(sections) > 0 ? sections[end].collector : tree
-
-
-            # if length(sections) > 0
-            #     collector = sections[end].collector
-            # else
-            #     collector=true
-            # end
-#            push!(collector, token)
         else
             push!(collector, token)
         end
@@ -258,7 +243,7 @@ function nestTokens(tokens)
 end
 
 ## In lambdas with section this is used to go from the tokens to an unevaluated string
-## XXX Token should have tags embedded in it
+## This might have issues with space being trimmed
 function toString(tokens)
     io = IOBuffer()
     for token in tokens
@@ -439,6 +424,24 @@ function renderTokens(io, tokens, writer, context, template)
                 end
                 renderTokens(io, parse(String(take!(buf))), writer, context, template)
                 close(buf)
+            else
+                value = lookup(context, fname)
+                if !falsy(value)
+
+                    indent = token.indent
+                    slashn = ""
+                    # don't indent if last \n
+                    if occursin(r"\n$", value)
+                        value = chomp(value)
+                        slashn = "\n"
+                    end
+                    buf = IOBuffer()
+                    l = split(value, r"[\n]")
+                    print(buf, join(l, "\n"*indent))
+                    tpl = String(take!(buf)) * slashn
+                    renderTokens(io, parse(tpl), writer, context, template)
+                    close(buf)
+                end
             end
 
         elseif token._type == "<"
