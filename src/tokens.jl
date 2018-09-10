@@ -165,9 +165,6 @@ function make_tokens(template, tags)
     # also have tagRe regular expression to process
     #scanner = Scanner(template)
 
-    sections = MustacheTokens()
-    tokens = MustacheTokens()
-    
 
     #first_line = true
     # while !eos(scanner)
@@ -282,15 +279,19 @@ function make_tokens(template, tags)
     #     push!(tokens, token_token)
 
 
-    io = IOBuffer(template)
 
     ltag, rtag = tags
     ltags = collect(ltag)
     rtags = collect(rtag)
 
-    tokens = Any[]
+    sections = MustacheTokens()
+    tokens = MustacheTokens()
+    
+
+    #tokens = Token[]
 
     firstline = true
+    io = IOBuffer(template)
     while !end_of_road(io)
         # we have
         # ...text... {{ tag }} ...rest...
@@ -324,21 +325,23 @@ function make_tokens(template, tags)
         # what kinda tag did we get?
         _type = token_value[1:1]
         if _type in  ("#", "^", "/", ">", "<", "!", "|", "=", "{")
-            token_value = stripWhitespace(token_value[2:end])
+            # type is first, we peel it off, also strip trailing = and },
+            # as necessary
+
+            token_value = stripWhitespace(token_value[2:(end-(_type == "_"))])
+            if _type == "{"
+                # strip "}" if present in io
+                c = peekchar(io)
+                c == '}' && read(io, Char)
+            end
             
             if _type == "="
-                token_value = stripWhitespace(token_value[1:end-1]) # strip off trailing =
                 tag_token = Mustache.Token("=", token_value, t0, t1, (ltag, rtag))
                 ts = String.(split(token_value, r"[ \t]+"))
                 length(ts) != 2 && error("Change of delimiter must be a pair $ts")
                 ltag, rtag = ts
                 ltags, rtags = collect(ltag), collect(rtag)
                 
-            elseif _type == "{"
-                # strip "}" if present in io
-                c = peekchar(io)
-                c == '}' && read(io, Char)
-                tag_token = Mustache.Token(_type, token_value, t0, t1, (ltag, rtag))
             else
                 tag_token = Mustache.Token(_type, token_value, t0, t1, (ltag, rtag))
             end
@@ -355,6 +358,7 @@ function make_tokens(template, tags)
         # yes if !firstline and match \nwhitespace
         # AND
         # match rest with space[EOF,\n]
+
         standalone = is_r_standalone(io) && is_l_standalone(text_value, firstline)
         if standalone && _type in ("!", "^", "/", "#", "<", ">", "|", "=")
             
