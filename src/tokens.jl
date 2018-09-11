@@ -42,7 +42,7 @@ function Base.push!(tokens::MustacheTokens, token::Token)
         push!(tokens.tokens, token)
         return
     end
-    
+
     lastToken = tokens[end]
     if !falsy(lastToken) && lastToken._type == "text" ==  token._type
         lastToken.value *= token.value
@@ -182,7 +182,7 @@ function popfirst!_whitespace(io)
         !(c in WHITESPACE) && break
         read(io, Char)
     end
-    
+
 end
 
 # is tag possibly standalone
@@ -226,14 +226,14 @@ function make_tokens(template, tags)
 
     sections = MustacheTokens()
     tokens = MustacheTokens()
-    
+
     firstline = true
     io = IOBuffer(template)
     while !end_of_road(io)
         # we have
         # ...text... {{ tag }} ...rest...
         # each lap makes token of ...text... and {{tag}} leaving ...rest...
-        
+
         b0 = 0
         text_value, firstline = scan_until!(io, ltags, firstline)
         b1 = position(io)
@@ -255,7 +255,7 @@ function make_tokens(template, tags)
             throw(ArgumentError("tag not closed: $token_value $ltag $rtag"))
         end
         scan_past!(io, rtags)
-        
+
         # what kinda tag did we get?
         _type = token_value[1:1]
         if _type in  ("#", "^", "/", ">", "<", "!", "|", "=", "{", "&")
@@ -263,15 +263,15 @@ function make_tokens(template, tags)
             # as necessary
 
             token_value = stripWhitespace(token_value[2:(end-(_type == "="))])
-            
+
             if _type == "{"
                 # strip "}" if present in io
                 c = peekchar(io)
                 c == '}' && read(io, Char)
             end
-            
+
             if _type == "="
-                
+
                 tag_token = TagToken("=", token_value, ltag, rtag)
                 ts = String.(split(token_value, r"[ \t]+"))
                 length(ts) != 2 && throw(ArgumentError("Change of delimiter must be a pair. Identified: $ts"))
@@ -292,14 +292,14 @@ function make_tokens(template, tags)
             elseif _type in ("#", "^", "|")
 
                 tag_token = SectionToken(_type, token_value, ltag, rtag)
-                
+
             else
 
                 tag_token = TagToken(_type, token_value, ltag, rtag)
 
             end
         else
-            
+
             token_value = stripWhitespace(token_value)
             tag_token = TagToken("name", token_value, ltag, rtag)
 
@@ -317,7 +317,7 @@ function make_tokens(template, tags)
 
         standalone = is_r_standalone(io) && is_l_standalone(text_value, firstline)
         firstline = false
-        
+
         if standalone && _type in ("!", "^", "/", "#", "<", ">", "|", "=")
 
             # we strip text_value back to \n or beginning
@@ -329,9 +329,9 @@ function make_tokens(template, tags)
                 read(io, Char) # will be \n
                 firstline = true
             end
-            
+
         end
-        
+
         push!(tokens, text_token)
         push!(tokens, tag_token)
 
@@ -413,14 +413,14 @@ _toString(::Val{:name}, t) = t.ltag * t.value * t.rtag
 _toString(::Val{:text}, t) = t.value
 _toString(::Val{Symbol("^")}, t) = t.ltag * "^" * t.value * t.rtag
 _toString(::Val{Symbol("|")}, t) = t.ltag * "|" * t.value * t.rtag
-_toString(::Val{Symbol("/")}, t) = t.ltag * "/" * t.value * t.rtag 
+_toString(::Val{Symbol("/")}, t) = t.ltag * "/" * t.value * t.rtag
 _toString(::Val{Symbol(">")}, t) = t.ltag * ">" * t.value * t.rtag
 _toString(::Val{Symbol("<")}, t) = t.ltag * "<" * t.value * t.rtag
 _toString(::Val{Symbol("&")}, t) = t.ltag * "&" * t.value * t.rtag
 _toString(::Val{Symbol("{")}, t) = t.ltag * "{" * t.value * t.rtag
 _toString(::Val{Symbol("=")}, t) = ""
 function _toString(::Val{Symbol("#")}, t)
-    out = t.ltag * "#" * t.value * t.rtag 
+    out = t.ltag * "#" * t.value * t.rtag
     if !isempty(t.collector)
         out *= toString(t.collector)
     end
@@ -428,8 +428,8 @@ function _toString(::Val{Symbol("#")}, t)
 end
 
 
-          
-          
+
+
 # render tokens with values given in context
 function renderTokensByValue(value, io, token, writer, context, template)
 
@@ -473,7 +473,7 @@ end
 ## what to do with an index value `.[ind]`?
 ## We have `.[ind]` being of a leaf type (values are not pushed onto a Context) so of simple usage
 function _renderTokensByValue(value::AnIndex, io, token, writer, context, template)
-    
+
     if token._type == "#" || token._type == "|"
         # print if match
         if value.value == context.view
@@ -513,7 +513,7 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
         ## desc: Lambdas used for sections should receive the raw section string.
         ## Lambdas used for sections should parse with the current delimiters.
         sec_value = toString(token.collector)
-        view = context.parent.view        
+        view = context.parent.view
         tpl = value(sec_value)
         out = render(parse(tpl, (token.ltag, token.rtag)),  view)
 
@@ -552,7 +552,7 @@ function renderTokens(io, tokens, writer, context, template)
             renderTokensByValue(value, io, token, writer, context, template)
 
         elseif token._type == "^"
-            
+
             ## display if falsy, unlike #
             value = lookup(context, tokenValue)
             if !isa(value, AnIndex)
