@@ -2,7 +2,6 @@ module Mustache
 
 include("utils.jl")
 include("tokens.jl")
-include("scanner.jl")
 include("context.jl")
 include("writer.jl")
 include("parse.jl")

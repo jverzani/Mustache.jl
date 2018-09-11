@@ -1,12 +1,28 @@
-mutable struct Token
+
+# Token types
+abstract type Token end
+
+mutable struct TextToken <: Token
 _type::String
 value::String
-start::Int
-pos::Int
-tags::Tuple{String, String}
+end
+
+mutable struct TagToken <: Token
+_type::String
+value::String
+ltag::String
+rtag::String
 indent::String
+TagToken(_type, value, ltag, rtag, indent="") = new(_type, value, ltag, rtag, indent)
+end
+
+mutable struct SectionToken <: Token
+_type::String
+value::String
+ltag::String
+rtag::String
 collector::Vector
-Token(_type, value, start, pos, tags, indent="") = new(_type, value, start, pos, tags, indent, Any[])
+SectionToken(_type, value, ltag, rtag) = new(_type, value, ltag, rtag, Any[])
 end
 
 mutable struct MustacheTokens
@@ -30,7 +46,6 @@ function Base.push!(tokens::MustacheTokens, token::Token)
     lastToken = tokens[end]
     if !falsy(lastToken) && lastToken._type == "text" ==  token._type
         lastToken.value *= token.value
-        lastToken.pos = token.pos
     else
         push!(tokens.tokens, token)
     end
@@ -49,7 +64,7 @@ Base.string(ind::AnIndex) = string(ind.value)
 ### We copy some functions from Tokenize
 function peekchar(io::Base.GenericIOBuffer)
     if !io.readable || io.ptr > io.size
-        return EOF_CHAR
+        return '∅'
     end
     ch, _ = readutf(io)
     return ch
@@ -172,6 +187,8 @@ end
 
 # is tag possibly standalone
 # check the left side
+# XXX This could be part of scan_until!
+# then we could avoid regular expressions here
 function is_l_standalone(txt, firstline)
     if firstline
         occursin(r"^ *$", txt)
@@ -201,7 +218,6 @@ end
 
 
 ## Make the intial set of tokens before nesting
-## This will mutate tags
 function make_tokens(template, tags)
 
     ltag, rtag = tags
@@ -223,12 +239,12 @@ function make_tokens(template, tags)
         b1 = position(io)
 
         if end_of_road(io)
-            token = Mustache.Token("text", text_value, b0, b1, (ltag, rtag))
+            token = TextToken("text", text_value)
             push!(tokens, token)
             return tokens
         end
         scan_past!(io, ltags)
-        text_token = Mustache.Token("text", text_value, b0, b1, (ltag, rtag))
+        text_token = TextToken("text", text_value)
 
         # grab tag token
         t0 = position(io)
@@ -236,7 +252,7 @@ function make_tokens(template, tags)
         t1 = position(io)
 
         if end_of_road(io)
-            error("tag not closed: $token_value $ltag $rtag")
+            throw(ArgumentError("tag not closed: $token_value $ltag $rtag"))
         end
         scan_past!(io, rtags)
         
@@ -247,6 +263,7 @@ function make_tokens(template, tags)
             # as necessary
 
             token_value = stripWhitespace(token_value[2:(end-(_type == "="))])
+            
             if _type == "{"
                 # strip "}" if present in io
                 c = peekchar(io)
@@ -255,9 +272,9 @@ function make_tokens(template, tags)
             
             if _type == "="
                 
-                tag_token = Mustache.Token("=", token_value, t0, t1, (ltag, rtag))
+                tag_token = TagToken("=", token_value, ltag, rtag)
                 ts = String.(split(token_value, r"[ \t]+"))
-                length(ts) != 2 && error("Change of delimiter must be a pair $ts")
+                length(ts) != 2 && throw(ArgumentError("Change of delimiter must be a pair. Identified: $ts"))
                 ltag, rtag = ts
                 ltags, rtags = collect(ltag), collect(rtag)
 
@@ -270,17 +287,21 @@ function make_tokens(template, tags)
                     m = match(r"\n([\s\t\h]*)$", text_value)
                 end
                 indent = m == nothing ? "" : m.captures[1]
-                tag_token = Token(_type, token_value, t0, t1, (ltag, rtag), indent)
+                tag_token = TagToken(_type, token_value, ltag, rtag, indent)
 
+            elseif _type in ("#", "^", "|")
+
+                tag_token = SectionToken(_type, token_value, ltag, rtag)
+                
             else
 
-                tag_token = Mustache.Token(_type, token_value, t0, t1, (ltag, rtag))
+                tag_token = TagToken(_type, token_value, ltag, rtag)
 
             end
         else
             
-            token_value = Mustache.stripWhitespace(token_value)
-            tag_token = Mustache.Token("name", token_value, t0, t1, (ltag, rtag))
+            token_value = stripWhitespace(token_value)
+            tag_token = TagToken("name", token_value, ltag, rtag)
 
         end
 
@@ -320,12 +341,12 @@ function make_tokens(template, tags)
         elseif _type == "/"
             ## section nestinng
             if length(sections) == 0
-                error("Unopened section $token_value at $t0")
+                throw(ArgumentError("Unopened section $token_value at $t0"))
             end
 
             openSection = pop!(sections)
             if openSection.value != token_value
-                error("Unclosed section: " * openSection.value * " at $t0")
+                throw(ArgumentError("Unclosed section: " * openSection.value * " at $t0"))
             end
         end
 
@@ -333,7 +354,7 @@ function make_tokens(template, tags)
 
     if length(sections) > 0
         openSection = pop!(sections)
-        error("Unclosed section " * string(openSection.value) * "at " * string(scanner.pos))
+        throw(ArgumentError("Unclosed section " * string(openSection.value)))
     end
 
     return(tokens)
@@ -381,27 +402,27 @@ end
 function toString(tokens)
     io = IOBuffer()
     for token in tokens
-        write(io, _toString(Val{Symbol(token._type)}(), token, token.tags...))
+        write(io, _toString(Val{Symbol(token._type)}(), token))
     end
     out = String(take!(io))
     close(io)
     out
 end
 
-_toString(::Val{:name}, token, ltag, rtag) = ltag * token.value * rtag
-_toString(::Val{:text}, token, ltag, rtag) = token.value
-_toString(::Val{Symbol("^")}, token, ltag, rtag) = ltag * "^" * token.value * rtag
-_toString(::Val{Symbol("|")}, token, ltag, rtag) = ltag * "|" * token.value * rtag
-_toString(::Val{Symbol("/")}, token, ltag, rtag) = ltag * "/" * token.value * rtag 
-_toString(::Val{Symbol(">")}, token, ltag, rtag) = ltag * ">" * token.value * rtag
-_toString(::Val{Symbol("<")}, token, ltag, rtag) = ltag * "<" * token.value * rtag
-_toString(::Val{Symbol("&")}, token, ltag, rtag) = ltag * "&" * token.value * rtag
-_toString(::Val{Symbol("{")}, token, ltag, rtag) = ltag * "{" * token.value * rtag
-_toString(::Val{Symbol("=")}, token, ltag, rtag) = ""
-function _toString(::Val{Symbol("#")}, token, ltag, rtag)
-    out = ltag * "#" * token.value * rtag 
-    if !isempty(token.collector)
-        out *= toString(token.collector)
+_toString(::Val{:name}, t) = t.ltag * t.value * t.rtag
+_toString(::Val{:text}, t) = t.value
+_toString(::Val{Symbol("^")}, t) = t.ltag * "^" * t.value * t.rtag
+_toString(::Val{Symbol("|")}, t) = t.ltag * "|" * t.value * t.rtag
+_toString(::Val{Symbol("/")}, t) = t.ltag * "/" * t.value * t.rtag 
+_toString(::Val{Symbol(">")}, t) = t.ltag * ">" * t.value * t.rtag
+_toString(::Val{Symbol("<")}, t) = t.ltag * "<" * t.value * t.rtag
+_toString(::Val{Symbol("&")}, t) = t.ltag * "&" * t.value * t.rtag
+_toString(::Val{Symbol("{")}, t) = t.ltag * "{" * t.value * t.rtag
+_toString(::Val{Symbol("=")}, t) = ""
+function _toString(::Val{Symbol("#")}, t)
+    out = t.ltag * "#" * t.value * t.rtag 
+    if !isempty(t.collector)
+        out *= toString(t.collector)
     end
     out
 end
@@ -494,7 +515,7 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
         sec_value = toString(token.collector)
         view = context.parent.view        
         tpl = value(sec_value)
-        out = render(parse(tpl, token.tags),  view)
+        out = render(parse(tpl, (token.ltag, token.rtag)),  view)
 
     end
     write(io, out)

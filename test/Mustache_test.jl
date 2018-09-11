@@ -57,7 +57,7 @@ tpl = mt"""{{#wrapped}}
 """
 
 d = Dict("name" => "Willy", "wrapped" => (txt) -> "<b>" * txt * "</b>")
-@test_skip Mustache.render(tpl, d) == "<b>Willy is awesome.\n</b>"
+@test Mustache.render(tpl, d) == "<b>Willy is awesome.\n</b>"
 
 ## Test of using Dict in {{#}}/{{/}} things
 tpl = mt"{{#:d}}{{x}} and {{y}}{{/:d}}"
@@ -98,4 +98,4 @@ tpl = """
 
 d = Dict("iterable"=>Dict("iterable2"=>["a","b","c"]), "lambda"=>(txt) -> "XXX $txt XXX")
 expected = "XXX a\nb\nc\n XXX"
-@test_skip Mustache.render(tpl, d) == expected
+@test Mustache.render(tpl, d) == expected
