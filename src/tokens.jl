@@ -1,4 +1,3 @@
-
 mutable struct Token
 _type::String
 value::String
@@ -33,7 +32,6 @@ function Base.push!(tokens::MustacheTokens, token::Token)
         lastToken.value *= token.value
         lastToken.pos = token.pos
     else
-        token._type == "text" && falsy(token.value) && return
         push!(tokens.tokens, token)
     end
 end
@@ -48,15 +46,59 @@ end
 Base.string(ind::AnIndex) = string(ind.value)
 
 
+### We copy some functions from Tokenize
+function peekchar(io::Base.GenericIOBuffer)
+    if !io.readable || io.ptr > io.size
+        return EOF_CHAR
+    end
+    ch, _ = readutf(io)
+    return ch
+end
 
+# this implementation is copied from Tokenize,
+@inline function utf8_trailing(i)
+    if i < 193
+        return 0
+    elseif i < 225
+        return 1
+    elseif i < 241
+        return 2
+    elseif i < 249
+        return 3
+    elseif i < 253
+        return 4
+    else
+        return 5
+    end
+end
 
+const utf8_offset = [0x00000000
+                    0x00003080
+                    0x000e2080
+                    0x03c82080
+                    0xfa082080
+                    0x82082080]
 
-peekchar = Tokenize.Lexers.peekchar
-next_token = Tokenize.Lexers.next_token
-readchar = Tokenize.Lexers.readchar
-readutf = Tokenize.Lexers.readutf
+function readutf(io, offset = 0)
+    ch = convert(UInt8, io.data[io.ptr + offset])
+    if ch < 0x80
+        return convert(Char, ch), 0
+    end
+    trailing = utf8_trailing(ch + 1)
+    c::UInt32 = 0
+    for j = 1:trailing
+        c += ch
+        c <<= 6
+        ch = convert(UInt8, io.data[io.ptr + j + offset])
+    end
+    c += ch
+    c -= utf8_offset[trailing + 1]
+    return convert(Char, c), trailing
+end
 
+####
 
+## this is modified from dpeekchar in Tokenize
 function peekaheadmatch(io::IOBuffer, m=['{','{'])
     if !io.readable || io.ptr > io.size
         return false
@@ -80,7 +122,7 @@ function peekaheadmatch(io::IOBuffer, m=['{','{'])
 end
 
 # ...{{.... -> (..., {{....)
-function scan_until_pos!(io, tags, firstline)
+function scan_until!(io, tags, firstline)
     out = IOBuffer()
     while !end_of_road(io)
         if peekaheadmatch(io, tags)
@@ -97,7 +139,6 @@ function scan_until_pos!(io, tags, firstline)
     close(out)
     return val, firstline
 end
-            
 
 
 
@@ -108,7 +149,7 @@ function scan_past!(io, tags = ('{','{'))
     end
 end
 
-
+# end of io stream
 function end_of_road(io)
     !io.readable && return true
     io.ptr > io.size && return true
@@ -117,7 +158,7 @@ end
 
 
 
-
+# stip whitespace at head of io stream
 WHITESPACE = (' ', '\t')
 function popfirst!_whitespace(io)
 
@@ -130,14 +171,17 @@ function popfirst!_whitespace(io)
 end
 
 # is tag possibly standalone
+# check the left side
 function is_l_standalone(txt, firstline)
     if firstline
         occursin(r"^ *$", txt)
     else
-        occursin(r"\n *$", txt)
+        out = occursin(r"\n *$", txt)
+        out
     end
 end
 
+# check the last side
 function is_r_standalone(io)
     end_of_road(io) && return true
     offset = 0
@@ -152,133 +196,13 @@ function is_r_standalone(io)
     return false
 end
 
-    
+
 
 
 
 ## Make the intial set of tokens before nesting
 ## This will mutate tags
 function make_tokens(template, tags)
-    
-    #rtags = [asRegex(tags[1]), asRegex(tags[2])]
-
-    # also have tagRe regular expression to process
-    #scanner = Scanner(template)
-
-
-    #first_line = true
-    # while !eos(scanner)
-
-    #     # in a loop we
-    #     # * scanUntil to match opening tag
-    #     # * scan to identify _type
-    #     # * scanUntil to grab token value
-    #     # * scan to end of closing tag
-    #     # we end with text, type, value and associated positions
-    #     text_start, text_end = scanner.pos, -1
-    #     token_start = text_start
-    #     text_value = token_value = ""
-
-    #     # scan to match opening tag
-    #     text_value = scanUntil!(scanner, rtags[1])
-    #     token_start += lastindex(text_value)
-
-    #     # No more? If so, save token and leave
-    #     if scan!(scanner, rtags[1]) == ""
-    #         text_token = Token("text", text_value, text_start, text_end, (tags[1],tags[2]))
-    #         push!(tokens, text_token)
-    #         break
-    #     end
-
-    #     ## find type of tag: #,/,^,{, ...
-    #     _type = scan!(scanner, tagRe)
-
-    #     if _type == ""
-    #         _type = "name"
-    #     end
-
-    #     # grab value within tag
-    #     if _type == "="
-    #         token_value = stripWhitespace(scanUntil!(scanner, eqRe))
-    #         scan!(scanner, eqRe)
-    #         scanUntil!(scanner, rtags[2])
-    #     elseif _type == "{" # don't escape
-    #         token_value = scanUntil!(scanner, rtags[2])
-    #         scan!(scanner, r"}")
-    #     else
-    #         token_value = scanUntil!(scanner, rtags[2])
-    #     end
-
-    #     # unclosed tag?
-    #     if scan!(scanner, rtags[2]) == ""
-    #         error("Unclosed tag at " * string(scanner.pos))
-    #     end
-
-    #     ## is the tag "standalone?
-    #     ## standalone comments get special treatment
-    #     ## here we identify if a tag is standalone
-    #     ## This is *alot* of work for this task.
-    #     ## XXX Speed this up
-    #     ls, rs = false, false
-    #     first_line = first_line &&  !occursin(r"\n", text_value)
-    #     last_line = !occursin(r"\n", scanner.tail)
-        
-    #     if first_line
-    #         ls = occursin(r"^ *$", text_value)
-    #     else
-    #         ls = occursin(r"\n *$", text_value)
-    #     end
-        
-    #     if ls
-    #         if last_line
-    #             if occursin(r"^ *$", scanner.tail)
-    #                 rs = true
-    #             end
-    #         else
-    #             if occursin(r"^ *\n", scanner.tail)
-    #                 rs = true
-    #             end
-    #         end
-    #     end
-    #     standalone = ls && rs
-
-        
-    #     # remove \n and space for standalone tags
-    #     still_first_line = false
-    #     if standalone && _type in ("!", "^", "/", "#", "<", ">", "|", "=")
-    #         if !(_type in ("<",">"))
-    #              text_value = replace(text_value, r" *$" => "")
-    #         end
-
-    #         ## desc: "\r\n" should be considered a newline for standalone tags.
-    #         if last_line
-    #             scanner.tail = replace(scanner.tail, r"^ *"=>"")
-    #         else
-    #             scanner.tail = replace(scanner.tail, r"^ *\r{0,1}\n"=>"")
-    #             still_first_line = true # clobbered \n, so keep as first line
-    #         end
-    #     end
-    #     first_line = still_first_line
-
-
-    #     # Now we can add tokens
-    #     # add text_token, token_token
-    #     text_token = Token("text", text_value, text_start, text_end, (tags[1],tags[2]))
-    #     if _type != ">"
-    #         token_token = Token(_type, token_value, token_start, scanner.pos, (tags[1],tags[2]))
-    #     else
-    #         if first_line && occursin(r"^\h*$", text_value)
-    #             m = match(r"^(\h*)$", text_value)
-    #         else
-    #             m = match(r"\n([\s\t\h]*)$", text_value)
-    #         end
-    #         indent = m == nothing ? "" : m.captures[1]
-    #         token_token = Token(_type, token_value, token_start, scanner.pos, (tags[1],tags[2]), indent)
-    #     end
-    #     push!(tokens, text_token)
-    #     push!(tokens, token_token)
-
-
 
     ltag, rtag = tags
     ltags = collect(ltag)
@@ -287,9 +211,6 @@ function make_tokens(template, tags)
     sections = MustacheTokens()
     tokens = MustacheTokens()
     
-
-    #tokens = Token[]
-
     firstline = true
     io = IOBuffer(template)
     while !end_of_road(io)
@@ -298,7 +219,7 @@ function make_tokens(template, tags)
         # each lap makes token of ...text... and {{tag}} leaving ...rest...
         
         b0 = 0
-        text_value, firstline = scan_until_pos!(io, ltags, firstline)
+        text_value, firstline = scan_until!(io, ltags, firstline)
         b1 = position(io)
 
         if end_of_road(io)
@@ -307,28 +228,25 @@ function make_tokens(template, tags)
             return tokens
         end
         scan_past!(io, ltags)
-
         text_token = Mustache.Token("text", text_value, b0, b1, (ltag, rtag))
 
         # grab tag token
         t0 = position(io)
-        token_value, firstline = scan_until_pos!(io, rtags, firstline)
+        token_value, firstline = scan_until!(io, rtags, firstline)
         t1 = position(io)
-        
+
         if end_of_road(io)
-            error("tag not closed")
+            error("tag not closed: $token_value $ltag $rtag")
         end
         scan_past!(io, rtags)
-
-
-
+        
         # what kinda tag did we get?
         _type = token_value[1:1]
-        if _type in  ("#", "^", "/", ">", "<", "!", "|", "=", "{")
+        if _type in  ("#", "^", "/", ">", "<", "!", "|", "=", "{", "&")
             # type is first, we peel it off, also strip trailing = and },
             # as necessary
 
-            token_value = stripWhitespace(token_value[2:(end-(_type == "_"))])
+            token_value = stripWhitespace(token_value[2:(end-(_type == "="))])
             if _type == "{"
                 # strip "}" if present in io
                 c = peekchar(io)
@@ -336,19 +254,36 @@ function make_tokens(template, tags)
             end
             
             if _type == "="
+                
                 tag_token = Mustache.Token("=", token_value, t0, t1, (ltag, rtag))
                 ts = String.(split(token_value, r"[ \t]+"))
                 length(ts) != 2 && error("Change of delimiter must be a pair $ts")
                 ltag, rtag = ts
                 ltags, rtags = collect(ltag), collect(rtag)
-                
+
+            elseif _type == ">"
+
+                # get indentation
+                if firstline && occursin(r"^\h*$", text_value)
+                    m = match(r"^(\h*)$", text_value)
+                else
+                    m = match(r"\n([\s\t\h]*)$", text_value)
+                end
+                indent = m == nothing ? "" : m.captures[1]
+                tag_token = Token(_type, token_value, t0, t1, (ltag, rtag), indent)
+
             else
+
                 tag_token = Mustache.Token(_type, token_value, t0, t1, (ltag, rtag))
+
             end
         else
+            
             token_value = Mustache.stripWhitespace(token_value)
             tag_token = Mustache.Token("name", token_value, t0, t1, (ltag, rtag))
+
         end
+
         if tag_token._type == "name"
             firstline = false
         end
@@ -360,19 +295,24 @@ function make_tokens(template, tags)
         # match rest with space[EOF,\n]
 
         standalone = is_r_standalone(io) && is_l_standalone(text_value, firstline)
+        firstline = false
+        
         if standalone && _type in ("!", "^", "/", "#", "<", ">", "|", "=")
-            
+
             # we strip text_value back to \n or beginning
             text_token.value = replace(text_token.value, r" *$" => "")
             # strip whitspace at outset of io and "\n"
             popfirst!_whitespace(io)
-            !end_of_road(io) && read(io, Char) # will be \n
+
+            if !end_of_road(io)
+                read(io, Char) # will be \n
+                firstline = true
+            end
+            
         end
         
-            
         push!(tokens, text_token)
         push!(tokens, tag_token)
-        
 
         # account for matching/nested sections
         if _type == "#" || _type == "^" || _type ==  "|"
@@ -614,7 +554,7 @@ function renderTokens(io, tokens, writer, context, template)
                 buf = IOBuffer()
                 for (rowno, l) in enumerate(eachline(fname, keep=true))
                     # we don't strip indent from first line, so we don't indent that
-                    print(buf, rowno > 1 ? indent : "", l)
+                    print(buf, rowno > 0 ? indent : "", l)
                 end
                 renderTokens(io, parse(String(take!(buf))), writer, context, template)
                 close(buf)
@@ -631,7 +571,7 @@ function renderTokens(io, tokens, writer, context, template)
                     end
                     buf = IOBuffer()
                     l = split(value, r"[\n]")
-                    print(buf, join(l, "\n"*indent))
+                    print(buf, indent*join(l, "\n"*indent))
                     tpl = String(take!(buf)) * slashn
                     renderTokens(io, parse(tpl), writer, context, template)
                     close(buf)

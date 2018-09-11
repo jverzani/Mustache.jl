@@ -1,6 +1,5 @@
 module Mustache
 
-using Tokenize
 include("utils.jl")
 include("tokens.jl")
 include("scanner.jl")
