@@ -65,7 +65,7 @@ d = Dict(); d["x"] = "salt"; d["y"] = "pepper"
 @test Mustache.render(tpl, d=d) == "salt and pepper"
 
 ## issue #51 inverted section
-@test Mustache.render("""{{^repos}}No repos :({{/repos}}""", Dict("repos" => [])) == "No repos :("    
+@test Mustache.render("""{{^repos}}No repos :({{/repos}}""", Dict("repos" => [])) == "No repos :("
 @test Mustache.render("{{^repos}}foo{{/repos}}",Dict("repos" => [Dict("name" => "repo name")])) == ""
 
 
@@ -99,3 +99,12 @@ tpl = """
 d = Dict("iterable"=>Dict("iterable2"=>["a","b","c"]), "lambda"=>(txt) -> "XXX $txt XXX")
 expected = "XXX a\nb\nc\n XXX"
 @test Mustache.render(tpl, d) == expected
+
+
+## Test with Named Tuples as a view
+tpl = "{{#:NT}}{{:a}} and {{:b}}{{/:NT}}"
+expected = "eh and bee"
+@test Mustache.render(tpl, NT=(a="eh", b="bee")) == expected
+
+expected = "eh and "
+@test Mustache.render(tpl, NT=(a="eh",)) == expected
