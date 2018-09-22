@@ -19,7 +19,7 @@ end
 
 # we have some rules here
 # * Each part of a dotted name should resolve only against its parent.
-# * Any falsey value prior to the last part of the name should yield ''. 
+# * Any falsey value prior to the last part of the name should yield ''.
 # * The first part of a dotted name should resolve as any other name.
 function lookup_dotted(ctx::Context, dotted)
     for key in split(dotted, ".")
@@ -44,7 +44,7 @@ function lookup(ctx::Context, key)
 
                 value = lookup_dotted(context, key)
                 value != nothing && break
-                
+
                 ## do something with "."
                 ## we use .[ind] to refer to value in parent of given index;
                 m = match(r"^\.\[(.*)\]$", key)
@@ -60,7 +60,7 @@ function lookup(ctx::Context, key)
                    if idx == "end"
                        value = AnIndex(-1, vals[end])
                    else
-                       ind = Base.parse(Int, idx) 
+                       ind = Base.parse(Int, idx)
                        value = AnIndex(ind, vals[ind])
                    end
                     break
@@ -78,7 +78,7 @@ function lookup(ctx::Context, key)
         ctx._cache[key] = value
     end
 
-   
+
     return(value)
 end
 
@@ -100,12 +100,12 @@ function lookup_in_view(view, key)
 end
 
 
-function _lookup_in_view(view::Dict, key)
+function _lookup_in_view(view::AbstractDict, key)
     ## is it a symbol?
     if occursin(r"^:", key)
         key = Symbol(key[2:end])
     end
-    
+
     get(view, key, nothing)
 
 end
