@@ -86,17 +86,17 @@ end
 ## This of course varies based on the view.
 ## we special case dataframes here, so that we don't have to assume package is loaded
 function lookup_in_view(view, key)
-    # if is_dataframe(view)
-    #     if occursin(r":", key)  key = key[2:end] end
-    #     key = Symbol(key)
-    #     out = nothing
-    #     if haskey(view, key)
-    #         out = view[1, key] ## first element only
-    #     end
-    #     return out
-    # else
+    if is_dataframe(view)
+        if occursin(r":", key)  key = key[2:end] end
+        key = Symbol(key)
+        out = nothing
+        if haskey(view, key)
+            out = view[1, key] ## first element only
+        end
+        return out
+    else
         _lookup_in_view(view, key)
-#    end
+    end
 end
 
 
@@ -110,14 +110,12 @@ function _lookup_in_view(view::AbstractDict, key)
 
 end
 
-
 function _lookup_in_view(view::NamedTuple, key)
     ## is it a symbol?
     if occursin(r"^:", key)
         key = Symbol(key[2:end])
     end
-
-    if haskey(view, key)
+     if haskey(view, key)
         getindex(view, key)
     else
         nothing

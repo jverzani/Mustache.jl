@@ -435,13 +435,12 @@ function renderTokensByValue(value, io, token, writer, context, template)
 
     if Tables.istable(value)
         for row in Tables.rows(value)
-            println("row=$row, typeof(row)")
             renderTokens(io, token.collector, writer, ctx_push(context, row), template)
         end
-    # if is_dataframe(value)
-    #     for i in 1:size(value)[1]
-    #         renderTokens(io, token.collector, writer, ctx_push(context, value[i,:]), template)
-    #     end
+    elseif is_dataframe(value) # XXX remove once istable(x::DataFrame) == true
+        for i in 1:size(value)[1]
+           renderTokens(io, token.collector, writer, ctx_push(context, value[i,:]), template)
+        end
     else
         inverted = token._type == "^"
         if (inverted && falsy(value)) || !falsy(value)

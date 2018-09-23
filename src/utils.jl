@@ -74,4 +74,5 @@ end
 
 
 ## hueristic to avoid loading DataFrames
+## Once `Tables.jl` support for DataFrames is available, this can be dropped
 is_dataframe(x) = !isa(x, Dict) && !isa(x, Module) &&!isa(x, Array) && occursin(r"DataFrame", string(typeof(x)))
