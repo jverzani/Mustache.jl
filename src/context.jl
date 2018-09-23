@@ -110,6 +110,20 @@ function _lookup_in_view(view::AbstractDict, key)
 
 end
 
+
+function _lookup_in_view(view::NamedTuple, key)
+    ## is it a symbol?
+    if occursin(r"^:", key)
+        key = Symbol(key[2:end])
+    end
+
+    if haskey(view, key)
+        getindex(view, key)
+    else
+        nothing
+    end
+end
+
 function _lookup_in_view(view::Module, key)
 
     hasmatch = false
