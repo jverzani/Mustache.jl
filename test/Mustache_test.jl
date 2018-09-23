@@ -108,3 +108,9 @@ expected = "eh and bee"
 
 expected = "eh and "
 @test Mustache.render(tpl, NT=(a="eh",)) == expected
+
+## Test with a Table interface
+nt = (a="eh", b="bee", c="see")
+rt = [nt, nt, nt] # Tables.istable(rt) == true
+expected =  "eh and bee"^3
+@test Mustache.render(tpl, NT=rt) == expected

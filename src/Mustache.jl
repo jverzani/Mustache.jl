@@ -1,5 +1,7 @@
 module Mustache
 
+using Tables
+
 include("utils.jl")
 include("tokens.jl")
 include("context.jl")
@@ -7,6 +9,8 @@ include("writer.jl")
 include("parse.jl")
 
 export @mt_str, @mt_mstr, render, render_from_file
+
+
 
 """
     mt"string"
