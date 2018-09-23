@@ -114,3 +114,8 @@ nt = (a="eh", b="bee", c="see")
 rt = [nt, nt, nt] # Tables.istable(rt) == true
 expected =  "eh and bee"^3
 @test Mustache.render(tpl, NT=rt) == expected
+
+## test render_from_file
+expected = "Testing 1, 2, 3..."
+@test render_from_file(joinpath(@__DIR__, "test.tpl"), (one="1", two="2", three="3")) == expected
+@test render_from_file(joinpath(@__DIR__, "test.tpl"), one="1", two="2", three="3") == expected

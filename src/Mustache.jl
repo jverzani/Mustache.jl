@@ -101,7 +101,7 @@ function render_from_file(filepath, view)
     end
 end
 function render_from_file(filepath::AbstractString; kwargs...)
-    render_from_file(filepath, kwargs...)
+    render_from_file(filepath, kwargs)
 end
 
 end
