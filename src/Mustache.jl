@@ -1,5 +1,8 @@
 module Mustache
 
+using Requires
+using Tables
+
 include("utils.jl")
 include("tokens.jl")
 include("context.jl")
@@ -7,6 +10,13 @@ include("writer.jl")
 include("parse.jl")
 
 export @mt_str, @mt_mstr, render, render_from_file
+
+
+function __init__()
+    @require DataFrames="a93c6f00-e57d-5684-b7b6-d8193f3e46c0" include("dataframes.jl")
+end
+
+
 
 """
     mt"string"
