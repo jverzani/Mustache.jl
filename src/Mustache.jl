@@ -40,8 +40,8 @@ Arguments
 
 * `view`: A view provides a context to look up unresolved symbols
   demarcated by mustache braces. A view may be specified by a
-  dictionary, a module, a composite type, a vector, or keyword
-  arguments.
+  dictionary, a module, a composite type, a vector, a named tuple, a
+  data frame, a `Tables` object, or keyword arguments.
 
 """
 function render(io::IO, tokens::MustacheTokens, view)
@@ -49,8 +49,7 @@ function render(io::IO, tokens::MustacheTokens, view)
     render(io, _writer, tokens, view)
 end
 function render(io::IO, tokens::MustacheTokens; kwargs...)
-    d = Dict(kwargs) # [k => v for (k,v) in kwargs]
-    render(io, tokens, d)
+    render(io, tokens, kwargs)
 end
 
 render(tokens::MustacheTokens, view) = sprint(io -> render(io, tokens, view))
@@ -66,8 +65,7 @@ function render(io::IO, template::AbstractString, view)
 end
 function render(io::IO, template::AbstractString; kwargs...)
     _writer = Writer()
-    view = Dict(kwargs) # [k => v for (k,v) in kwargs]
-    render(io, _writer, parse(template), view)
+    render(io, _writer, parse(template), kwargs)
 end
 render(template::AbstractString, view) = sprint(io -> render(io, template, view))
 render(template::AbstractString; kwargs...) = sprint(io -> render(io, template; kwargs...))
@@ -103,8 +101,7 @@ function render_from_file(filepath, view)
     end
 end
 function render_from_file(filepath::AbstractString; kwargs...)
-    d = Dict(kwargs) # [k => v for (k,v) in kwargs]
-    render_from_file(filepath, d)
+    render_from_file(filepath, kwargs)
 end
 
 end

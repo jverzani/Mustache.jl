@@ -1,12 +1,10 @@
 # Mustache
 
-[![Mustache](http://pkg.julialang.org/badges/Mustache_0.7.svg)](http://pkg.julialang.org/?pkg=Mustache)
-
 Linux: [![Build Status](https://travis-ci.org/jverzani/Mustache.jl.svg?branch=master)](https://travis-ci.org/jverzani/Mustache.jl)
 &nbsp;
 Windows: [![Build Status](https://ci.appveyor.com/api/projects/status/github/jverzani/Mustache.jl?branch=master&svg=true)](https://ci.appveyor.com/project/jverzani/mustache-jl)
 
-[Mustache](http://mustache.github.io/) is 
+[Mustache](http://mustache.github.io/) is
 
     ... a logic-less template syntax. It can be used for HTML,
     config files, source code - anything. It works by expanding tags in a
@@ -82,8 +80,8 @@ You have just won 10000 dollars!
 ```
 
 
-Further, keyword
-arguments can be used when the variables in the templates are symbols:
+Further, keyword arguments can be used when the variables in the
+templates are symbols:
 
 ```julia
 goes_together = mt"{{{:x}}} and {{{:y}}}."
@@ -91,7 +89,8 @@ render(goes_together, x="Salt", y="pepper")
 render(goes_together, x="Bread", y="butter")
 ```
 
-As well, one can use Composite Kinds. This may make writing `show` methods easier:
+Similarly, a named tuple may be used as a view.  As well, one can use
+Composite Kinds. This may make writing `show` methods easier:
 
 ```julia
 using Distributions
@@ -151,7 +150,7 @@ given by the item.
 
 This is useful for collections of named objects, such as DataFrames
 (where the collection is comprised of rows) or arrays of
-dictionaries.
+dictionaries. For `Tables.jl` objects the rows are iterated over.
 
 For data frames, the variable names are specified as
 symbols or strings. Here is a template for making a web page:
@@ -231,7 +230,8 @@ render(tpl, DF=df)
 end
 ```
 
-(A string is used above -- and not a `mt` macro -- so that string interpolation can happen.)
+(A string is used above -- and not a `mt` macro -- so that string
+interpolation can happen.)
 
 ### Iterating over vectors
 
@@ -282,17 +282,18 @@ Partials are used to include partial templates into a template.
 
 Partials begin with a greater than sign, like `{{> box.tpl }}`. In this example, the file `box.tpl` is opened and inserted into the template, then populated. A full path may be specified.
 
-They also inherit the calling context. 
+They also inherit the calling context.
 
 In this way you may want to think of partials as includes, imports,
 template expansion, nested templates, or subtemplates, even though
 those aren't literally the case here.
 
-The partial specified by `{{< box.tpl }}` is not parsed, rather included as is into the file. This can be much faster.
+The partial specified by `{{< box.tpl }}` is not parsed, rather included as is into the file. This can be faster.
 
 ## Alternatives
 
-`Julia` provides some alternatives to this package which are better suited for many jobs:
+`Julia` provides some alternatives to this package which are better
+suited for many jobs:
 
 * For simple substitution inside a string there is string
   [interpolation](https://docs.julialang.org/en/latest/manual/strings/).
@@ -303,7 +304,7 @@ The partial specified by `{{< box.tpl }}` is not parsed, rather included as is i
 
 * For formatting numbers and text, the
   [Formatting.jl](https://github.com/JuliaLang/Formatting.jl) package,
-  the [Format](https://github.com/JuliaString/Format.jl) package, the
+  the [Format](https://github.com/JuliaString/Format.jl) package, and the
   [StringLiterals](https://github.com/JuliaString/StringLiterals.jl)
   package are available.
 
@@ -323,7 +324,7 @@ function is passed the unvevaluated section:
 
 ```
 template = "<{{#lambda}}{{x}}{{/lambda}}>"
-data = Dict("x" => "Error!", "lambda" => (txt) ->  txt == "{{x}}" ? "yes" : "no") 
+data = Dict("x" => "Error!", "lambda" => (txt) ->  txt == "{{x}}" ? "yes" : "no")
 Mustache.render(template, data) ## "<yes>", as txt == "{{x}}"
 ```
 
@@ -331,9 +332,6 @@ The tag "|" is similar to the section tag "#", but will receive the *evaluated* 
 
 ```
 template = "<{{|lambda}}{{x}}{{/lambda}}>"
-data = Dict("x" => "Error!", "lambda" => (txt) ->  txt == "{{x}}" ? "yes" : "no") 
+data = Dict("x" => "Error!", "lambda" => (txt) ->  txt == "{{x}}" ? "yes" : "no")
 Mustache.render(template, data) ## "<no>", as "Error!" != "{{x}}"
 ```
-
-
-
