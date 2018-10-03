@@ -173,7 +173,7 @@ end
 
 
 
-# stip whitespace at head of io stream
+# strip whitespace at head of io stream
 WHITESPACE = (' ', '\t')
 function popfirst!_whitespace(io)
 
