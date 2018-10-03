@@ -119,3 +119,11 @@ expected =  "eh and bee"^3
 expected = "Testing 1, 2, 3..."
 @test render_from_file(joinpath(@__DIR__, "test.tpl"), (one="1", two="2", three="3")) == expected
 @test render_from_file(joinpath(@__DIR__, "test.tpl"), one="1", two="2", three="3") == expected
+
+filepath = joinpath(@__DIR__, "test-sections-lf.tpl")
+@test Mustache.render_from_file(filepath, Dict("a"=>Dict("x"=>111,),)) == """    111\n"""
+@test Mustache.render_from_file(filepath, Dict("y"=>222,)) == "    222\n"
+
+filepath = joinpath(@__DIR__, "test-sections-crlf.tpl")
+@test Mustache.render_from_file(filepath, Dict("a"=>Dict("x"=>111,),)) == "    111\r\n"
+@test Mustache.render_from_file(filepath, Dict("y"=>222,)) == "    222\r\n"
