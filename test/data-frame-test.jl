@@ -1,6 +1,7 @@
 ## Data frame test
 ## not run by default. Too time consuming and relies on external pacakgs
 using Mustache, DataFrames
+using Test
 
 glm_tpl = mt"""
 \begin{table}
@@ -34,3 +35,12 @@ using GLM, RDatasets, DataFrames
 LifeCycleSavings = dataset("datasets", "LifeCycleSavings")
 fm2 = fit(LinearModel, SR ~ Pop15 + Pop75 + DPI + DDPI, LifeCycleSavings)
 glm_table(fm2)
+
+
+## Issue with data frames as keyword arguments
+tpl = """
+{{#:fred}}{{:a}}--{{:b}}{{/:fred}}
+{{:barney}}
+"""
+d = DataFrame(a=[1,2,3], b=[3,2,1])
+@test render(tpl, fred=d, barney="123") == "1--32--23--1\n123\n"
