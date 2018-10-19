@@ -42,7 +42,6 @@ falsy(x::Array) = isempty(x)
 falsy(x::AbstractString) = x == ""
 falsy(x::Nothing) = true
 falsy(x::Missing) = true
-falsy(x::Real) = x == 0
 falsy(x) = (x == nothing) || false                #  default
 
 ## escape_html with entities

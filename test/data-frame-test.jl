@@ -44,3 +44,7 @@ tpl = """
 """
 d = DataFrame(a=[1,2,3], b=[3,2,1])
 @test render(tpl, fred=d, barney="123") == "1--32--23--1\n123\n"
+
+## Issue #80 with 0 as falsy
+tpl = "this is {{:zero}}"
+@test render(tpl, zero=0) == "this is 0"
