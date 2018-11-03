@@ -449,8 +449,8 @@ function renderTokensByValue(value, io, token, writer, context, template)
 end
 
 ## Helper function for dispatch based on value in renderTokens
-function _renderTokensByValue(value::Dict, io, token, writer, context, template)
-    renderTokens(io, token.collector, writer, ctx_push(context, value), template)
+function _renderTokensByValue(value::AbstractDict, io, token, writer, context, template)
+        renderTokens(io, token.collector, writer, ctx_push(context, value), template)
 end
 
 
@@ -543,12 +543,10 @@ function renderTokens(io, tokens, writer, context, template)
         token = tokens[i]
         tokenValue = token.value
 
-
         if token._type == "#" || token._type == "|"
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
             value = lookup(context, tokenValue)
-
             if !isa(value, AnIndex)
                 context = Context(value, context)
             end
@@ -573,19 +571,22 @@ function renderTokens(io, tokens, writer, context, template)
         elseif token._type == ">"
             ## partials: desc: Each line of the partial should be indented before rendering.
             fname = stripWhitespace(tokenValue)
+            value = lookup(context, tokenValue)
+
+            tpl_string = ""
+
             if isfile(fname)
+                found_partial = true
                 indent = token.indent
                 buf = IOBuffer()
                 for (rowno, l) in enumerate(eachline(fname, keep=true))
                     # we don't strip indent from first line, so we don't indent that
                     print(buf, rowno > 0 ? indent : "", l)
                 end
-                renderTokens(io, parse(String(take!(buf))), writer, context, template)
-                close(buf)
+                tpl_string = String(take!(buf))
             else
                 value = lookup(context, fname)
                 if !falsy(value)
-
                     indent = token.indent
                     slashn = ""
                     # don't indent if last \n
@@ -596,10 +597,22 @@ function renderTokens(io, tokens, writer, context, template)
                     buf = IOBuffer()
                     l = split(value, r"[\n]")
                     print(buf, indent*join(l, "\n"*indent))
-                    tpl = String(take!(buf)) * slashn
-                    renderTokens(io, parse(tpl), writer, context, template)
+                    tpl_string = String(take!(buf)) * slashn
                     close(buf)
                 end
+            end
+
+            if tpl_string != ""
+                ## Delimiters set in a parent template should not affect a partial.
+                ## Delimiters set in a partial should not affect the parent template.
+                tpl = parse(tpl_string, ("{{", "}}"))
+                ## Issue 82, what context to pass along to the partial
+                ## this makes "scope" of partial just the immediate value, not
+                ## the parent
+                renderTokens(io, tpl, writer, Context(value, Context(context.view,nothing)), template)
+            else
+                # can't find partial. Issue #83 requests signal, but this doesn't
+                # seem to match spec. Signal would go here.
             end
 
         elseif token._type == "<"
