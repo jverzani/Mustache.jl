@@ -450,7 +450,8 @@ end
 
 ## Helper function for dispatch based on value in renderTokens
 function _renderTokensByValue(value::Dict, io, token, writer, context, template)
-    renderTokens(io, token.collector, writer, ctx_push(context, value), template)
+        renderTokens(io, token.collector, writer, ctx_push(context, value), template)
+    #    renderTokens(io, token.collector, writer,context, template)
 end
 
 
@@ -543,12 +544,15 @@ function renderTokens(io, tokens, writer, context, template)
         token = tokens[i]
         tokenValue = token.value
 
+        println("Type = $(token._type)")
 
         if token._type == "#" || token._type == "|"
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
             value = lookup(context, tokenValue)
-
+            println("value=$value")
+            println("---")
+            println("context=$context")
             if !isa(value, AnIndex)
                 context = Context(value, context)
             end
@@ -573,6 +577,7 @@ function renderTokens(io, tokens, writer, context, template)
         elseif token._type == ">"
             ## partials: desc: Each line of the partial should be indented before rendering.
             fname = stripWhitespace(tokenValue)
+
             if isfile(fname)
                 indent = token.indent
                 buf = IOBuffer()
@@ -580,7 +585,10 @@ function renderTokens(io, tokens, writer, context, template)
                     # we don't strip indent from first line, so we don't indent that
                     print(buf, rowno > 0 ? indent : "", l)
                 end
-                renderTokens(io, parse(String(take!(buf))), writer, context, template)
+                tpl =  parse(String(take!(buf)))
+                @info "read in $tpl"
+
+                renderTokens(io, tpl, writer, context, template)
                 close(buf)
             else
                 value = lookup(context, fname)
