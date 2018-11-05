@@ -609,7 +609,7 @@ function renderTokens(io, tokens, writer, context, template)
                 ## Issue 82, what context to pass along to the partial
                 ## this makes "scope" of partial just the immediate value, not
                 ## the parent
-                renderTokens(io, tpl, writer, Context(value, Context(context.view,nothing)), template)
+                renderTokens(io, tpl, writer, Context(context.view,nothing), template)
             else
                 # can't find partial. Issue #83 requests signal, but this doesn't
                 # seem to match spec. Signal would go here.
