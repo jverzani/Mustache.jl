@@ -431,37 +431,37 @@ end
 
 
 # render tokens with values given in context
-function renderTokensByValue(value, io, token, writer, context, template)
+function renderTokensByValue(value, io, token, writer, context, template, args...)
     if is_dataframe(value) # XXX remove once istable(x::DataFrame) == true works
         for i in 1:size(value)[1]
-            renderTokens(io, token.collector, writer, ctx_push(context, value[i,:]), template)
+            renderTokens(io, token.collector, writer, ctx_push(context, value[i,:]), template, args...)
         end
     elseif Tables.istable(value)
         for row in Tables.rows(value)
-            renderTokens(io, token.collector, writer, ctx_push(context, row), template)
+            renderTokens(io, token.collector, writer, ctx_push(context, row), template, args...)
         end
     else
         inverted = token._type == "^"
         if (inverted && falsy(value)) || !falsy(value)
-            _renderTokensByValue(value, io, token, writer, context, template)
+            _renderTokensByValue(value, io, token, writer, context, template, args...)
         end
     end
 end
 
 ## Helper function for dispatch based on value in renderTokens
-function _renderTokensByValue(value::AbstractDict, io, token, writer, context, template)
-        renderTokens(io, token.collector, writer, ctx_push(context, value), template)
+function _renderTokensByValue(value::AbstractDict, io, token, writer, context, template, args...)
+        renderTokens(io, token.collector, writer, ctx_push(context, value), template, args...)
 end
 
-
-function _renderTokensByValue(value::Array, io, token, writer, context, template)
+function _renderTokensByValue(value::AbstractArray, io, token, writer, context, template, args...)
    inverted = token._type == "^"
    if (inverted && falsy(value))
-       renderTokens(io, token.collector, writer, ctx_push(context, ""), template)
+       renderTokens(io, token.collector, writer, ctx_push(context, ""), template, args...)
    else
-        for v in value
-            renderTokens(io, token.collector, writer, ctx_push(context, v), template)
-        end
+       n = length(value)
+       for (i,v) in enumerate(value)
+           renderTokens(io, token.collector, writer, ctx_push(context, v), template, (i,n))
+       end
     end
 end
 
@@ -475,17 +475,17 @@ end
 
 ## what to do with an index value `.[ind]`?
 ## We have `.[ind]` being of a leaf type (values are not pushed onto a Context) so of simple usage
-function _renderTokensByValue(value::AnIndex, io, token, writer, context, template)
-
+function _renderTokensByValue(value::AnIndex, io, token, writer, context, template, idx=(0,0))
+    idx_match = (value.ind == idx[1]) || (value.ind==-1 && idx[1] == idx[2])
     if token._type == "#" || token._type == "|"
         # print if match
-        if value.value == context.view
-            renderTokens(io, token.collector, writer, context, template)
+        if idx_match
+            renderTokens(io, token.collector, writer, context, template, idx)
         end
     elseif token._type == "^"
         # print if *not* a match
-        if value.value != context.view
-            renderTokens(io, token.collector, writer, context, template)
+        if !idx_match
+            renderTokens(io, token.collector, writer, context, template, idx)
         end
     else
         renderTokens(io, token.collector, writer, ctx_push(context, value.value), template)
@@ -493,7 +493,7 @@ function _renderTokensByValue(value::AnIndex, io, token, writer, context, templa
 end
 
 
-function _renderTokensByValue(value::Function, io, token, writer, context, template)
+function _renderTokensByValue(value::Function, io, token, writer, context, template, args...)
     ## function get's passed
     # When the value is a callable
     # object, such as a function or lambda, the object will
@@ -525,7 +525,7 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
 
 end
 
-function _renderTokensByValue(value::Any, io, token, writer, context, template)
+function _renderTokensByValue(value::Any, io, token, writer, context, template, args...)
     inverted = token._type == "^"
     if (inverted && falsy(value)) || !falsy(value)
         renderTokens(io, token.collector, writer, context, template)
@@ -538,11 +538,10 @@ end
 ## and `context`. The `template` string is only needed for templates that use
 ## higher-order sections to extract the portion of the original template that
 ## was contained in that section.
-function renderTokens(io, tokens, writer, context, template)
+function renderTokens(io, tokens, writer, context, template, idx=(0,0))
     for i in 1:length(tokens)
         token = tokens[i]
         tokenValue = token.value
-
         if token._type == "#" || token._type == "|"
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
@@ -550,7 +549,7 @@ function renderTokens(io, tokens, writer, context, template)
             if !isa(value, AnIndex)
                 context = Context(value, context)
             end
-            renderTokensByValue(value, io, token, writer, context, template)
+            renderTokensByValue(value, io, token, writer, context, template, idx)
 
         elseif token._type == "^"
 
@@ -560,12 +559,12 @@ function renderTokens(io, tokens, writer, context, template)
                 context = Context(value, context)
 
                 if falsy(value)
-                    renderTokensByValue(value, io, token, writer, context, template)
+                    renderTokensByValue(value, io, token, writer, context, template, idx)
                 end
             else
                 # for indices falsy test is performed in
                 # _renderTokensByValue(value::AnIndex,...)
-                renderTokensByValue(value, io, token, writer, context, template)
+                renderTokensByValue(value, io, token, writer, context, template, idx)
             end
 
         elseif token._type == ">"
@@ -609,7 +608,7 @@ function renderTokens(io, tokens, writer, context, template)
                 ## Issue 82, what context to pass along to the partial
                 ## this makes "scope" of partial just the immediate value, not
                 ## the parent
-                renderTokens(io, tpl, writer, Context(context.view,nothing), template)
+                renderTokens(io, tpl, writer, Context(context.view,nothing), template,idx)
             else
                 # can't find partial. Issue #83 requests signal, but this doesn't
                 # seem to match spec. Signal would go here.
