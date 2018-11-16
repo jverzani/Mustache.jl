@@ -127,3 +127,8 @@ filepath = joinpath(@__DIR__, "test-sections-lf.tpl")
 filepath = joinpath(@__DIR__, "test-sections-crlf.tpl")
 @test Mustache.render_from_file(filepath, Dict("a"=>Dict("x"=>111,),)) == "    111\r\n"
 @test Mustache.render_from_file(filepath, Dict("y"=>222,)) == "    222\r\n"
+
+## Issue 88
+template = "{{#:vec}}{{.}}{{^.[end]}},{{/.[end]}}{{/:vec}}";
+@test render(template, vec=["a", "b", "c"]) == "a,b,c"
+@test render(template, vec=fill("a", 3)) == "a,a,a"
