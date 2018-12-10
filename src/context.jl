@@ -86,14 +86,19 @@ end
 ## This of course varies based on the view.
 ## we special case dataframes here, so that we don't have to assume package is loaded
 function lookup_in_view(view, key)
-    if is_dataframe(view)
-        if occursin(r":", key)  key = key[2:end] end
+    if Tables.istable(view)
+        r = first(Tables.rows(view))
+        if occursin(r"^:", key)  key = key[2:end] end
+        k = Symbol(key)
+        k in propertynames(r) ? getproperty(r, k) : nothing
+    elseif  is_dataframe(view)
+        if occursin(r"^:", key)  key = key[2:end] end
         key = Symbol(key)
         out = nothing
         if haskey(view, key)
-            out = view[1, key] ## first element only
+                out = view[1, key] ## first element only
         end
-        return out
+        out
     else
         _lookup_in_view(view, key)
     end
@@ -141,22 +146,34 @@ function _lookup_in_view(view::Module, key)
 
 end
 
-## Default is likely not great, but we use CompositeKind
+## Default is likely not great,
 function _lookup_in_view(view, key)
-    nms = fieldnames(typeof(view))
-    re = Regex(key)
-    has_match = false
-    for i in nms
-        if occursin(Regex(key), string(i))
-            has_match=true
-            break
+
+    if occursin(r"^:", key)
+        k = Symbol(key[2:end])
+    else
+        k = key
+    end
+
+    # check propertyname, then fieldnames
+    if k in propertynames(view)
+        getproperty(view, k)
+    else
+
+        nms = fieldnames(typeof(view))
+
+        # we match on symbol or string for fieldname
+        if isa(k, Symbol)
+            has_match = k in nms
+        else
+            has_match = Symbol(k) in nms
         end
-    end
 
-    out = nothing
-    if has_match
-        out = getfield(view, Symbol(key))  ## view.key
-    end
+        out = nothing
+        if has_match
+            out = getfield(view, Symbol(k))  ## view.key
+        end
 
-    out
+        out
+    end
 end

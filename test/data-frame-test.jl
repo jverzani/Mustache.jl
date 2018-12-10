@@ -2,39 +2,19 @@
 ## not run by default. Too time consuming and relies on external pacakgs
 using Mustache, DataFrames
 using Test
+using Printf
 
-glm_tpl = mt"""
-\begin{table}
-\begin{tabular}{l @{\quad} rrrr}
-{{#colnms}}
-&\verb+{{{colnm}}}+
-{{/colnms}}\\
-{{#mat}}
-{{variable}} & {{col1}} & {{col2}} & {{col3}} & {{col4}}\\
-{{/mat}}
-\end{tabular}
-\end{table}
+#  simple usage
+tpl = mt"""
+{{:TITLE}}
+{{#:D}}
+{{:english}} <--> {{:spanish}}
+{{/:D}}
 """
 
-function glm_table(mod)
-    tbl = coeftable(mod)
+d = DataFrame(english=["hello", "good bye"], spanish=["hola", "adios"])
 
-    colnms = DataFrame(colnm=tbl.colnms)
-    mat = DataFrame(variable=tbl.rownms)
-    for j in 1:size(tbl.mat)[2]
-        nm = "col$j"
-        mat[Symbol(nm)] = map(x -> @sprintf("%.2f", x), tbl.mat[:,j])
-    end
-
-    Mustache.render(glm_tpl,Dict("colnms"=>colnms, "mat"=>mat))
-end
-
-
-
-using GLM, RDatasets, DataFrames
-LifeCycleSavings = dataset("datasets", "LifeCycleSavings")
-fm2 = fit(LinearModel, SR ~ Pop15 + Pop75 + DPI + DDPI, LifeCycleSavings)
-glm_table(fm2)
+@test render(tpl, TITLE="translate",  D=d) == "translate\nhello <--> hola\ngood bye <--> adios\n"
 
 
 ## Issue with data frames as keyword arguments
@@ -44,7 +24,3 @@ tpl = """
 """
 d = DataFrame(a=[1,2,3], b=[3,2,1])
 @test render(tpl, fred=d, barney="123") == "1--32--23--1\n123\n"
-
-## Issue #80 with 0 as falsy
-tpl = "this is {{:zero}}"
-@test render(tpl, zero=0) == "this is 0"

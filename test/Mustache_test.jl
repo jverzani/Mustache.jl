@@ -64,11 +64,6 @@ tpl = mt"{{#:d}}{{x}} and {{y}}{{/:d}}"
 d = Dict(); d["x"] = "salt"; d["y"] = "pepper"
 @test Mustache.render(tpl, d=d) == "salt and pepper"
 
-## issue #51 inverted section
-@test Mustache.render("""{{^repos}}No repos :({{/repos}}""", Dict("repos" => [])) == "No repos :("
-@test Mustache.render("{{^repos}}foo{{/repos}}",Dict("repos" => [Dict("name" => "repo name")])) == ""
-
-
 ## Added a new tag "|" for applying a function to a section
 tpl = """{{|lambda}}{{value}}{{/lambda}} dollars."""
 d = Dict("value"=>"1.23456789", "lambda"=>(txt) -> "<b>" * string(round(parse(Float64, txt), digits=2)) * "</b>")
@@ -128,7 +123,20 @@ filepath = joinpath(@__DIR__, "test-sections-crlf.tpl")
 @test Mustache.render_from_file(filepath, Dict("a"=>Dict("x"=>111,),)) == "    111\r\n"
 @test Mustache.render_from_file(filepath, Dict("y"=>222,)) == "    222\r\n"
 
-## Issue 88
-template = "{{#:vec}}{{.}}{{^.[end]}},{{/.[end]}}{{/:vec}}";
-@test render(template, vec=["a", "b", "c"]) == "a,b,c"
-@test render(template, vec=fill("a", 3)) == "a,a,a"
+@testset "closed issues" begin
+
+    ## issue #51 inverted section
+    @test Mustache.render("""{{^repos}}No repos :({{/repos}}""", Dict("repos" => [])) == "No repos :("
+    @test Mustache.render("{{^repos}}foo{{/repos}}",Dict("repos" => [Dict("name" => "repo name")])) == ""
+
+
+    ## Issue #80 with 0 as falsy
+    tpl = "this is {{:zero}}"
+    @test render(tpl, zero=0) == "this is 0"
+
+
+    ## Issue 88
+    template = "{{#:vec}}{{.}}{{^.[end]}},{{/.[end]}}{{/:vec}}";
+    @test render(template, vec=["a", "b", "c"]) == "a,b,c"
+    @test render(template, vec=fill("a", 3)) == "a,a,a"
+end
