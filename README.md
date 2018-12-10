@@ -178,7 +178,7 @@ _names = String[]
 _summaries = String[]
 for s in sort(map(string, names(Main)))
     v = Symbol(s)
-    if isdefined(m,v)
+    if isdefined(Main,v)
         push!(_names, s)
         push!(_summaries, summary(eval(v)))
     end
