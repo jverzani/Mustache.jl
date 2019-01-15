@@ -75,20 +75,21 @@ tpl = """\"{{^a.b.c}}Not Here{{/a.b.c}}\" == \"Not Here\""""
 	@test Mustache.render(tpl, Dict{Any,Any}("a"=>Dict{Any,Any}())) == """\"Not Here\" == \"Not Here\""""
 
 	## Inverted sections should not alter surrounding whitespace.
-tpl = """ | {{^boolean}}	|	{{/boolean}} | 
+tpl = """ | {{^boolean}}	|	{{/boolean}} |
 """
 
-	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)) == """ | 	|	 | 
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)) == """ | 	|	 |
 """
 
 	## Inverted should not alter internal whitespace.
 tpl = """ | {{^boolean}} {{! Important Whitespace }}
- {{/boolean}} | 
+ {{/boolean}} |
 """
 
-	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)) == """ |  
-  | 
-"""
+        @test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)) == " |  \n  |\n"
+#""" |\\s
+#  |
+#"""
 
 	## Single-line sections should not alter surrounding whitespace.
 tpl = """ {{^boolean}}NO{{/boolean}}
@@ -156,5 +157,3 @@ tpl = """|{{^ boolean }}={{/ boolean }}|"""
 
 	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)) == """|=|"""
 end
-
-
