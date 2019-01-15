@@ -87,10 +87,14 @@ end
 ## we special case dataframes here, so that we don't have to assume package is loaded
 function lookup_in_view(view, key)
     if Tables.istable(view)
-        r = first(Tables.rows(view))
-        if occursin(r"^:", key)  key = key[2:end] end
-        k = Symbol(key)
-        k in propertynames(r) ? getproperty(r, k) : nothing
+        if isempty(Tables.rows(view))
+            return nothing
+        else
+            r = first(Tables.rows(view))
+            if occursin(r"^:", key)  key = key[2:end] end
+            k = Symbol(key)
+            k in propertynames(r) ? getproperty(r, k) : nothing
+        end
     elseif  is_dataframe(view)
         if occursin(r"^:", key)  key = key[2:end] end
         key = Symbol(key)

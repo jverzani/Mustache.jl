@@ -432,23 +432,51 @@ end
 
 # render tokens with values given in context
 function renderTokensByValue(value, io, token, writer, context, template, args...)
-    if Tables.istable(value)
-        for row in Tables.rows(value)
-            @show "try this", row, token
-#            _renderTokensByValue(getfield(row,1), io, token, writer, context, template, args...)
-            renderTokens(io, token.collector, writer, ctx_push(context, row), template, args...)
+    inverted = token._type == "^"
+    if (inverted && falsy(value))
+        _renderTokensByValue(value, io, token, writer, context, template, args...)
+    elseif Tables.istable(value)
+        if isempty(Tables.rows(value))
+            return nothing
+        else
+            for row in Tables.rows(value)
+                _renderTokensByValue(getfield(row,1), io, token, writer, context, template, args...)
+            end
         end
     elseif is_dataframe(value) # XXX remove once istable(x::DataFrame) == true works
         for i in 1:size(value)[1]
             renderTokens(io, token.collector, writer, ctx_push(context, value[i,:]), template, args...)
         end
+    elseif !falsy(value)
+        _renderTokensByValue(value, io, token, writer, context, template, args...)
     else
-        inverted = token._type == "^"
-        if (inverted && falsy(value)) || !falsy(value)
-            _renderTokensByValue(value, io, token, writer, context, template, args...)
-        end
+        nothing
+        # value == nothing
     end
 end
+
+# function renderTokensByValue(value, io, token, writer, context, template, args...)
+#     if Tables.istable(value)
+#         if isempty(Tables.rows(value))
+#             @show "no length", token._type
+
+#             return nothing
+#         else
+#             for row in Tables.rows(value)
+#                 _renderTokensByValue(getfield(row,1), io, token, writer, context, template, args...)
+#             end
+#         end
+#     elseif is_dataframe(value) # XXX remove once istable(x::DataFrame) == true works
+#         for i in 1:size(value)[1]
+#             renderTokens(io, token.collector, writer, ctx_push(context, value[i,:]), template, args...)
+#         end
+#     else
+#         inverted = token._type == "^"
+#         if (inverted && falsy(value)) || !falsy(value)
+#             _renderTokensByValue(value, io, token, writer, context, template, args...)
+#         end
+#     end
+# end
 
 ## Helper function for dispatch based on value in renderTokens
 function _renderTokensByValue(value::AbstractDict, io, token, writer, context, template, args...)

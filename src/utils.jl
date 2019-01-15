@@ -42,7 +42,12 @@ falsy(x::Array) = isempty(x)
 falsy(x::AbstractString) = x == ""
 falsy(x::Nothing) = true
 falsy(x::Missing) = true
-falsy(x) = (x == nothing) || false                #  default
+#falsy(x) = (x == nothing) || false                #  default
+function falsy(x)
+    Tables.istable(x) && isempty(Tables.rows(x)) && return true
+    x == nothing && return true
+    false
+end
 
 ## escape_html with entities
 
