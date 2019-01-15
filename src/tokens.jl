@@ -434,7 +434,8 @@ end
 function renderTokensByValue(value, io, token, writer, context, template, args...)
     if Tables.istable(value)
         for row in Tables.rows(value)
-            renderTokens(io, token.collector, writer, ctx_push(context, row), template, args...)
+            #renderTokens(io, token.collector, writer, ctx_push(context, row), template, args...)
+            renderTokens(io, token.collector, writer, ctx_push(context, getfield(row,1)), template, args...)
         end
     elseif is_dataframe(value) # XXX remove once istable(x::DataFrame) == true works
         for i in 1:size(value)[1]
