@@ -139,4 +139,9 @@ filepath = joinpath(@__DIR__, "test-sections-crlf.tpl")
     template = "{{#:vec}}{{.}}{{^.[end]}},{{/.[end]}}{{/:vec}}";
     @test render(template, vec=["a", "b", "c"]) == "a,b,c"
     @test render(template, vec=fill("a", 3)) == "a,a,a"
+
+    ## Issue 91 handle istable without a schema. (Is getfield a general enough solution?)
+    tpl = "{{#list}}{{ item }} {{/list}}"
+    v = Dict("list"  => Any[Dict("item" => "one"),Dict("item" => "two")])
+    @test Mustache.render(tpl, v) == "one two "
 end
