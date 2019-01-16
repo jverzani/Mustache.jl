@@ -435,12 +435,24 @@ function renderTokensByValue(value, io, token, writer, context, template, args..
     inverted = token._type == "^"
     if (inverted && falsy(value))
         _renderTokensByValue(value, io, token, writer, context, template, args...)
-    elseif Tables.istable(value)
+    elseif Tables.istable(value) && Tables.rowaccess(value)
+
         if isempty(Tables.rows(value))
             return nothing
         else
-            for row in Tables.rows(value)
-                _renderTokensByValue(getfield(row,1), io, token, writer, context, template, args...)
+            rows = Tables.rows(value)
+            sch = Tables.schema(rows)
+            rD = Dict()
+            for row in rows
+                if sch == nothing
+                    _renderTokensByValue(getfield(row,1), io, token, writer, context, template, args...)
+                else
+                    # create a dictionary, though perhaps getfield is general enough
+                    Tables.eachcolumn(sch, row) do val, col, name
+                        rD[name] = val
+                    end
+                    renderTokens(io, token.collector, writer, ctx_push(context, rD), template, args...)
+                end
             end
         end
     elseif is_dataframe(value) # XXX remove once istable(x::DataFrame) == true works

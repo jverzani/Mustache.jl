@@ -96,6 +96,7 @@ function lookup_in_view(view, key)
             k in propertynames(r) ? getproperty(r, k) : nothing
         end
     elseif  is_dataframe(view)
+
         if occursin(r"^:", key)  key = key[2:end] end
         key = Symbol(key)
         out = nothing
@@ -104,6 +105,7 @@ function lookup_in_view(view, key)
         end
         out
     else
+
         _lookup_in_view(view, key)
     end
 end
@@ -111,6 +113,7 @@ end
 
 function _lookup_in_view(view::AbstractDict, key)
     ## is it a symbol?
+
     if occursin(r"^:", key)
         key = Symbol(key[2:end])
     end
