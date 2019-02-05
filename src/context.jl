@@ -86,14 +86,32 @@ end
 ## This of course varies based on the view.
 ## we special case dataframes here, so that we don't have to assume package is loaded
 function lookup_in_view(view, key)
-    if Tables.istable(view)
+    if Tables.istable(view) && Tables.rowaccess(view)
         if isempty(Tables.rows(view))
             return nothing
         else
-            r = first(Tables.rows(view))
-            if occursin(r"^:", key)  key = key[2:end] end
-            k = Symbol(key)
-            k in propertynames(r) ? getproperty(r, k) : nothing
+            rows = Tables.rows(view)
+            sch = Tables.schema(rows)
+            if sch == nothing
+                ## schema is unknown or non inferrable
+                ## What to do?
+                r = getfield(first(rows), 1)
+                k = occursin(r"^:", key)  ? Symbol(key[2:end])  : key
+                if isa(r, Pair)
+                    return k == r.first  ? r.second : nothing
+                else
+                    return k in propertynames(r) ? getproperty(r, k) : nothing
+                end
+            else
+                # work with a dictionary from the IteratorRow interface
+                # follows "Sinks (transferring data from one table to another)"
+                rD = Dict()
+                Tables.eachcolumn(sch, first(rows)) do val, col, name
+                        rD[name] = val
+                end
+                k = occursin(r"^:", key)  ? Symbol(key[2:end])  : key
+                return get(rD,k, nothing)
+            end
         end
     elseif  is_dataframe(view)
 
