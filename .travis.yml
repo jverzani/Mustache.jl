@@ -1,17 +1,15 @@
 language: julia
 os:
-    - linux
-    - osx
+  - osx
+  - linux
 julia:
-    - 0.7
-    - 1.0
-    - nightly
+  - 1.0
+  - 1.1
+  - nightly
+matrix:
+  allow_failures:
+    - julia: nightly
 notifications:
-    email: false
-sudo: false
-script:
-    - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-    - julia -e 'using Pkg; Pkg.clone(pwd())'
-    - julia -e 'using Pkg; Pkg.test("Mustache", coverage=true)'
+  email: false
 after_success:
-    - julia -e 'cd(Pkg.dir("Mustache")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
+  - julia -e 'cd(Pkg.dir("Mustache")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())';
