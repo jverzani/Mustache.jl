@@ -86,7 +86,7 @@ end
 ## This of course varies based on the view.
 ## we special case dataframes here, so that we don't have to assume package is loaded
 function lookup_in_view(view, key)
-    if Tables.istable(view) && Tables.rowaccess(view)
+    if Tables.istable(view)
         if isempty(Tables.rows(view))
             return nothing
         else

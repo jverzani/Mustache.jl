@@ -435,8 +435,7 @@ function renderTokensByValue(value, io, token, writer, context, template, args..
     inverted = token._type == "^"
     if (inverted && falsy(value))
         _renderTokensByValue(value, io, token, writer, context, template, args...)
-    elseif Tables.istable(value) && Tables.rowaccess(value)
-
+    elseif Tables.istable(value)
         if isempty(Tables.rows(value))
             return nothing
         else
