@@ -144,4 +144,14 @@ filepath = joinpath(@__DIR__, "test-sections-crlf.tpl")
     tpl = "{{#list}}{{ item }} {{/list}}"
     v = Dict("list"  => Any[Dict("item" => "one"),Dict("item" => "two")])
     @test Mustache.render(tpl, v) == "one two "
+
+    ## Issue 99 expose tags
+    tpl = "<<#list>><< item >> <</list>>"
+    v = Dict("list"  => Any[Dict("item" => "one"),Dict("item" => "two")])
+    @test Mustache.render(tpl, v, tags=("<<", ">>")) == "one two "
+
+
+    tpl = "[[#list]][[ item ]] [[/list]]"
+    @test Mustache.render(tpl, v, tags=("[[", "]]")) == "one two "
+
 end
