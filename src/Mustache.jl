@@ -59,15 +59,15 @@ render(tokens::MustacheTokens; kwargs...) = sprint(io -> render(io, tokens, Dict
 ##
 ## @param template a string containing the template for expansion
 ## @param view a Dict, Module, CompositeType, DataFrame holding variables for expansion
-function render(io::IO, template::AbstractString, view)
+function render(io::IO, template::AbstractString, view; tags= ("{{", "}}"))
     _writer = Writer()
-    render(io, _writer, parse(template), view)
+    render(io, _writer, parse(template, tags), view)
 end
 function render(io::IO, template::AbstractString; kwargs...)
     _writer = Writer()
     render(io, _writer, parse(template), Dict(kwargs...))
 end
-render(template::AbstractString, view) = sprint(io -> render(io, template, view))
+render(template::AbstractString, view; tags=("{{", "}}")) = sprint(io -> render(io, template, view, tags=tags))
 render(template::AbstractString; kwargs...) = sprint(io -> render(io, template, Dict(kwargs...)))
 
 ## Dict for storing parsed templates
