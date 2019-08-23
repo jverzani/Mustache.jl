@@ -1,6 +1,6 @@
 name = "Mustache"
 uuid = "ffc61752-8dc7-55ee-8c37-f3e9cdd09e70"
-version = "0.5.12"
+version = "0.5.13"
 
 [deps]
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
