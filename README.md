@@ -212,13 +212,15 @@ The same approach can be made to make a LaTeX table from a data frame:
 ```julia
 
 function df_to_table(df, label="label", caption="caption")
-	fmt = repeat("c", length(df))
-    row = join(["{{$x}}" for x in map(string, names(df))], " & ")
+    fmt = repeat("c", size(df,2))
+    header = join(string.(names(df)), " & ")
+    row = join(["{{:$x}}" for x in map(string, names(df))], " & ")
 
 tpl="""
 \\begin{table}
   \\centering
   \\begin{tabular}{$fmt}
+  $header\\\\
 {{#:DF}}    $row\\\\
 {{/:DF}}  \\end{tabular}
   \\caption{$caption}
@@ -226,7 +228,7 @@ tpl="""
 \\end{table}
 """
 
-render(tpl, DF=df)
+    Mustache.render(tpl, DF=df)
 end
 ```
 
