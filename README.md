@@ -310,9 +310,6 @@ suited for many jobs:
   [StringLiterals](https://github.com/JuliaString/StringLiterals.jl)
   package are available.
 
-* [Flax](https://github.com/essenciary/Flax.jl) may be of interest for
-  certain tasks where performance is important.
-
 ## Differences from Mustache.js
 
 This project deviates from that of Mustache.js in a few significant ways:
