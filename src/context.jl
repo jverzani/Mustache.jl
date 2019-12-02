@@ -17,6 +17,10 @@ function ctx_push(ctx::Context, view)
     Context(view, ctx) ## add context as a parent
 end
 
+function ctx_pop(ctx::Context)
+    ctx.parent
+end
+
 # we have some rules here
 # * Each part of a dotted name should resolve only against its parent.
 # * Any falsey value prior to the last part of the name should yield ''.
