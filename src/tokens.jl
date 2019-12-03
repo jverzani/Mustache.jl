@@ -30,7 +30,6 @@ tokens::Vector{Token}
 end
 MustacheTokens() = MustacheTokens(Token[])
 
-
 Base.length(tokens::MustacheTokens) = length(tokens.tokens)
 Base.lastindex(tokens::MustacheTokens) = lastindex(tokens.tokens)
 Base.getindex(tokens::MustacheTokens, ind) = getindex(tokens.tokens, ind)
@@ -588,9 +587,11 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             ## or display conditionally
             value = lookup(context, tokenValue)
             if !isa(value, AnIndex)
-                context = Context(value, context)
+               context = Context(value, context)
             end
             renderTokensByValue(value, io, token, writer, context, template, idx)
+            context = ctx_pop(context)
+
 
         elseif token._type == "^"
 

@@ -154,4 +154,24 @@ filepath = joinpath(@__DIR__, "test-sections-crlf.tpl")
     tpl = "[[#list]][[ item ]] [[/list]]"
     @test Mustache.render(tpl, v, tags=("[[", "]]")) == "one two "
 
+## Issue 104, bad nesting (needed to pop context)
+tpl1 = mt"""
+{{#nested.vec}}
+{{.}}
+{{/nested.vec}}
+{{nested.foo}}
+"""
+tpl2 = mt"""
+{{#nested}}
+{{#vec}}
+{{.}}
+{{/vec}}
+{{foo}}
+{{/nested}}
+{{nested.foo}}
+"""
+data2 = Dict("nested" => Dict("vec" => [1,2], "foo" => "bar"))
+@test Mustache.render(tpl1, data2) == "1\n2\nbar\n"
+@test Mustache.render(tpl2, data2) == "1\n2\nbar\nbar\n"
+
 end
