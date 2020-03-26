@@ -110,7 +110,7 @@ function lookup_in_view(view, key)
                 # work with a dictionary from the IteratorRow interface
                 # follows "Sinks (transferring data from one table to another)"
                 rD = Dict()
-                Tables.eachcolumn(sch, first(rows)) do val, col, name
+                Tables.eachcolumn(sch, rows) do val, col, name
                         rD[name] = val
                 end
                 k = occursin(r"^:", key)  ? Symbol(key[2:end])  : key
