@@ -109,12 +109,16 @@ function lookup_in_view(view, key)
             else
                 # work with a dictionary from the IteratorRow interface
                 # follows "Sinks (transferring data from one table to another)"
-                rD = Dict()
-                Tables.eachcolumn(sch, rows) do val, col, name
+                out = Any[]
+                for row in rows
+                    rD = Dict()
+                    Tables.eachcolumn(sch, row) do val, col, name
                         rD[name] = val
+                    end
+                    k = occursin(r"^:", key)  ? Symbol(key[2:end])  : key
+                    push!(out, get(rD,k, nothing))
                 end
-                k = occursin(r"^:", key)  ? Symbol(key[2:end])  : key
-                return get(rD,k, nothing)
+                return out
             end
         end
     elseif  is_dataframe(view)
@@ -127,7 +131,6 @@ function lookup_in_view(view, key)
         end
         out
     else
-
         _lookup_in_view(view, key)
     end
 end
