@@ -256,6 +256,7 @@ function make_tokens(template, tags)
         scan_past!(io, rtags)
 
         # what kinda tag did we get?
+        token_value = stripWhitespace(token_value)
         _type = token_value[1:1]
         if _type in  ("#", "^", "/", ">", "<", "!", "|", "=", "{", "&")
             # type is first, we peel it off, also strip trailing = and },
@@ -267,6 +268,10 @@ function make_tokens(template, tags)
                 # strip "}" if present in io
                 c = peekchar(io)
                 c == '}' && read(io, Char)
+                # strip "}" if  present in token
+                if token_value[end]=='}'
+                    token_value = token_value[1:end-1]
+                end
             end
 
             if _type == "="
@@ -330,7 +335,6 @@ function make_tokens(template, tags)
             end
 
         end
-
         push!(tokens, text_token)
         push!(tokens, tag_token)
 
