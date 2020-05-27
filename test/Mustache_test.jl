@@ -154,8 +154,8 @@ filepath = joinpath(@__DIR__, "test-sections-crlf.tpl")
     tpl = "[[#list]][[ item ]] [[/list]]"
     @test Mustache.render(tpl, v, tags=("[[", "]]")) == "one two "
 
-## Issue 104, bad nesting (needed to pop context)
-tpl1 = mt"""
+    ## Issue 104, bad nesting (needed to pop context)
+    tpl1 = mt"""
 {{#nested.vec}}
 {{.}}
 {{/nested.vec}}
@@ -170,8 +170,10 @@ tpl2 = mt"""
 {{/nested}}
 {{nested.foo}}
 """
-data2 = Dict("nested" => Dict("vec" => [1,2], "foo" => "bar"))
-@test Mustache.render(tpl1, data2) == "1\n2\nbar\n"
-@test Mustache.render(tpl2, data2) == "1\n2\nbar\nbar\n"
+    data2 = Dict("nested" => Dict("vec" => [1,2], "foo" => "bar"))
+    @test Mustache.render(tpl1, data2) == "1\n2\nbar\n"
+    @test Mustache.render(tpl2, data2) == "1\n2\nbar\nbar\n"
 
+    ##  Issue 114 Combine custom tags with no HTML escaping
+    @test Mustache.render("\$[[{JL_VERSION_MATRIX}]]", Dict("JL_VERSION_MATRIX"=>"&"), tags=("\$[[","]]")) == "&"
 end
