@@ -1,5 +1,10 @@
 module Mustache
 
+if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@optlevel"))
+    @eval Base.Experimental.@optlevel 1
+end
+
+
 using Tables
 
 include("utils.jl")
