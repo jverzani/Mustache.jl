@@ -54,13 +54,15 @@ argument is for an optional `IO` instance. In the above example, where
 one is not provided, a string is returned.
 
 
-The second argument is a either a string or a mustache template. As
-seen, templates can be made through the `mt` non-standard string
-literal. The advantage of using `mt` is that the template will be
-processed at compile time so its reuse will be faster.
+The second argument is a template specified by a string or a
+`MustacheTokens` argument, as returned by the `mt` string literal or
+`Mustache.load(filepath)`. The advantage of using tokens is that the
+template needs only be parsed once, either at compile time or when
+loading. A disadvantage with the string literal would be that string
+interpolation into the template is not supported.
 
 The templates use tags comprised of matching mustaches (`{}`), either two or three, to
-indicate a value to be substituted for.
+indicate a value to be substituted for. These tags may be adjusted.
 
 The third argument is for a view to provide values to substitute into
 the template. The above example used a dictionary. A Module may also

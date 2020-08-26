@@ -79,34 +79,52 @@ render(template::AbstractString; kwargs...) = sprint(io -> render(io, template, 
 TEMPLATES = Dict{AbstractString, MustacheTokens}()
 
 ## Load template from file
-function template_from_file(filepath)
-    f = open(x -> read(x, String), filepath)
-    tpl = parse(f)
-    return tpl
-end
-
 """
+    Mustache.load(filepath, args...)
 
-Renders a template from `filepath` and `view`. If it has seen the file
-before then it finds the compiled `MustacheTokens` in `TEMPLATES` rather
-than calling `parse` a second time.
+Load a filepath with extension `mustache` and return the compiled tokens.
+Tokens are memoized for efficiency,
 
+Additional arguments are passed to `parse` (for adjusting the tags).
 """
-function render_from_file(filepath, view)
-    if haskey(TEMPLATES, filepath)
-        render(TEMPLATES[filepath], view)
-    else
-        try
-            tpl = template_from_file(filepath)
-            TEMPLATES[filepath] = tpl
-            render(tpl, view)
-        catch
-            nothing
-        end
+function load(filepath, args...)
+
+    isfile(filepath) || throw(ArgumentError("File $filepath not found"))
+
+    key = string(mtime(filepath)) * filepath * string(hash(args))
+    haskey(TEMPLATES,key) && return  TEMPLATES[key]
+
+    open(filepath) do s
+        global tpl = parse(read(s, String), args...)
     end
+
+    TEMPLATES[key] = tpl
+    tpl
+
 end
-function render_from_file(filepath::AbstractString; kwargs...)
-    render_from_file(filepath, kwargs)
-end
+# old name
+const template_from_file = load
+
+
+"""
+    render_from_file(filepath, view)
+    render_from_file(filepath; kwargs...)
+
+Renders a template from `filepath` and `view`. 
+
+"""
+render_from_file
+
+@deprecate render_from_file(filepath, view) render(Mustache.load(filepath), view)
+@deprecate render_from_file(filepath; kwargs...) render(Mustache.load(filepath); kwargs...)
+# function render_from_file(filepath, view)
+#     Base.depwarn("Deprecated. Use `render(Mustache.load(filepath), view)`", :render_from_file)
+#     render(Mustache.load(filepath), view)
+# end
+
+# function render_from_file(filepath::AbstractString; kwargs...)
+#     Base.depwarn("Deprecated. Use `render(Mustache.load(filepath); kwargs...)`", :render_from_file)
+#     render(Mustache.load(filepath); kwargs...)
+# end
 
 end

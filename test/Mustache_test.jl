@@ -110,18 +110,21 @@ rt = [nt, nt, nt] # Tables.istable(rt) == true
 expected =  "eh and bee"^3
 @test Mustache.render(tpl, NT=rt) == expected
 
-## test render_from_file
+## test load
+filepath = joinpath(@__DIR__, "test.tpl")
 expected = "Testing 1, 2, 3..."
-@test render_from_file(joinpath(@__DIR__, "test.tpl"), (one="1", two="2", three="3")) == expected
-@test render_from_file(joinpath(@__DIR__, "test.tpl"), one="1", two="2", three="3") == expected
+@test render(Mustache.load(filepath),  (one="1", two="2", three="3")) == expected
+@test render(Mustache.load(filepath), one="1", two="2", three="3") == expected
 
 filepath = joinpath(@__DIR__, "test-sections-lf.tpl")
-@test Mustache.render_from_file(filepath, Dict("a"=>Dict("x"=>111,),)) == """    111\n"""
-@test Mustache.render_from_file(filepath, Dict("y"=>222,)) == "    222\n"
+tokens = Mustache.load(filepath)
+@test Mustache.render(tokens, Dict("a"=>Dict("x"=>111,),)) == """    111\n"""
+@test Mustache.render(tokens, Dict("y"=>222,)) == "    222\n"
 
 filepath = joinpath(@__DIR__, "test-sections-crlf.tpl")
-@test Mustache.render_from_file(filepath, Dict("a"=>Dict("x"=>111,),)) == "    111\r\n"
-@test Mustache.render_from_file(filepath, Dict("y"=>222,)) == "    222\r\n"
+tokens = Mustache.load(filepath)
+@test Mustache.render(tokens, Dict("a"=>Dict("x"=>111,),)) == "    111\r\n"
+@test Mustache.render(tokens, Dict("y"=>222,)) == "    222\r\n"
 
 @testset "closed issues" begin
 
