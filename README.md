@@ -53,18 +53,14 @@ The `render` function pieces things together. Like `print`, the first
 argument is for an optional `IO` instance. In the above example, where
 one is not provided, a string is returned.
 
+The flow is a template is parsed into tokens by `Mustache.parse`. This can be called directly, indirectly through the non-standard string literal `mt`, or when loading a file with `Mustache.load`. The templates use tags comprised of matching mustaches (`{}`), either two or three, to
+indicate a value to be substituted for. These tags may be adjusted when `parse` is called.
+ The `render` function takes tokens as its second argument. If this argument is a string, `parse` is called internally. The `render` function than reassambles the template, substituting values, as appropriate, from the "view" passed to it and writes the output to the specified `io` argument.
 
-The second argument is a either a string or a mustache template. As
-seen, templates can be made through the `mt` non-standard string
-literal. The advantage of using `mt` is that the template will be
-processed at compile time so its reuse will be faster.
 
-The templates use tags comprised of matching mustaches (`{}`), either two or three, to
-indicate a value to be substituted for.
-
-The third argument is for a view to provide values to substitute into
-the template. The above example used a dictionary. A Module may also
-be used, such as `Main`:
+The view used to provide values to substitute into the template can be
+specified in a variety of ways. The above example used a dictionary. A
+Module may also be used, such as `Main`:
 
 
 ```julia
