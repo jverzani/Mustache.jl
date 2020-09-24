@@ -308,14 +308,14 @@ suited for many jobs:
 
 ## Differences from Mustache.js
 
-This project deviates from that of Mustache.js in a few significant ways:
+This project deviates from Mustache.js in a few significant ways:
 
 
-* Julian structures are used, not JavaScript objects. As illustrated,
+* Julia structures are used, not JavaScript objects. As illustrated,
   one can use Dicts, Modules, DataFrames, functions, ...
 
-* In the Mustache spec, when lamdas are used as section names, the
-function is passed the unvevaluated section:
+* In the Mustache spec, when lambdas are used as section names, the
+function is passed the unevaluated section:
 
 ```
 template = "<{{#lambda}}{{x}}{{/lambda}}>"
