@@ -1,5 +1,7 @@
 """
     render([io], tokens, view)
+    render([io], tokens; kwargs...)
+    (tokens::MustacheTokens)([io]; kwargs...)
 
 Render a set of tokens with a view, using optional `io` object to print or store.
 
@@ -15,6 +17,7 @@ Arguments
   dictionary, a module, a composite type, a vector, a named tuple, a
   data frame, a `Tables` object, or keyword arguments.
 
+
 """
 function render(io::IO, tokens::MustacheTokens, view)
     _writer = Writer()
@@ -26,6 +29,12 @@ end
 
 render(tokens::MustacheTokens, view) = sprint(io -> render(io, tokens, view))
 render(tokens::MustacheTokens; kwargs...) = sprint(io -> render(io, tokens, Dict(kwargs...)))
+
+## make MustacheTokens callable for kwargs...
+(m::MustacheTokens)(io::IO; kwargs...) = render(io, m; kwargs...)
+(m::MustacheTokens)(; kwargs...) = sprint(io -> m(io; kwargs...))
+
+
 
 ## Exported call without first parsing tokens via mt"literal"
 ##
