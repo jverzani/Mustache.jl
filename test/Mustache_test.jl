@@ -126,6 +126,11 @@ tokens = Mustache.load(filepath)
 @test Mustache.render(tokens, Dict("a"=>Dict("x"=>111,),)) == "    111\r\n"
 @test Mustache.render(tokens, Dict("y"=>222,)) == "    222\r\n"
 
+
+## Test of MustacheTokens being callable
+tpl = mt"""Hello {{:name}}"""
+@test tpl(name="world") == "Hello world"
+
 @testset "closed issues" begin
 
     ## issue #51 inverted section
@@ -180,3 +185,4 @@ tpl2 = mt"""
     ##  Issue 114 Combine custom tags with no HTML escaping
     @test Mustache.render("\$[[{JL_VERSION_MATRIX}]]", Dict("JL_VERSION_MATRIX"=>"&"), tags=("\$[[","]]")) == "&"
 end
+
