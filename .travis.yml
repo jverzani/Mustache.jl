@@ -9,6 +9,7 @@ julia:
 os:
   - linux
   - osx
+  - windows
 arch:
   - x64
   - x86
