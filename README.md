@@ -1,8 +1,6 @@
 # Mustache
 
-Linux: [![Build Status](https://travis-ci.org/jverzani/Mustache.jl.svg?branch=master)](https://travis-ci.org/jverzani/Mustache.jl)
-&nbsp;
-Windows: [![Build Status](https://ci.appveyor.com/api/projects/status/github/jverzani/Mustache.jl?branch=master&svg=true)](https://ci.appveyor.com/project/jverzani/mustache-jl)
+[![Build Status](https://travis-ci.com/jverzani/Mustache.jl.svg?branch=master)](https://travis-ci.com/jverzani/Mustache.jl)
 
 [Mustache](http://mustache.github.io/) is
 
@@ -84,6 +82,15 @@ goes_together = mt"{{{:x}}} and {{{:y}}}."
 render(goes_together, x="Salt", y="pepper")
 render(goes_together, x="Bread", y="butter")
 ```
+
+Keyword arguments can also be passed to a `Tokens` object directly (bypassing the use of `render`):
+
+```julia
+goes_together = mt"{{{:x}}} and {{{:y}}}."
+goes_together(x="Fish", y="chips")
+```
+
+
 
 Similarly, a named tuple may be used as a view.  As well, one can use
 Composite Kinds. This may make writing `show` methods easier:
