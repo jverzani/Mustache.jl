@@ -184,5 +184,12 @@ tpl2 = mt"""
 
     ##  Issue 114 Combine custom tags with no HTML escaping
     @test Mustache.render("\$[[{JL_VERSION_MATRIX}]]", Dict("JL_VERSION_MATRIX"=>"&"), tags=("\$[[","]]")) == "&"
+
+    ## Issue fixed by PR #122
+    tpl = """
+{{#:vec}}{{#.[1]}}<bold>{{.}}</bold>{{/.[1]}}{{^.[1]}}{{.}} {{/.[1]}}{{/:vec}}
+"""
+    @test Mustache.render(tpl, vec = ["A1", "B2", "C3"]) == "<bold>A1</bold>B2 C3 \n"
+
 end
 
