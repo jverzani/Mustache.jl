@@ -193,3 +193,9 @@ tpl2 = mt"""
 
 end
 
+@testset "#124 regression test" begin
+    tpl = """{{^dims}}<input type="text" value="">{{/dims}}
+       {{#dims}}<textarea {{#.[1]}}cols="{{.}}"{{/.[1]}} {{#.[2]}}rows="{{.}}"{{/.[2]}}></textarea>{{/dims}}"""
+    @test render(tpl, Dict("dims"=>missing)) == "<input type=\"text\" value=\"\">\n"
+    @test render(tpl, Dict("dims"=>["1", "2"])) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>"
+end

@@ -42,7 +42,6 @@ function lookup(ctx::Context, key)
         context = ctx
         value = nothing
         while value === nothing && context !== nothing
-            
             ## does name have a .?
             if occursin(r"\.", key)
                 value = lookup_dotted(context, key)
@@ -73,8 +72,6 @@ function lookup(ctx::Context, key)
                 value = lookup_in_view(context.view, stripWhitespace(key))
             end
             context = context.parent
-
-
         end
 
         ## cache
