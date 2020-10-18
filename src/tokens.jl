@@ -62,7 +62,6 @@ end
 
 
 
-#mutable struct AnIndex
 struct AnIndex
     ind::Int
     value::String

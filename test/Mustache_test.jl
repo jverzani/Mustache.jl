@@ -191,11 +191,14 @@ tpl2 = mt"""
 """
     @test Mustache.render(tpl, vec = ["A1", "B2", "C3"]) == "<bold>A1</bold>B2 C3 \n"
 
-end
+    ## Issue 124 regression test"
+    
+    tpl = mt"""
+{{^dims}}<input type="text" value="">{{/dims}}
+{{#dims}}<textarea {{#.[1]}}cols="{{.}}"{{/.[1]}} {{#.[2]}}rows="{{.}}"{{/.[2]}}></textarea>{{/dims}}
+"""
 
-@testset "#124 regression test" begin
-    tpl = """{{^dims}}<input type="text" value="">{{/dims}}
-       {{#dims}}<textarea {{#.[1]}}cols="{{.}}"{{/.[1]}} {{#.[2]}}rows="{{.}}"{{/.[2]}}></textarea>{{/dims}}"""
-    @test render(tpl, Dict("dims"=>missing)) == "<input type=\"text\" value=\"\">\n"
-    @test render(tpl, Dict("dims"=>["1", "2"])) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>"
+    @test render(tpl, Dict("dims"=>missing)) == "<input type=\"text\" value=\"\">\n\n"
+    @test render(tpl, Dict("dims"=>["1", "2"])) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
+    @test render(tpl, Dict("dims"=>[1, 2])) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
 end
