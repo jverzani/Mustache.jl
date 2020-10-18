@@ -41,7 +41,8 @@ function lookup(ctx::Context, key)
     else
         context = ctx
         value = nothing
-        while value == nothing && context != nothing
+        while value === nothing && context !== nothing
+            
             ## does name have a .?
             if occursin(r"\.", key)
                 value = lookup_dotted(context, key)
