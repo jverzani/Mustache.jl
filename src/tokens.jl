@@ -25,6 +25,15 @@ collector::Vector
 SectionToken(_type, value, ltag, rtag) = new(_type, value, ltag, rtag, Any[])
 end
 
+mutable struct BooleanToken <: Token
+_type::String
+value::String
+ltag::String
+rtag::String
+collector::Vector
+BooleanToken(_type, value, ltag, rtag) = new(_type, value, ltag, rtag, Any[])
+end
+
 mutable struct MustacheTokens
 tokens::Vector{Token}
 end
@@ -53,7 +62,7 @@ end
 
 
 
-mutable struct AnIndex
+struct AnIndex
     ind::Int
     value::String
 end
@@ -258,7 +267,7 @@ function make_tokens(template, tags)
         # what kinda tag did we get?
         token_value = stripWhitespace(token_value)
         _type = token_value[1:1]
-        if _type in  ("#", "^", "/", ">", "<", "!", "|", "=", "{", "&")
+        if _type in  ("#", "^", "/", ">", "<", "!", "|", "=", "{", "&", "@")
             # type is first, we peel it off, also strip trailing = and },
             # as necessary
 
@@ -296,6 +305,10 @@ function make_tokens(template, tags)
             elseif _type in ("#", "^", "|")
 
                 tag_token = SectionToken(_type, token_value, ltag, rtag)
+
+            elseif _type in ("@",)
+
+                tag_token = BooleanToken(_type, token_value, ltag, rtag)
 
             else
 
@@ -339,7 +352,7 @@ function make_tokens(template, tags)
         push!(tokens, tag_token)
 
         # account for matching/nested sections
-        if _type == "#" || _type == "^" || _type ==  "|"
+        if _type == "#" || _type == "^" || _type ==  "|" || _type == "@" 
             push!(sections, tag_token)
         elseif _type == "/"
             ## section nestinng
@@ -379,7 +392,7 @@ function nestTokens(tokens)
         ## a {{#name}}...{{/name}} will iterate over name
         ## a {{^name}}...{{/name}} does ... if we have no name
         ## start nesting
-        if token._type == "^" || token._type == "#" || token._type == "|"
+        if token._type == "^" || token._type == "#" || token._type == "|" || token._type == "@" 
             push!(sections, token)
             push!(collector, token)
             token.collector = Array{Any}(undef, 0)
@@ -688,6 +701,12 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             if !falsy(value)
                 val = isa(value, Function) ? render(parse(value()), context.view) : value
                 print(io, val)
+            end
+
+        elseif token._type == "@"
+            value = lookup(context, tokenValue)
+            if !falsy(value)
+                print(io, render(MustacheTokens(token.collector), value))
             end
 
         elseif token._type == "name"

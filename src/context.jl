@@ -62,7 +62,7 @@ function lookup(ctx::Context, key)
                     value = AnIndex(-1, vals[end])
                 else
                     ind = Base.parse(Int, idx)
-                    value = AnIndex(ind, vals[ind])
+                    value = AnIndex(ind, string(vals[ind]))
                 end
                 break
             else
