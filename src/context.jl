@@ -36,7 +36,6 @@ end
 
 ## Lookup value by key in the context
 function lookup(ctx::Context, key)
-
     if haskey(ctx._cache, key)
         value = ctx._cache[key]
     else
@@ -45,7 +44,6 @@ function lookup(ctx::Context, key)
         while value == nothing && context != nothing
             ## does name have a .?
             if occursin(r"\.", key)
-
                 value = lookup_dotted(context, key)
                 value != nothing && break
 

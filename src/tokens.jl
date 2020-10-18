@@ -590,11 +590,16 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
             value = lookup(context, tokenValue)
-            if !isa(value, AnIndex)
-               context = Context(value, context)
-            end
-            renderTokensByValue(value, io, token, writer, context, template, idx)
-            context = ctx_pop(context)
+            ctx = isa(value, AnIndex) ? context : Context(value, context)
+            renderTokensByValue(value, io, token, writer, ctx, template, idx)
+
+            # if !isa(value, AnIndex)
+            #    context = Context(value, context)
+            # end
+            # renderTokensByValue(value, io, token, writer, context, template, idx)
+            # if !isa(value, AnIndex)
+            #     context = ctx_pop(context)
+            # end
 
 
         elseif token._type == "^"
