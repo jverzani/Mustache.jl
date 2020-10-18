@@ -497,7 +497,7 @@ function _renderTokensByValue(value::AbstractDict, io, token, writer, context, t
         renderTokens(io, token.collector, writer, ctx_push(context, value), template, args...)
 end
 
-function _renderTokensByValue(value::AbstractArray, io, token, writer, context, template, args...)
+function _renderTokensByValue(value::Union{AbstractArray,Tuple}, io, token, writer, context, template, args...)
    inverted = token._type == "^"
    if (inverted && falsy(value))
        renderTokens(io, token.collector, writer, ctx_push(context, ""), template, args...)

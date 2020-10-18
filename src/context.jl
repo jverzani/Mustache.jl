@@ -45,12 +45,12 @@ function lookup(ctx::Context, key)
             ## does name have a .?
             if occursin(r"\.", key)
                 value = lookup_dotted(context, key)
-                value != nothing && break
+                value !== nothing && break
 
                 ## do something with "."
                 ## we use .[ind] to refer to value in parent of given index;
                 m = match(r"^\.\[(.*)\]$", key)
-                m == nothing && break
+                m === nothing && break
 #                m == nothing && error("Not implemented. Can use Composite Kinds in the view.")
 
                 idx = m.captures[1]
@@ -58,15 +58,13 @@ function lookup(ctx::Context, key)
 
                 # this has limited support for indices: "end", or a number, but no
                 # arithmetic, such as `end-1`.
-                if isa(vals, Vector) # supports getindex(v, i)?
-                   if idx == "end"
-                       value = AnIndex(-1, vals[end])
-                   else
-                       ind = Base.parse(Int, idx)
-                       value = AnIndex(ind, vals[ind])
-                   end
-                    break
+                if idx == "end"
+                    value = AnIndex(-1, vals[end])
+                else
+                    ind = Base.parse(Int, idx)
+                    value = AnIndex(ind, vals[ind])
                 end
+                break
             else
                 ## strip leading, trailing whitespace in key
                 value = lookup_in_view(context.view, stripWhitespace(key))
