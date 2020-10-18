@@ -201,4 +201,5 @@ tpl2 = mt"""
     @test render(tpl, Dict("dims"=>missing)) == "<input type=\"text\" value=\"\">\n\n"
     @test render(tpl, Dict("dims"=>["1", "2"])) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
     @test render(tpl, Dict("dims"=>[1, 2])) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
+    @test render(tpl, Dict("dims"=>(1, 2))) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
 end

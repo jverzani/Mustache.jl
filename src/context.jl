@@ -58,7 +58,7 @@ function lookup(ctx::Context, key)
 
                 # this has limited support for indices: "end", or a number, but no
                 # arithmetic, such as `end-1`.
-                if isa(vals, Vector) # supports getindex(v, i)?
+                if isa(vals, AbstractVector)  || isa(vals, Tuple) # supports getindex(v, i)?
                    if idx == "end"
                        value = AnIndex(-1, vals[end])
                    else
