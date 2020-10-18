@@ -200,4 +200,9 @@ tpl2 = mt"""
     @test render(tpl, Dict("dims"=>["1", "2"])) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>"
     @test render(tpl, Dict("dims"=>("1", "2"))) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>"
     @test render(tpl, Dict("dims"=>(1, 2))) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>"
+
+    tpl = mt"""
+{{^dims}}<input type="text" value="">{{/dims}}
+{{@dims}}<textarea></textarea>{{/dims}}"""
+    @test render(tpl, Dict("dims"=>(1, 2))) == "\n<textarea></textarea>"
 end
