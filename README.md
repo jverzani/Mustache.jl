@@ -281,6 +281,10 @@ implemented for now -- does not allow for iteration. That is
 constructs like `{{#.[1]}}` don't introduce iteration, but only offer
 a conditional check.
 
+### Conditional checking without iteration
+
+The section tag, `#`, check for existence; pushes the object into the view; and then iterates over the object. For cases where iteration is not desirable; the tag type `@` can be used.
+
 ### Partials
 
 Partials are used to include partial templates into a template.
