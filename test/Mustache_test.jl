@@ -10,6 +10,10 @@ mutable struct ThrowAway
     y
 end
 
+struct Issue123
+    range
+end
+
 @test render(tpl, Main) == "a:ex b:why"
 @test render(tpl, d) == "a:ex b:why"
 @test render(tpl, ThrowAway(x,y)) == "a:ex b:why"
@@ -191,6 +195,13 @@ tpl2 = mt"""
 """
     @test Mustache.render(tpl, vec = ["A1", "B2", "C3"]) == "<bold>A1</bold>B2 C3 \n"
 
+    ##
+    tpl = mt"""
+<input type="range" {{@:range}} min="{{start}}" step="{{step}}" max="{{stop}}" {{/:range}}>
+"""
+    @test render(tpl, Issue123(1:2:3)) == "<input type=\"range\"  min=\"1\" step=\"2\" max=\"3\" >\n"
+    
+    
     ## Issue 124 regression test"
     tpl = mt"""
 {{^dims}}<input type="text" value="">{{/dims}}
