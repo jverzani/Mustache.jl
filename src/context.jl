@@ -40,10 +40,9 @@ function lookup(ctx::Context, key)
         return ctx._cache[key]
     end
 
+    # use global lookup down
     first(key) == '~' && return lookup_global_down(ctx, key)
 
-
-    
     # begin
     context = ctx
     value = nothing
@@ -89,11 +88,10 @@ function lookup(ctx::Context, key)
 end
 
 # look in Context from global down
+# This could use DRYing up...
 function lookup_global_down(ctx::Context, key′)
     key = replace(key′, r"^~" => "")
     value = nothing
-    
-    @show :XXX, ctx
 
     # begin
     context = ctx
