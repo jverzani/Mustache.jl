@@ -6,6 +6,18 @@ mutable struct Context
     parent ## a context or nothing
     _cache::Dict
 end
+
+# function Base.show(io::IO, ctx::Context)
+#     println(io, ctx.view)
+#     n=1
+#     parent = ctx.parent
+#     while parent !== nothing
+#         println(io, "\t"^n, parent)
+#         n += 1
+#         parent = parent.parent
+#     end
+# end
+
 function Context(view, parent=nothing)
     d = Dict()
     d["."] = isa(view, AnIndex) ? view.value : view
@@ -36,12 +48,13 @@ end
 
 ## Lookup value by key in the context
 function lookup(ctx::Context, key)
+
     if haskey(ctx._cache, key)
         return ctx._cache[key]
     end
 
     # use global lookup down
-    first(key) == '~' && return lookup_global_down(ctx, key)
+    occursin(r"^~", key) && return lookup_global_down(ctx, key)
 
     # begin
     context = ctx
@@ -99,7 +112,7 @@ function lookup_global_down(ctx::Context, key′)
     while context !== nothing
         ## does name have a .?
         if occursin(r"\.", key)
-            value = lookup_dotted(context, key)
+            value′ = lookup_dotted(context, key)
             #value !== nothing && break
 
             ## do something with "."
@@ -117,16 +130,20 @@ function lookup_global_down(ctx::Context, key′)
             ## limit the type, we let non-iterables error.
             if true # isa(vals, AbstractVector)  || isa(vals, Tuple) # supports getindex(v, i)?
                 if idx == "end"
-                    value = AnIndex(-1, vals[end])
+                    value′ = AnIndex(-1, vals[end])
                 else
                     ind = Base.parse(Int, idx)
-                    value = AnIndex(ind, string(vals[ind]))
+                    value′ = AnIndex(ind, string(vals[ind]))
                 end
             end
         else
             ## strip leading, trailing whitespace in key
-            value = lookup_in_view(context.view, stripWhitespace(key))
+            value′ = lookup_in_view(context.view, stripWhitespace(key))
         end
+        if value′ !== nothing
+            value = value′
+        end
+        
         context = context.parent
     end
 
@@ -188,13 +205,15 @@ end
 
 function _lookup_in_view(view::AbstractDict, key)
     ## is it a symbol?
+    k = occursin(r"^:", key) ? Symbol(key[2:end]) : key
+    get(view, k, nothing)
 
-    if occursin(r"^:", key)
-        key = Symbol(key[2:end])
-    end
+end
 
-    get(view, key, nothing)
-
+function _lookup_in_view(view::Pair, key)
+    ## is it a symbol?
+    k =  occursin(r"^:", key) ?  Symbol(key[2:end]) : key
+    view.first == k ? view.second : nothing
 end
 
 function _lookup_in_view(view::NamedTuple, key)
