@@ -285,6 +285,24 @@ a conditional check.
 
 The section tag, `#`, check for existence; pushes the object into the view; and then iterates over the object. For cases where iteration is not desirable; the tag type `@` can be used.
 
+### Non-eager finding of values
+
+A view might have more than one variable bound to a symbol. The first one found is replaced in the template *unless* the variable is prefaced with `~`. This example illustrates:
+
+```
+d = Dict(:two=>Dict(:x=>3), :x=>2)
+tpl = mt"""
+{{#:one}}
+{{#:two}}
+{{~:x}}
+{{/:two}}
+{{/:one}}
+"""
+render(tpl, one=d) # "2\n"
+render(tpl, one=d, x=1) # "1\n"
+```
+Were `{{:x}}` used, the value `3` would have been found within the dictionary `Dict(:x=>3)`; however, the presence of `{{~:x}}` is an instruction to keep looking up in the specified view to find other values, and use the last one found to substitute in. (This is hinted at in [this issue](https://github.com/janl/mustache.js/issues/399))
+
 ### Partials
 
 Partials are used to include partial templates into a template.
