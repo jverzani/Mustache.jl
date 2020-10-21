@@ -161,7 +161,7 @@ function _lookup_in_view(view::Pair, key)
     ## is it a symbol?
     key == "first" && return view.first
     key == "second" && return view.second
-    k =  occursin(r"^:", key) ?  Symbol(key[2:end]) : key
+    k =  startswith(key, ":") ?  Symbol(key[2:end]) : key
     view.first == k ? view.second : nothing
 end
 
