@@ -44,7 +44,7 @@ function lookup(ctx::Context, key)
 
     # use global lookup down
     global_lookup = false
-    if occursin(r"^~", key)
+    if startswith(key, "~")
         global_lookup = true
         key = replace(key, r"^~" => "")
     end
