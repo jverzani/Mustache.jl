@@ -150,7 +150,7 @@ end
 
 function _lookup_in_view(view::AbstractDict, key)
     ## is it a symbol?
-    k = occursin(r"^:", key) ? Symbol(key[2:end]) : key
+    k = startswith(key, ":") ? Symbol(key[2:end]) : key
     get(view, k, nothing)
 
 end
