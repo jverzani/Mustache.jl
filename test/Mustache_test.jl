@@ -211,5 +211,28 @@ tpl2 = mt"""
     @test render(tpl, Dict("dims"=>["1", "2"])) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
     @test render(tpl, Dict("dims"=>("1", "2"))) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
     @test render(tpl, Dict("dims"=>(1, 2))) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
-    @test render(tpl, Dict("dims"=>1:2)) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
+@test render(tpl, Dict("dims"=>1:2)) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
+ 
+   ## issue 128 global versus local
+d = Dict(:two=>Dict(:x=>3), :x=>2)
+tpl = mt"""
+{{#:one}}
+{{#:two}}
+{{:x}}
+{{/:two}}
+{{/:one}}
+"""
+@test render(tpl, one=d) == "3\n"
+
+tpl = mt"""
+{{#:one}}
+{{#:two}}
+{{~:x}}
+{{/:two}}
+{{/:one}}
+"""
+@test render(tpl, one=d) == "2\n"
+@test render(tpl, one=d, x=1) == "1\n"   
+
+
 end

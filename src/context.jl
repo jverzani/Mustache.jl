@@ -6,6 +6,8 @@ mutable struct Context
     parent ## a context or nothing
     _cache::Dict
 end
+
+
 function Context(view, parent=nothing)
     d = Dict()
     d["."] = isa(view, AnIndex) ? view.value : view
@@ -34,54 +36,65 @@ function lookup_dotted(ctx::Context, dotted)
     ctx.view
 end
 
-## Lookup value by key in the context
+# look up key in context
 function lookup(ctx::Context, key)
     if haskey(ctx._cache, key)
-        value = ctx._cache[key]
-    else
-        context = ctx
-        value = nothing
-        while value === nothing && context !== nothing
-            ## does name have a .?
-            if occursin(r"\.", key)
-                value = lookup_dotted(context, key)
-                value !== nothing && break
+        return ctx._cache[key]
+    end
 
+    # use global lookup down
+    global_lookup = false
+    if startswith(key, "~")
+        global_lookup = true
+        key = replace(key, r"^~" => "")
+    end
+
+    # begin
+    context = ctx
+    value = nothing
+    while context !== nothing
+        value′ = nothing
+        ## does name have a .?
+        if occursin(r"\.", key)
+
+            value′ = lookup_dotted(context, key)
+            if value′ == nothing 
                 ## do something with "."
                 ## we use .[ind] to refer to value in parent of given index;
                 m = match(r"^\.\[(.*)\]$", key)
                 m === nothing && break
-#                m == nothing && error("Not implemented. Can use Composite Kinds in the view.")
-
+                
                 idx = m.captures[1]
                 vals = context.parent.view
-
+                
                 # this has limited support for indices: "end", or a number, but no
                 # arithmetic, such as `end-1`.
                 ## This is for an iterable; rather than
                 ## limit the type, we let non-iterables error.
                 if true # isa(vals, AbstractVector)  || isa(vals, Tuple) # supports getindex(v, i)?
-                    if idx == "end"
-                        value = AnIndex(-1, vals[end])
-                    else
-                        ind = Base.parse(Int, idx)
-                        value = AnIndex(ind, string(vals[ind]))
-                    end
-                    break
+                if idx == "end"
+                    value′ = AnIndex(-1, vals[end])
+                else
+                    ind = Base.parse(Int, idx)
+                    value′ = AnIndex(ind, string(vals[ind]))
                 end
-                break
-            else
-                ## strip leading, trailing whitespace in key
-                value = lookup_in_view(context.view, stripWhitespace(key))
+                    #break
+                end
             end
-            context = context.parent
+        else
+            value′ = lookup_in_view(context.view, stripWhitespace(key))
         end
-
-        ## cache
-        ctx._cache[key] = value
+        
+        if value′ !== nothing
+            value = value′
+            !global_lookup && break
+        end
+        
+        context = context.parent
     end
-
-
+    
+    ## cache
+    ctx._cache[key] = value
     return(value)
 end
 
@@ -137,13 +150,19 @@ end
 
 function _lookup_in_view(view::AbstractDict, key)
     ## is it a symbol?
+    k = startswith(key, ":") ? Symbol(key[2:end]) : key
+    get(view, k, nothing)
 
-    if occursin(r"^:", key)
-        key = Symbol(key[2:end])
-    end
+end
 
-    get(view, key, nothing)
-
+# support legacy use of `first` and `second` as variable names
+# referring to piece, otherwise look up value
+function _lookup_in_view(view::Pair, key)
+    ## is it a symbol?
+    key == "first" && return view.first
+    key == "second" && return view.second
+    k =  startswith(key, ":") ?  Symbol(key[2:end]) : key
+    view.first == k ? view.second : nothing
 end
 
 function _lookup_in_view(view::NamedTuple, key)
