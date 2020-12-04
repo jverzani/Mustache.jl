@@ -1,6 +1,6 @@
 # Mustache
 
-![Build status](https://github.com/jverzani/Mustache.jl/workflows/CI/badge.svg)](https://github.com/jverzani/Mustache.jl/actions) 
+[![Build status](https://github.com/jverzani/Mustache.jl/workflows/CI/badge.svg)](https://github.com/jverzani/Mustache.jl/actions) 
 &nbsp;
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/Mustache/)
 
