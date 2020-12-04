@@ -1,6 +1,18 @@
 ## Main function to parse a template This works in several steps: each
 ## character parsed into a token, the tokens are squashed, then
 ## nested, then rendered.
+
+"""
+   Mustache.parse(template, tags = ("{{", "}}"))
+
+Parse a template into tokens. 
+
+* `template`: a string containing a template
+* `tags`: the tags used to indicate a variable. Adding interior braces (`{`,`}`) around the 
+variable will prevent HTML escaping. (That is for the default tags, `{{{varname}}}` is used; for 
+tags like `("<<",">>")` then `<<{varname}>>` is used.)
+
+"""
 function parse(template, tags = ("{{", "}}"))
     tokens = make_tokens(template, tags)
     out = nestTokens(tokens)

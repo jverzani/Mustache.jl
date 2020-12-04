@@ -574,7 +574,7 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
         ## Lambdas used for sections should parse with the current delimiters.
         sec_value = toString(token.collector)
         view = context.parent.view
-        tpl = value(sec_value)
+        tpl = string(value(sec_value))
         out = render(parse(tpl, (token.ltag, token.rtag)),  view)
 
     end
