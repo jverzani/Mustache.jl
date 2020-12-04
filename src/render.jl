@@ -5,8 +5,7 @@
 
 Render a set of tokens with a view, using optional `io` object to print or store.
 
-Arguments
----------
+## Arguments
 
 * `io::IO`: Optional `IO` object.
 
