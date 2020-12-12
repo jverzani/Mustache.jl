@@ -245,7 +245,6 @@ function make_tokens(template, tags)
         b0 = 0
         text_value, firstline = scan_until!(io, ltags, firstline)
         b1 = position(io)
-
         if end_of_road(io)
             token = TextToken("text", text_value)
             push!(tokens, token)
@@ -253,33 +252,28 @@ function make_tokens(template, tags)
         end
         scan_past!(io, ltags)
         text_token = TextToken("text", text_value)
-
         # grab tag token
         t0 = position(io)
         token_value, firstline = scan_until!(io, rtags, firstline)
         t1 = position(io)
-
         if end_of_road(io)
             throw(ArgumentError("tag not closed: $token_value $ltag $rtag"))
         end
         scan_past!(io, rtags)
-
         # what kinda tag did we get?
         token_value = stripWhitespace(token_value)
         _type = token_value[1:1]
         if _type in  ("#", "^", "/", ">", "<", "!", "|", "=", "{", "&", "@")
             # type is first, we peel it off, also strip trailing = and },
             # as necessary
-
             token_value = stripWhitespace(token_value[2:(end-(_type == "="))])
-
             if _type == "{"
-                # strip "}" if present in io
-                c = peekchar(io)
-                c == '}' && read(io, Char)
-                # strip "}" if  present in token
+                #strip "}" if present in token, and if not io
                 if token_value[end]=='}'
                     token_value = token_value[1:end-1]
+                else
+                    c = peekchar(io)
+                    c == '}' && read(io, Char)
                 end
             end
 
@@ -311,12 +305,10 @@ function make_tokens(template, tags)
                 tag_token = BooleanToken(_type, token_value, ltag, rtag)
 
             else
-
                 tag_token = TagToken(_type, token_value, ltag, rtag)
 
             end
         else
-
             token_value = stripWhitespace(token_value)
             tag_token = TagToken("name", token_value, ltag, rtag)
 
@@ -348,6 +340,7 @@ function make_tokens(template, tags)
             end
 
         end
+
         push!(tokens, text_token)
         push!(tokens, tag_token)
 

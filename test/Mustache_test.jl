@@ -234,5 +234,9 @@ tpl = mt"""
 @test render(tpl, one=d) == "2\n"
 @test render(tpl, one=d, x=1) == "1\n"   
 
+## Issue #133 triple brace with }
+tpl = raw"\includegraphics{<<{:filename}>>}"
+tokens = Mustache.parse(tpl, ("<<",">>"))
+@test render(tokens, filename="XXX") == raw"\includegraphics{XXX}"
 
 end
