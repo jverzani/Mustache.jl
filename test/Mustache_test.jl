@@ -239,4 +239,9 @@ tpl = raw"\includegraphics{<<{:filename}>>}"
 tokens = Mustache.parse(tpl, ("<<",">>"))
 @test render(tokens, filename="XXX") == raw"\includegraphics{XXX}"
 
+## jmt macro
+x = 1
+tpl = jmt"$(2x) by {{:a}}"
+@test tpl(a=2) == "2 by 2"
+    
 end
