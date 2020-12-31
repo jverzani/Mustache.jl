@@ -14,7 +14,7 @@ include("writer.jl")
 include("parse.jl")
 include("render.jl")
 
-export @mt_str, @mt_mstr, render, render_from_file
+export @mt_str, @jmt_str, render, render_from_file
 
 
 end

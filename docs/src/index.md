@@ -243,9 +243,30 @@ tpl="""
 end
 ```
 
-(A string is used above -- and not a `mt` macro -- so that string
-interpolation can happen.)
+In the above, a string is used above -- and not a `mt` macro -- so that string
+interpolation can happen. The `jmt_str` string macro allows for substitution, so the above template could also have been more simply written as:
 
+```
+function df_to_table(df, label="label", caption="caption")
+    fmt = repeat("c", size(df,2))
+    header = join(string.(names(df)), " & ")
+    row = join(["{{:$x}}" for x in map(string, names(df))], " & ")
+
+tpl = jmt"""
+\begin{table}
+  \centering
+  \begin{tabular}{$fmt}
+  $header\\
+{{#:DF}}    $row\\
+{{/:DF}}  \end{tabular}
+  \caption{$caption}
+  \label{tab:$label}
+\end{table}
+"""
+
+    Mustache.render(tpl, DF=df)
+end
+```
 ### Iterating over vectors
 
 Though it isn't part of the Mustache specification, when iterating
