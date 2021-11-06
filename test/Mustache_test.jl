@@ -133,7 +133,8 @@ tokens = Mustache.load(filepath)
 
 ## Test of MustacheTokens being callable
 tpl = mt"""Hello {{:name}}"""
-@test tpl(name="world") == "Hello world"
+@test tpl(name="world") == "Hello world"  # using kwargs...
+@test tpl((name="world",)) == "Hello world" # using arg
 
 @testset "closed issues" begin
 
@@ -200,8 +201,8 @@ tpl2 = mt"""
 <input type="range" {{@:range}} min="{{start}}" step="{{step}}" max="{{stop}}" {{/:range}}>
 """
     @test render(tpl, Issue123(1:2:3)) == "<input type=\"range\"  min=\"1\" step=\"2\" max=\"3\" >\n"
-    
-    
+
+
     ## Issue 124 regression test"
     tpl = mt"""
 {{^dims}}<input type="text" value="">{{/dims}}
@@ -212,7 +213,7 @@ tpl2 = mt"""
     @test render(tpl, Dict("dims"=>("1", "2"))) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
     @test render(tpl, Dict("dims"=>(1, 2))) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
 @test render(tpl, Dict("dims"=>1:2)) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
- 
+
    ## issue 128 global versus local
 d = Dict(:two=>Dict(:x=>3), :x=>2)
 tpl = mt"""
@@ -232,7 +233,7 @@ tpl = mt"""
 {{/:one}}
 """
 @test render(tpl, one=d) == "2\n"
-@test render(tpl, one=d, x=1) == "1\n"   
+@test render(tpl, one=d, x=1) == "1\n"
 
 ## Issue #133 triple brace with }
 tpl = raw"\includegraphics{<<{:filename}>>}"
@@ -243,5 +244,5 @@ tokens = Mustache.parse(tpl, ("<<",">>"))
 x = 1
 tpl = jmt"$(2x) by {{:a}}"
 @test tpl(a=2) == "2 by 2"
-    
+
 end
