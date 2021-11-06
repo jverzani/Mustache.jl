@@ -44,9 +44,15 @@ The `render` function pieces things together. Like `print`, the first
 argument is for an optional `IO` instance. In the above example, where
 one is not provided, a string is returned.
 
-The flow is a template is parsed into tokens by `Mustache.parse`. This can be called directly, indirectly through the non-standard string literal `mt`, or when loading a file with `Mustache.load`. The templates use tags comprised of matching mustaches (`{}`), either two or three, to
+The flow is
+
+* a template is parsed into tokens by `Mustache.parse`. This can be called directly, indirectly through the non-standard string literal `mt`, or when loading a file with `Mustache.load`. The templates use tags comprised of matching mustaches (`{}`), either two or three, to
 indicate a value to be substituted for. These tags may be adjusted when `parse` is called.
- The `render` function takes tokens as its second argument. If this argument is a string, `parse` is called internally. The `render` function than reassambles the template, substituting values, as appropriate, from the "view" passed to it and writes the output to the specified `io` argument.
+
+* The tokens and a view are `render`ed. The `render` function takes tokens as its second argument. If this argument is a string, `parse` is called internally. The `render` function than reassambles the template, substituting values, as appropriate, from the "view" passed to it and writes the output to the specified `io` argument.
+
+
+There are only 4 exports: `mt` and `jmt` string literals to specify a template; and `render` and `render_from_file`.
 
 
 The view used to provide values to substitute into the template can be
@@ -100,19 +106,94 @@ gives
 "Beta distribution with alpha=1.0, beta=2.0"
 ```
 
+### Rendering
+
+The `render` function combines tokens and a view to fill in the template. The basic call is `render([io::IO], tokens, view)`, however there are variants:
+
+
+* `render(tokens; kwargs...)`
+* `render(string, view)`  (`string` is parsed into tokens)
+* `render(string; kwargs...)`
+
+Finally, tokens are callable, so there are these variants to call `render`:
+
+* `tokens([io::IO], view)`
+* `tokens([io::UO]; kwargs...)`
+
+### Views
+
+Views are used to hold values for the templates variables. There are many possible objects that can be used for views:
+
+* a dictionary
+* a named tuple
+* keyword arguments to `render`
+* a module
+
+For templates which iterate over a variable, these can be
+
+* a `Tables.jl` compatible object with row iteration support (e.g., A `DataFrame`, a tuple of named tuples, ...)
+* a vector or tuple (in which case "`.`" is used to match
+
+
+### Templates and tokens
+
+A template is parsed into tokens. The `render` function combines the tokens with the view to create the output.
+
+* Parsing is done at compile time, if the `mt` string literal is used to define the template. If re-using a template, this is encouraged, as it will be more performant.
+
+* If string interpolation is desired prior to the parsing into tokens, the `jmt` string literal can be used.
+
+* As well, a string can be used to define a template. When `parse` is called, the string will be parsed into tokens. This is the flow if `render` is called on a string (and not tokens).
+
+
+
+
 ### Variables
 
-Tags representing variables have the form `{{varname}}`,
+Tags representing variables for substitution have the form `{{varname}}`,
 `{{:symbol}}`, or their triple-braced versions `{{{varname}}}` or
-`{{{:symbol}}}`.  The triple brace prevents HTML substitution for
+`{{{:symbol}}}`.
+
+
+The `varname` version will match variables in a view such as a dictionary or a module.
+
+The `:symbol` version will match variables passed in via named tuple or keyword arguments.
+
+```julia
+b = "be"
+render(mt"a {{b}} c", Main)  # "a be c"
+render(mt"a {{:b}} c", b="bee") # "a bee c"
+render(mt"a {{:b}} c", (b="bee", c="sea")) # "a bee c"
+```
+
+
+The triple brace prevents HTML substitution for
 entities such as `<`. The following are escaped when only double
 braces are used: "&", "<", ">", "'", "\", and "/".
 
-If different tags are specified to `parse`, 
+```julia
+render(mt"a {{:b}} c", b = "%< bee >%")   # "a %&lt; bee &gt;% c"
+render(mt"a {{{:b}}} c", b = "%< bee >%") # "a %< bee >% c"
+```
+
+If different tags are specified to `parse`,
 say `<<` or `>>`, then `<<{` and `}>>` indicate the prevention of substitution.
+
+```julia
+tokens = Mustache.parse("a <<:b>> c", ("<<", ">>"))
+render(tokens, b = "%< B >%")  # a %&lt; B &gt;% c"
+
+tokens = Mustache.parse("a <<{:b}>> c", ("<<", ">>"))
+render(tokens, b = "%< B >%")  # "a %< B >% c"
+```
+
 
 If the variable refers to a function, the value will be the result of
 calling the function with no arguments passed in.
+
+```julia
+render(mt"a {{:b}} c", b = () -> "Bea")  # "a Bea c"
+```
 
 ### Sections
 
@@ -128,18 +209,19 @@ Tags beginning with `#varname` and closed with `/varname` create
 sections. The part between them is used only if the variable is
 defined.
 
-```
+```julia
 Mustache.render("{{#:a}}one{{/:a}}", a=length)  # "3"
 ```
 
-If the section name refers to a function, that function will be passed
+If the section name refers to a function, as above, that function will be passed
 the unevaluated string within the section, as expected by the Mustache
-specification. (If the tag "|" is used, the section value will be
-rendered first, an enhancement to the specification.)
+specification.
 
-```
-tpl = """{{|:lambda}}{{:value}}{{/:lambda}} dollars.""";
+If the tag "|" is used, the section value will be rendered first, an enhancement to the specification.
+
+```julia
 fmt(txt) = "<b>" * string(round(parse(Float64, txt), digits=2)) * "</b>";
+tpl = """{{|:lambda}}{{:value}}{{/:lambda}} dollars.""";
 Mustache.render(tpl, value=1.23456789, lambda=fmt)  # "<b>1.23</b> dollars."
 ```
 
@@ -154,7 +236,7 @@ defined or is `falsy`.
 
 ### Iteration
 
-If the section variable, `{{#VARNAME}}`, binds to an iterable
+If the section variable, `{{#varname}}`, binds to an iterable
 collection, then the text in the section is repeated for each item in
 the collection with the view used for the context of the template
 given by the item.
@@ -246,7 +328,7 @@ end
 In the above, a string is used above -- and not a `mt` macro -- so that string
 interpolation can happen. The `jmt_str` string macro allows for substitution, so the above template could also have been more simply written as:
 
-```
+```julia
 function df_to_table(df, label="label", caption="caption")
     fmt = repeat("c", size(df,2))
     header = join(string.(names(df)), " & ")
@@ -267,13 +349,14 @@ tpl = jmt"""
     Mustache.render(tpl, DF=df)
 end
 ```
-### Iterating over vectors
+
+#### Iterating over vectors
 
 Though it isn't part of the Mustache specification, when iterating
-over an unnamed vector, Mustache.jl uses `{{.}}` to refer to the item:
+over an unnamed vector or tuple, `Mustache.jl uses` `{{.}}` to refer to the item:
 
 ```julia
-tpl = "{{#:vec}}{{.}} {{/:vec}}"
+tpl = mt"{{#:vec}}{{.}} {{/:vec}}"
 render(tpl, vec = ["A1", "B2", "C3"])  # "A1 B2 C3 "
 ```
 
@@ -287,14 +370,14 @@ arithmetic on indices.)
 To print commas one can use this pattern:
 
 ```julia
-tpl = "{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}"
+tpl = mt"{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}"
 render(tpl, vec = ["A1", "B2", "C3"])  # "A1, B2, C3"
 ```
 
 To put the first value in bold, but no others, say:
 
 ```julia
-tpl = """
+tpl = mt"""
 {{#:vec}}
 {{#.[1]}}<bold>{{.}}</bold>{{/.[1]}}
 {{^.[1]}}{{.}}{{/.[1]}}
@@ -396,6 +479,11 @@ suited for many jobs:
   the [Format](https://github.com/JuliaString/Format.jl) package, and the
   [StringLiterals](https://github.com/JuliaString/StringLiterals.jl)
   package are available.
+
+* The
+  [HypertextLiteral](https://github.com/MechanicalRabbit/HypertextLiteral.jl)
+  package is useful when interpolating HTML, SVG, or SGML tagged
+  content.
 
 ## Differences from Mustache.js
 

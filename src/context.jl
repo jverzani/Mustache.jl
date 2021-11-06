@@ -58,15 +58,15 @@ function lookup(ctx::Context, key)
         if occursin(r"\.", key)
 
             value′ = lookup_dotted(context, key)
-            if value′ == nothing 
+            if value′ == nothing
                 ## do something with "."
                 ## we use .[ind] to refer to value in parent of given index;
                 m = match(r"^\.\[(.*)\]$", key)
                 m === nothing && break
-                
+
                 idx = m.captures[1]
                 vals = context.parent.view
-                
+
                 # this has limited support for indices: "end", or a number, but no
                 # arithmetic, such as `end-1`.
                 ## This is for an iterable; rather than
@@ -84,15 +84,15 @@ function lookup(ctx::Context, key)
         else
             value′ = lookup_in_view(context.view, stripWhitespace(key))
         end
-        
+
         if value′ !== nothing
             value = value′
             !global_lookup && break
         end
-        
+
         context = context.parent
     end
-    
+
     ## cache
     ctx._cache[key] = value
     return(value)
