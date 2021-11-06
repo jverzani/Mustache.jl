@@ -30,8 +30,14 @@ render(tokens::MustacheTokens, view) = sprint(io -> render(io, tokens, view))
 render(tokens::MustacheTokens; kwargs...) = sprint(io -> render(io, tokens, Dict(kwargs...)))
 
 ## make MustacheTokens callable for kwargs...
-(m::MustacheTokens)(io::IO; kwargs...) = render(io, m; kwargs...)
-(m::MustacheTokens)(; kwargs...) = sprint(io -> m(io; kwargs...))
+function (m::MustacheTokens)(io::IO, args...; kwargs...)
+    if length(args) == 1
+        render(io, m, first(args))
+    else
+        render(io, m; kwargs...)
+    end
+end
+(m::MustacheTokens)(args...; kwargs...) = sprint(io -> m(io, args...; kwargs...))
 
 
 
@@ -56,7 +62,7 @@ render(template::AbstractString; kwargs...) = sprint(io -> render(io, template, 
     render_from_file(filepath, view)
     render_from_file(filepath; kwargs...)
 
-Renders a template from `filepath` and `view`. 
+Renders a template from `filepath` and `view`.
 """
 render_from_file(filepath, view) = render(Mustache.load(filepath), view)
 render_from_file(filepath::AbstractString; kwargs...) = render(Mustache.load(filepath); kwargs...)
