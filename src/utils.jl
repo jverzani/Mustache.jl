@@ -38,7 +38,7 @@ end
 ## this is for falsy value
 ## Falsy is true if x is false, 0 length, "", ...
 falsy(x::Bool) = !x
-falsy(x::Array) = isempty(x)
+falsy(x::Array) = isempty(x) || all(falsy, x)
 falsy(x::AbstractString) = x == ""
 falsy(x::Nothing) = true
 falsy(x::Missing) = true
@@ -74,6 +74,15 @@ end
 function escapeTags(tags)
    [Regex(escapeRe(tags[1]) * "\\s*"),
     Regex("\\s*" * escapeRe(tags[2]))]
+end
+
+# key may be string or a ":symbol"
+function normalize(key)
+    if occursin(r"^:", key)
+        key = key[2:end]
+        key = Symbol(key)
+    end
+    return key
 end
 
 

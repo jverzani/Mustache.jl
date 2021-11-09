@@ -215,34 +215,66 @@ tpl2 = mt"""
 @test render(tpl, Dict("dims"=>1:2)) == "\n<textarea cols=\"1\" ></textarea><textarea  rows=\"2\"></textarea>\n"
 
    ## issue 128 global versus local
-d = Dict(:two=>Dict(:x=>3), :x=>2)
-tpl = mt"""
+    d = Dict(:two=>Dict(:x=>3), :x=>2)
+    tpl = mt"""
 {{#:one}}
 {{#:two}}
 {{:x}}
 {{/:two}}
 {{/:one}}
 """
-@test render(tpl, one=d) == "3\n"
+    @test render(tpl, one=d) == "3\n"
 
-tpl = mt"""
+    tpl = mt"""
 {{#:one}}
 {{#:two}}
 {{~:x}}
 {{/:two}}
 {{/:one}}
 """
-@test render(tpl, one=d) == "2\n"
-@test render(tpl, one=d, x=1) == "1\n"
+    @test render(tpl, one=d) == "2\n"
+    @test render(tpl, one=d, x=1) == "1\n"
 
-## Issue #133 triple brace with }
-tpl = raw"\includegraphics{<<{:filename}>>}"
-tokens = Mustache.parse(tpl, ("<<",">>"))
-@test render(tokens, filename="XXX") == raw"\includegraphics{XXX}"
+    ## Issue #133 triple brace with }
+    tpl = raw"\includegraphics{<<{:filename}>>}"
+    tokens = Mustache.parse(tpl, ("<<",">>"))
+    @test render(tokens, filename="XXX") == raw"\includegraphics{XXX}"
 
-## jmt macro
-x = 1
-tpl = jmt"$(2x) by {{:a}}"
-@test tpl(a=2) == "2 by 2"
+    # alternative is to use `&` to avoid escaping
+    @test render(raw"\includegraphics{<<&:filename>>}", (filename="XXX",), #render(string, view;tags=...)
+                 tags=("<<",">>")) == raw"\includegraphics{XXX}"
+
+
+    ## jmt macro
+    x = 1
+    tpl = jmt"$(2x) by {{:a}}"
+    @test tpl(a=2) == "2 by 2"
+
+
+    ## Issue #139 -- mishandling of tables data with partials
+    A = [Dict("a" => "eh", "b" => "bee"),
+         Dict("a" => "ah", "b" => "buh")]
+    tpl = mt"{{#:A}}Pronounce a as {{>:d}} and b as {{b}}. {{/:A}}"
+    out1 = render(tpl, A=A, d="*{{a}}*")
+
+    A = [Dict(:a => "eh", :b => "bee"),
+         Dict(:a => "ah", :b => "buh")]
+    tpl = mt"{{#:A}}Pronounce a as {{>:d}} and b as {{:b}}. {{/:A}}"
+    out2 = render(tpl, A=A, d="*{{:a}}*")
+
+    A = [(a = "eh", b = "bee"),
+         (a = "ah", b = "buh")]
+    tpl = mt"{{#:A}}Pronounce a as {{>:d}} and b as {{:b}}. {{/:A}}"
+    out3 = render(tpl, A=A, d="*{{:a}}*")
+    @test out1 == out2 == out3
+
+    ## lookup in Tables compatible data
+    ## find column
+    tpl = mt"{{#:vec}}{{.}} {{/:vec}}"
+    A = [(vec=1, a=2),
+         (vec=2, a=3),
+         (vec=3, a=4)]
+    @test render(tpl, A) == "1 2 3 "
+
 
 end

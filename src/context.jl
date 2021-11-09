@@ -58,6 +58,7 @@ function lookup(ctx::Context, key)
         if occursin(r"\.", key)
 
             value′ = lookup_dotted(context, key)
+
             if value′ == nothing
                 ## do something with "."
                 ## we use .[ind] to refer to value in parent of given index;
@@ -100,59 +101,38 @@ end
 
 ## Lookup value in an object by key
 ## This of course varies based on the view.
-## we special case dataframes here, so that we don't have to assume package is loaded
+## After checking several specific types, if view is Tables compatible
+## this will return "column" corresponding to the key
 function lookup_in_view(view, key)
-    if Tables.istable(view)
-        if isempty(Tables.rows(view))
-            return nothing
-        else
-            rows = Tables.rows(view)
-            sch = Tables.schema(rows)
-            if sch == nothing
-                ## schema is unknown or non inferrable
-                ## What to do?
-                r = getfield(first(rows), 1)
-                k = occursin(r"^:", key)  ? Symbol(key[2:end])  : key
-                if isa(r, Pair)
-                    return k == r.first  ? r.second : nothing
-                else
-                    return k in propertynames(r) ? getproperty(r, k) : nothing
-                end
-            else
-                # work with a dictionary from the IteratorRow interface
-                # follows "Sinks (transferring data from one table to another)"
-                out = Any[]
-                for row in rows
-                    rD = Dict()
-                    Tables.eachcolumn(sch, row) do val, col, name
-                        rD[name] = val
-                    end
-                    k = occursin(r"^:", key)  ? Symbol(key[2:end])  : key
-                    push!(out, get(rD,k, nothing))
-                end
-                return out
-            end
-        end
-    elseif  is_dataframe(view)
 
-        if occursin(r"^:", key)  key = key[2:end] end
-        key = Symbol(key)
-        out = nothing
-        if haskey(view, key)
-                out = view[1, key] ## first element only
+    val = _lookup_in_view(view, key)
+    !falsy(val) && return val
+
+    if Tables.istable(view)
+        isempty(Tables.rows(view)) && return nothing
+        sch = Tables.schema(Tables.rows(view))
+        falsy(sch) && return nothing
+        k = normalize(key)
+        if k ∈ sch.names
+            return [row[k] for row ∈ Tables.rows(view)]
         end
-        out
+    # elseif  is_dataframe(view)
+
+    #     if occursin(r"^:", key)  key = key[2:end] end
+    #     key = Symbol(key)
+    #     out = nothing
+    #     if haskey(view, key)
+    #             out = view[1, key] ## first element only
+    #     end
+    #     out
     else
-        _lookup_in_view(view, key)
+        __lookup_in_view(view, key)
     end
 end
 
-
+# look up key in view, return `nothing` if not found
 function _lookup_in_view(view::AbstractDict, key)
-    ## is it a symbol?
-    k = startswith(key, ":") ? Symbol(key[2:end]) : key
-    get(view, k, nothing)
-
+    get(view, normalize(key), nothing)
 end
 
 # support legacy use of `first` and `second` as variable names
@@ -161,20 +141,11 @@ function _lookup_in_view(view::Pair, key)
     ## is it a symbol?
     key == "first" && return view.first
     key == "second" && return view.second
-    k =  startswith(key, ":") ?  Symbol(key[2:end]) : key
-    view.first == k ? view.second : nothing
+    view.first == normalize(key) ? view.second : nothing
 end
 
 function _lookup_in_view(view::NamedTuple, key)
-    ## is it a symbol?
-    if occursin(r"^:", key)
-        key = Symbol(key[2:end])
-    end
-     if haskey(view, key)
-        getindex(view, key)
-    else
-        nothing
-    end
+    get(view, normalize(key), nothing)
 end
 
 function _lookup_in_view(view::Module, key)
@@ -196,14 +167,12 @@ function _lookup_in_view(view::Module, key)
 
 end
 
-## Default is likely not great,
-function _lookup_in_view(view, key)
+_lookup_in_view(view, key) = nothing
 
-    if occursin(r"^:", key)
-        k = Symbol(key[2:end])
-    else
-        k = key
-    end
+## Default lookup is likely not great,
+function __lookup_in_view(view, key)
+
+    k = normalize(key)
 
     # check propertyname, then fieldnames
     if k in propertynames(view)

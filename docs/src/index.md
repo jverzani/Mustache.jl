@@ -469,7 +469,8 @@ To summarize the different tags marking a variable:
 
 * `{{variable}}` does substitution of the value held in `variable` in the current view; escapes HTML characters
 * `{{{variable}}}` does substitution of the value held in `variable` in the current view; does not escape HTML characters. The mustache braces can be adjusted using `Mustache.parse`.
-* `{{-variable}}` does substitution of the value held in `variable` in the outmost view
+* `{{&variable}}` is an alternative syntax for triple braces (useful with custom braces)
+* `{{~variable}}` does substitution of the value held in `variable` in the outmost view
 * `{{#variable}}` depending on the type of variable, does the following:
    - if `variable` is not a container and is not absent or `nothing` will use the text between the matching tags, marked with `{{/variable}}`; otherwise that text will be skipped. (Like an `if/end` block.)
    - if `variable` is a `Tables.jl` compatible object (row wise, with named rows),  will iterate over the values, pushing the named tuple to be the top-most view for the part of the template up to `{{\variable}}`.
@@ -477,7 +478,7 @@ To summarize the different tags marking a variable:
 * `{{^variable}}`/`{{.variable}}` tags will show the values when `variable` is not defined, or is `nothing`.
 * `{{>partial}}` will include the partial value into the template, filling in the template using the current view. The partial can be a variable or a filename (checked with `isfile`).
 * `{{<partial}}` directly include partial value into template without filling in with the current view.
-
+* `{{!comment}}}` comments begin with a bang, `!`
 
 ## Alternatives
 
