@@ -345,7 +345,7 @@ function make_tokens(template, tags)
         push!(tokens, tag_token)
 
         # account for matching/nested sections
-        if _type == "#" || _type == "^" || _type ==  "|" || _type == "@" 
+        if _type == "#" || _type == "^" || _type ==  "|" || _type == "@"
             push!(sections, tag_token)
         elseif _type == "/"
             ## section nestinng
@@ -385,7 +385,7 @@ function nestTokens(tokens)
         ## a {{#name}}...{{/name}} will iterate over name
         ## a {{^name}}...{{/name}} does ... if we have no name
         ## start nesting
-        if token._type == "^" || token._type == "#" || token._type == "|" || token._type == "@" 
+        if token._type == "^" || token._type == "#" || token._type == "|" || token._type == "@"
             push!(sections, token)
             push!(collector, token)
             token.collector = Array{Any}(undef, 0)
@@ -437,7 +437,7 @@ function _toString(::Val{Symbol("#")}, t)
 end
 
 
-
+## ----------------------------------------------------
 
 # render tokens with values given in context
 function renderTokensByValue(value, io, token, writer, context, template, args...)
@@ -445,27 +445,10 @@ function renderTokensByValue(value, io, token, writer, context, template, args..
     if (inverted && falsy(value))
         _renderTokensByValue(value, io, token, writer, context, template, args...)
     elseif Tables.istable(value)
-        if isempty(Tables.rows(value))
-            return nothing
-        else
-            rows = Tables.rows(value)
-            sch = Tables.schema(rows)
-            rD = Dict()
-            for row in rows
-                if sch == nothing
-                    _renderTokensByValue(getfield(row,1), io, token, writer, context, template, args...)
-                else
-                    # create a dictionary, though perhaps getfield is general enough
-                    Tables.eachcolumn(sch, row) do val, col, name
-                        rD[name] = val
-                    end
-                    renderTokens(io, token.collector, writer, ctx_push(context, rD), template, args...)
-                end
-            end
-        end
-    elseif is_dataframe(value) # XXX remove once istable(x::DataFrame) == true works
-        for i in 1:size(value)[1]
-            renderTokens(io, token.collector, writer, ctx_push(context, value[i,:]), template, args...)
+        isempty(Tables.rows(value)) && return nothing
+        rows = Tables.rows(value)
+        for row in rows
+            renderTokens(io, token.collector, writer, ctx_push(context, row), template, args...)
         end
     elseif !falsy(value)
         _renderTokensByValue(value, io, token, writer, context, template, args...)
@@ -475,35 +458,12 @@ function renderTokensByValue(value, io, token, writer, context, template, args..
     end
 end
 
-# function renderTokensByValue(value, io, token, writer, context, template, args...)
-#     if Tables.istable(value)
-#         if isempty(Tables.rows(value))
-#             @show "no length", token._type
-
-#             return nothing
-#         else
-#             for row in Tables.rows(value)
-#                 _renderTokensByValue(getfield(row,1), io, token, writer, context, template, args...)
-#             end
-#         end
-#     elseif is_dataframe(value) # XXX remove once istable(x::DataFrame) == true works
-#         for i in 1:size(value)[1]
-#             renderTokens(io, token.collector, writer, ctx_push(context, value[i,:]), template, args...)
-#         end
-#     else
-#         inverted = token._type == "^"
-#         if (inverted && falsy(value)) || !falsy(value)
-#             _renderTokensByValue(value, io, token, writer, context, template, args...)
-#         end
-#     end
-# end
-
 ## Helper function for dispatch based on value in renderTokens
 function _renderTokensByValue(value::AbstractDict, io, token, writer, context, template, args...)
-        renderTokens(io, token.collector, writer, ctx_push(context, value), template, args...)
+    renderTokens(io, token.collector, writer, ctx_push(context, value), template, args...)
 end
 
-function _renderTokensByValue(value::Union{AbstractArray, Tuple}, io, token, writer, context, template, args...) 
+function _renderTokensByValue(value::Union{AbstractArray, Tuple}, io, token, writer, context, template, args...)
    inverted = token._type == "^"
    if (inverted && falsy(value))
        renderTokens(io, token.collector, writer, ctx_push(context, ""), template, args...)
@@ -515,13 +475,6 @@ function _renderTokensByValue(value::Union{AbstractArray, Tuple}, io, token, wri
     end
 end
 
-## ## DataFrames
-## function renderTokensByValue(value::DataFrames.DataFrame, io, token, writer, context, template)
-##     ## iterate along row, Call one for each row
-##     for i in 1:size(value)[1]
-##         renderTokens(io, token.collector, writer, ctx_push(context, value[i,:]), template)
-##     end
-## end
 
 ## what to do with an index value `.[ind]`?
 ## We have `.[ind]` being of a leaf type (values are not pushed onto a Context) so of simple usage
@@ -590,13 +543,17 @@ end
 ## was contained in that section.
 function renderTokens(io, tokens, writer, context, template, idx=(0,0))
     for i in 1:length(tokens)
+
         token = tokens[i]
         tokenValue = token.value
+
         if token._type == "#" || token._type == "|"
+
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
             value = lookup(context, tokenValue)
             ctx = isa(value, AnIndex) ? context : Context(value, context)
+
             renderTokensByValue(value, io, token, writer, ctx, template, idx)
 
             # if !isa(value, AnIndex)
@@ -641,7 +598,9 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
                 end
                 tpl_string = String(take!(buf))
             else
+
                 value = lookup(context, fname)
+
                 if !falsy(value)
                     indent = token.indent
                     slashn = ""

@@ -23,11 +23,11 @@ function render(io::IO, tokens::MustacheTokens, view)
     render(io, _writer, tokens, view)
 end
 function render(io::IO, tokens::MustacheTokens; kwargs...)
-    render(io, tokens, kwargs)
+    render(io, tokens, Dict(kwargs...))
 end
 
 render(tokens::MustacheTokens, view) = sprint(io -> render(io, tokens, view))
-render(tokens::MustacheTokens; kwargs...) = sprint(io -> render(io, tokens, Dict(kwargs...)))
+render(tokens::MustacheTokens; kwargs...) = sprint(io -> render(io, tokens; kwargs...))
 
 ## make MustacheTokens callable for kwargs...
 function (m::MustacheTokens)(io::IO, args...; kwargs...)
@@ -46,15 +46,13 @@ end
 ## @param template a string containing the template for expansion
 ## @param view a Dict, Module, CompositeType, DataFrame holding variables for expansion
 function render(io::IO, template::AbstractString, view; tags= ("{{", "}}"))
-    _writer = Writer()
-    render(io, _writer, parse(template, tags), view)
+    return render(io, parse(template, tags), view)
 end
 function render(io::IO, template::AbstractString; kwargs...)
-    _writer = Writer()
-    render(io, _writer, parse(template), Dict(kwargs...))
+    return render(io, parse(template); kwargs...)
 end
 render(template::AbstractString, view; tags=("{{", "}}")) = sprint(io -> render(io, template, view, tags=tags))
-render(template::AbstractString; kwargs...) = sprint(io -> render(io, template, Dict(kwargs...)))
+render(template::AbstractString; kwargs...) = sprint(io -> render(io, template; kwargs...))
 
 
 # Exported, but should be deprecated....
