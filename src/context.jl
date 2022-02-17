@@ -54,7 +54,8 @@ function lookup(ctx::Context, key)
     value = nothing
     while context !== nothing
         value′ = nothing
-        ## does name have a .?
+
+        ## does name have a .? We first check if it is a key, then use lookup_dotted
         value′ = lookup_in_view(context.view, stripWhitespace(key))
         if value′ === nothing && occursin(r"\.", key)
 
@@ -83,8 +84,6 @@ function lookup(ctx::Context, key)
                     #break
                 end
             end
-#        else
-#            value′ = lookup_in_view(context.view, stripWhitespace(key))
         end
 
         if value′ !== nothing
