@@ -55,7 +55,8 @@ function lookup(ctx::Context, key)
     while context !== nothing
         value′ = nothing
         ## does name have a .?
-        if occursin(r"\.", key)
+        value′ = lookup_in_view(context.view, stripWhitespace(key))
+        if value′ === nothing && occursin(r"\.", key)
 
             value′ = lookup_dotted(context, key)
 
@@ -82,8 +83,8 @@ function lookup(ctx::Context, key)
                     #break
                 end
             end
-        else
-            value′ = lookup_in_view(context.view, stripWhitespace(key))
+#        else
+#            value′ = lookup_in_view(context.view, stripWhitespace(key))
         end
 
         if value′ !== nothing

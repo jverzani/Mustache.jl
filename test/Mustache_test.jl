@@ -276,5 +276,6 @@ tpl2 = mt"""
          (vec=3, a=4)]
     @test render(tpl, A) == "1 2 3 "
 
-
+    ## Issue #143 look up key before checking for dotted
+    @test render("Hello, {{ values.name }}!", Dict("values.name"=>"world")) == "Hello, world!"
 end
