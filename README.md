@@ -1,6 +1,13 @@
 # Mustache
 
-[![Build status](https://github.com/jverzani/Mustache.jl/workflows/CI/badge.svg)](https://github.com/jverzani/Mustache.jl/actions) 
+
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://jverzani.github.io/Mustache.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://jverzani.github.io/Mustache.jl/dev)
+[![Build Status](https://github.com/jverzani/Mustache.jl/workflows/CI/badge.svg)](https://github.com/jverzani/Mustache.jl/actions)
+[![codecov](https://codecov.io/gh/jverzani/Mustache.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jverzani/Mustache.jl)
+
+
+[![Build status](https://github.com/jverzani/Mustache.jl/workflows/CI/badge.svg)](https://github.com/jverzani/Mustache.jl/actions)
 &nbsp;
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/Mustache/)
 
@@ -11,4 +18,3 @@
     template using values provided in a hash or object.
 
 This package ports over the [mustache.js](https://github.com/janl/mustache.js) implementation for use in [Julia](http://julialang.org). All credit should go there. All bugs are my own.
-
