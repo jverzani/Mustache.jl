@@ -6,11 +6,6 @@
 [![Build Status](https://github.com/jverzani/Mustache.jl/workflows/CI/badge.svg)](https://github.com/jverzani/Mustache.jl/actions)
 [![codecov](https://codecov.io/gh/jverzani/Mustache.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jverzani/Mustache.jl)
 
-
-[![Build status](https://github.com/jverzani/Mustache.jl/workflows/CI/badge.svg)](https://github.com/jverzani/Mustache.jl/actions)
-&nbsp;
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/Mustache/)
-
 [Mustache](http://mustache.github.io/) is
 
     ... a logic-less template syntax. It can be used for HTML,
