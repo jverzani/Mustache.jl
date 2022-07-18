@@ -11,5 +11,5 @@ makedocs(
 # See "Hosting Documentation" and deploydocs() in the Documenter manual
 # for more information.
 deploydocs(
-    repo = "https://github.com/jverzani/Mustache.jl"
+    repo = "github.com/jverzani/Mustache.jl"
 )
