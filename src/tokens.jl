@@ -513,7 +513,7 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
         # pass evaluated values
         view = context.parent.view
         sec_value = render(MustacheTokens(token.collector), view)
-        out = render(value(sec_value), view)
+        out = render(string(value(sec_value)), view)
     else
         ## How to get raw section value?
         ## desc: Lambdas used for sections should receive the raw section string.
@@ -664,7 +664,9 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
         elseif token._type == "name"
             value = lookup(context, tokenValue)
             if !falsy(value)
-                val = isa(value, Function) ? render(parse(value()), context.view) : value
+                val = isa(value, Function) ?
+                    render((parse∘string∘value)(), context.view) :
+                    value
                 print(io, escape_html(val))
             end
 
