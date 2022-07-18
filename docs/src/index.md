@@ -1,6 +1,6 @@
 # Mustache.jl
 
-Documentation for Mustache.jl
+Documentation for [Mustache.jl](https://github.com/jverzani/Mustache.jl).
 
 
 ## Examples
@@ -29,7 +29,7 @@ d = Dict(
 "taxed_value" => 10000 - (10000 * 0.4),
 "in_ca" => true)
 
-render(tpl, d)
+Mustache.render(tpl, d)
 ```
 
 Yielding
@@ -46,13 +46,12 @@ one is not provided, a string is returned.
 
 The flow is
 
-* a template is parsed into tokens by `Mustache.parse`. This can be called directly, indirectly through the non-standard string literal `mt`, or when loading a file with `Mustache.load`. The templates use tags comprised of matching mustaches (`{}`), either two or three, to
-indicate a value to be substituted for. These tags may be adjusted when `parse` is called.
+* a template is parsed into tokens by `Mustache.parse`. This can be called directly, indirectly through the non-standard string literal `mt`, or when loading a file with `Mustache.load`. The templates use tags comprised of matching mustaches (`{}`), either two or three, to indicate a value to be substituted for. These tags may be adjusted when `parse` is called.
 
 * The tokens and a view are `render`ed. The `render` function takes tokens as its second argument. If this argument is a string, `parse` is called internally. The `render` function than reassambles the template, substituting values, as appropriate, from the "view" passed to it and writes the output to the specified `io` argument.
 
 
-There are only 4 exports: `mt` and `jmt` string literals to specify a template; and `render` and `render_from_file`.
+There are only 4 exports: `mt` and `jmt`, string literals to specify a template, `render`, and `render_from_file`.
 
 
 The view used to provide values to substitute into the template can be
@@ -62,7 +61,7 @@ Module may also be used, such as `Main`:
 
 ```julia
 name, value, taxed_value, in_ca = "Christine", 10000, 10000 - (10000 * 0.4), false
-render(tpl, Main) |> print
+Mustache.render(tpl, Main) |> print
 ```
 
 Which yields:
@@ -78,8 +77,8 @@ templates are symbols:
 
 ```julia
 goes_together = mt"{{{:x}}} and {{{:y}}}."
-render(goes_together, x="Salt", y="pepper")
-render(goes_together, x="Bread", y="butter")
+Mustache.render(goes_together, x="Salt", y="pepper")
+Mustache.render(goes_together, x="Bread", y="butter")
 ```
 
 Keyword arguments can also be passed to a `Tokens` object directly (bypassing the use of `render`):
@@ -97,7 +96,7 @@ Composite Kinds. This may make writing `show` methods easier:
 ```julia
 using Distributions
 tpl = "Beta distribution with alpha={{α}}, beta={{β}}"
-render(tpl, Beta(1, 2))
+Mustache.render(tpl, Beta(1, 2))
 ```
 
 gives
@@ -118,7 +117,7 @@ The `render` function combines tokens and a view to fill in the template. The ba
 Finally, tokens are callable, so there are these variants to call `render`:
 
 * `tokens([io::IO], view)`
-* `tokens([io::UO]; kwargs...)`
+* `tokens([io::IO]; kwargs...)`
 
 ### Views
 
@@ -161,9 +160,9 @@ The `:symbol` version will match variables passed in via named tuple or keyword 
 
 ```julia
 b = "be"
-render(mt"a {{b}} c", Main)  # "a be c"
-render(mt"a {{:b}} c", b="bee") # "a bee c"
-render(mt"a {{:b}} c", (b="bee", c="sea")) # "a bee c"
+Mustache.render(mt"a {{b}} c", Main)  # "a be c"
+Mustache.render(mt"a {{:b}} c", b="bee") # "a bee c"
+Mustache.render(mt"a {{:b}} c", (b="bee", c="sea")) # "a bee c"
 ```
 
 
@@ -172,8 +171,8 @@ entities such as `<`. The following are escaped when only double
 braces are used: "&", "<", ">", "'", "\", and "/".
 
 ```julia
-render(mt"a {{:b}} c", b = "%< bee >%")   # "a %&lt; bee &gt;% c"
-render(mt"a {{{:b}}} c", b = "%< bee >%") # "a %< bee >% c"
+Mustache.render(mt"a {{:b}} c", b = "%< bee >%")   # "a %&lt; bee &gt;% c"
+Mustache.render(mt"a {{{:b}}} c", b = "%< bee >%") # "a %< bee >% c"
 ```
 
 If different tags are specified to `parse`,
@@ -181,10 +180,10 @@ say `<<` or `>>`, then `<<{` and `}>>` indicate the prevention of substitution.
 
 ```julia
 tokens = Mustache.parse("a <<:b>> c", ("<<", ">>"))
-render(tokens, b = "%< B >%")  # a %&lt; B &gt;% c"
+Mustache.render(tokens, b = "%< B >%")  # a %&lt; B &gt;% c"
 
 tokens = Mustache.parse("a <<{:b}>> c", ("<<", ">>"))
-render(tokens, b = "%< B >%")  # "a %< B >% c"
+Mustache.render(tokens, b = "%< B >%")  # "a %< B >% c"
 ```
 
 
@@ -192,7 +191,11 @@ If the variable refers to a function, the value will be the result of
 calling the function with no arguments passed in.
 
 ```julia
-render(mt"a {{:b}} c", b = () -> "Bea")  # "a Bea c"
+Mustache.render(mt"a {{:b}} c", b = () -> "Bea")  # "a Bea c"
+```
+
+```julia
+Mustache.render(mt"Written in the year {{:yr}}."; yr = year∘now) # "Written in the year 2022."
 ```
 
 ### Sections
@@ -206,16 +209,26 @@ Well, {{taxed_value}} dollars, after taxes.
 ```
 
 Tags beginning with `#varname` and closed with `/varname` create
-sections. The part between them is used only if the variable is
-defined.
+"sections."  These have different behaviors depending on the value of
+the variable. When the variable is not a function or a container the
+part between them is used only if the variable is defined and not
+"falsy:"
+
+```julia
+a = mt"{{#:b}}Hi{{/:b}}";
+a(; b=true) # "Hi"
+a(; c=true) # ""
+a(; b=false) # "" also, as `b` is "falsy" (e.g., false, nothing, "")
+```
+
+If the variable name refers to a function that function will be passed
+the unevaluated string within the section, as expected by the Mustache
+specification:
 
 ```julia
 Mustache.render("{{#:a}}one{{/:a}}", a=length)  # "3"
 ```
 
-If the section name refers to a function, as above, that function will be passed
-the unevaluated string within the section, as expected by the Mustache
-specification.
 
 If the tag "|" is used, the section value will be rendered first, an enhancement to the specification.
 
@@ -224,6 +237,8 @@ fmt(txt) = "<b>" * string(round(parse(Float64, txt), digits=2)) * "</b>";
 tpl = """{{|:lambda}}{{:value}}{{/:lambda}} dollars.""";
 Mustache.render(tpl, value=1.23456789, lambda=fmt)  # "<b>1.23</b> dollars."
 ```
+
+(Without the `|` in the tag, an error, `ERROR: ArgumentError: cannot parse "{{:value}}" as Float64`, will be thrown.)
 
 
 
@@ -280,7 +295,7 @@ end
 using DataFrames
 d = DataFrame(names=_names, summs=_summaries)
 
-out = render(tpl, TITLE="A quick table", D=d)
+out = Mustache.render(tpl, TITLE="A quick table", D=d)
 print(out)
 ```
 
@@ -291,7 +306,7 @@ This can be compared to using an array of `Dict`s, convenient if you have data b
 A = [Dict("a" => "eh", "b" => "bee"),
      Dict("a" => "ah", "b" => "buh")]
 tpl = mt"{{#:A}}Pronounce a as {{a}} and b as {{b}}. {{/:A}}"
-render(tpl, A=A) |> print
+Mustache.render(tpl, A=A) |> print
 ```
 
 yielding
@@ -357,7 +372,7 @@ over an unnamed vector or tuple, `Mustache.jl uses` `{{.}}` to refer to the item
 
 ```julia
 tpl = mt"{{#:vec}}{{.}} {{/:vec}}"
-render(tpl, vec = ["A1", "B2", "C3"])  # "A1 B2 C3 "
+Mustache.render(tpl, vec = ["A1", "B2", "C3"])  # "A1 B2 C3 "
 ```
 
 Note the extra space after `C3`.
@@ -371,7 +386,7 @@ To print commas one can use this pattern:
 
 ```julia
 tpl = mt"{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}"
-render(tpl, vec = ["A1", "B2", "C3"])  # "A1, B2, C3"
+Mustache.render(tpl, vec = ["A1", "B2", "C3"])  # "A1, B2, C3"
 ```
 
 To put the first value in bold, but no others, say:
@@ -383,7 +398,7 @@ tpl = mt"""
 {{^.[1]}}{{.}}{{/.[1]}}
 {{/:vec}}
 """
-render(tpl, vec = ["A1", "B2", "C3"])  # basically "<bold>A1</bold>B2 C3"
+Mustache.render(tpl, vec = ["A1", "B2", "C3"])  # basically "<bold>A1</bold>B2 C3"
 ```
 
 This was inspired by
@@ -399,7 +414,7 @@ The section tag, `#`, check for existence; pushes the object into the view; and 
 
 Compare these:
 
-```
+```julia
 julia> struct RANGE
   range
 end
@@ -408,14 +423,14 @@ julia> tpl = mt"""
 <input type="range" {{@:range}} min="{{start}}" step="{{step}}" max="{{stop}}" {{/:range}}>
 """;
 
-julia> render(tpl, RANGE(1:1:2))
+julia> Mustache.render(tpl, RANGE(1:1:2))
 "<input type=\"range\"  min=\"1\" step=\"1\" max=\"2\" >\n"
 
 julia> tpl = mt"""
 <input type="range" {{#:range}} min="{{start}}" step="{{step}}" max="{{stop}}" {{/:range}}>
 """;
 
-julia> render(tpl, RANGE(1:1:2)) # iterates over Range.range
+julia> Mustache.render(tpl, RANGE(1:1:2)) # iterates over Range.range
 "<input type=\"range\"  min=\"1\" step=\"1\" max=\"2\"  min=\"1\" step=\"1\" max=\"2\" >\n"
 ```
 
@@ -423,7 +438,7 @@ julia> render(tpl, RANGE(1:1:2)) # iterates over Range.range
 
 A view might have more than one variable bound to a symbol. The first one found is replaced in the template *unless* the variable is prefaced with `~`. This example illustrates:
 
-```
+```julia
 d = Dict(:two=>Dict(:x=>3), :x=>2)
 tpl = mt"""
 {{#:one}}
@@ -432,9 +447,10 @@ tpl = mt"""
 {{/:two}}
 {{/:one}}
 """
-render(tpl, one=d) # "2\n"
-render(tpl, one=d, x=1) # "1\n"
+Mustache.render(tpl, one=d) # "2\n"
+Mustache.render(tpl, one=d, x=1) # "1\n"
 ```
+
 Were `{{:x}}` used, the value `3` would have been found within the dictionary `Dict(:x=>3)`; however, the presence of `{{~:x}}` is an instruction to keep looking up in the specified view to find other values, and use the last one found to substitute in. (This is hinted at in [this issue](https://github.com/janl/mustache.js/issues/399))
 
 ### Partials
@@ -454,7 +470,7 @@ The partial specified by `{{< box.tpl }}` is not parsed, rather included as is i
 
 The variable can be a filename, as indicated above, or if not a variable. For example
 
-```
+```julia
 julia> tpl = """\"{{>partial}}\""""
 "\"{{>partial}}\""
 
@@ -468,17 +484,30 @@ To summarize the different tags marking a variable:
 
 
 * `{{variable}}` does substitution of the value held in `variable` in the current view; escapes HTML characters
-* `{{{variable}}}` does substitution of the value held in `variable` in the current view; does not escape HTML characters. The mustache braces can be adjusted using `Mustache.parse`.
+* `{{{variable}}}` does substitution of the value held in `variable` in the current view; does not escape HTML characters. The outer pair of mustache braces can be adjusted using `Mustache.parse`.
 * `{{&variable}}` is an alternative syntax for triple braces (useful with custom braces)
 * `{{~variable}}` does substitution of the value held in `variable` in the outmost view
 * `{{#variable}}` depending on the type of variable, does the following:
-   - if `variable` is not a container and is not absent or `nothing` will use the text between the matching tags, marked with `{{/variable}}`; otherwise that text will be skipped. (Like an `if/end` block.)
-   - if `variable` is a `Tables.jl` compatible object (row wise, with named rows),  will iterate over the values, pushing the named tuple to be the top-most view for the part of the template up to `{{\variable}}`.
-   - if `variable` is a vector or tuple -- for the part of the template up to `{{\variable}}` -- will iterate over the values. Use `{{.}}` to refer to the (unnamed) values. The values `.[end]` and `.[i]`, for a numeric literal, will refer to values in the vector or tuple.
+   - if `variable` is not a functions container and is not absent or
+     `nothing` will use the text between the matching tags, marked
+     with `{{/variable}}`; otherwise that text will be skipped. (Like
+     an `if/end` block.)
+   - if `variable` is a function, it will be applied to contents of the
+     section. Use of `|` instead of `#` will instruct the rendering of
+     the contents before applying the function.
+   - if `variable` is a `Tables.jl` compatible object (row wise, with
+     named rows), will iterate over the values, pushing the named
+     tuple to be the top-most view for the part of the template up to
+     `{{\variable}}`.
+   - if `variable` is a vector or tuple -- for the part of the
+     template up to `{{\variable}}` -- will iterate over the
+     values. Use `{{.}}` to refer to the (unnamed) values. The values
+     `.[end]` and `.[i]`, for a numeric literal, will refer to values
+     in the vector or tuple.
 * `{{^variable}}`/`{{.variable}}` tags will show the values when `variable` is not defined, or is `nothing`.
 * `{{>partial}}` will include the partial value into the template, filling in the template using the current view. The partial can be a variable or a filename (checked with `isfile`).
 * `{{<partial}}` directly include partial value into template without filling in with the current view.
-* `{{!comment}}}` comments begin with a bang, `!`
+* `{{!comment}}` comments begin with a bang, `!`
 
 ## Alternatives
 
@@ -511,10 +540,9 @@ This project deviates from Mustache.js in a few significant ways:
 * Julia structures are used, not JavaScript objects. As illustrated,
   one can use Dicts, Modules, DataFrames, functions, ...
 
-* In the Mustache spec, when lambdas are used as section names, the
-function is passed the unevaluated section:
+* In the Mustache spec, when lambdas are used as section names, the function is passed the unevaluated section:
 
-```
+```julia
 template = "<{{#lambda}}{{x}}{{/lambda}}>"
 data = Dict("x" => "Error!", "lambda" => (txt) ->  txt == "{{x}}" ? "yes" : "no")
 Mustache.render(template, data) ## "<yes>", as txt == "{{x}}"
@@ -522,7 +550,7 @@ Mustache.render(template, data) ## "<yes>", as txt == "{{x}}"
 
 The tag "|" is similar to the section tag "#", but will receive the *evaluated* section:
 
-```
+```julia
 template = "<{{|lambda}}{{x}}{{/lambda}}>"
 data = Dict("x" => "Error!", "lambda" => (txt) ->  txt == "{{x}}" ? "yes" : "no")
 Mustache.render(template, data) ## "<no>", as "Error!" != "{{x}}"

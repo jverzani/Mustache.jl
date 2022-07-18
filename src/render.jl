@@ -16,7 +16,8 @@ Render a set of tokens with a view, using optional `io` object to print or store
   dictionary, a module, a composite type, a vector, a named tuple, a
   data frame, a `Tables` object, or keyword arguments.
 
-
+!!! note
+    The `render` method is currently exported, but this export may be deprecated in the future.
 """
 function render(io::IO, tokens::MustacheTokens, view)
     _writer = Writer()
@@ -55,12 +56,16 @@ render(template::AbstractString, view; tags=("{{", "}}")) = sprint(io -> render(
 render(template::AbstractString; kwargs...) = sprint(io -> render(io, template; kwargs...))
 
 
+
 # Exported, but should be deprecated....
 """
     render_from_file(filepath, view)
     render_from_file(filepath; kwargs...)
 
 Renders a template from `filepath` and `view`.
+
+!!! note
+    This function simply combines `Mustache.render` and `Mustache.load` and may be deprecated in the future.
 """
 render_from_file(filepath, view) = render(Mustache.load(filepath), view)
 render_from_file(filepath::AbstractString; kwargs...) = render(Mustache.load(filepath); kwargs...)
