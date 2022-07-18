@@ -1,8 +1,7 @@
 # Mustache
 
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://jverzani.github.io/Mustache.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://jverzani.github.io/Mustache.jl/dev)
+[![Docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://jverzani.github.io/Mustache.jl/dev)
 [![Build Status](https://github.com/jverzani/Mustache.jl/workflows/CI/badge.svg)](https://github.com/jverzani/Mustache.jl/actions)
 [![codecov](https://codecov.io/gh/jverzani/Mustache.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jverzani/Mustache.jl)
 
