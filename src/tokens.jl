@@ -39,7 +39,7 @@ BooleanToken(_type, value, ltag, rtag) = new(_type, value, ltag, rtag, Any[])
 end
 
 mutable struct MustacheTokens
-tokens::Vector{Token}
+    tokens::Vector{Token}
 end
 MustacheTokens() = MustacheTokens(Token[])
 
@@ -62,8 +62,6 @@ function Base.push!(tokens::MustacheTokens, token::Token)
         push!(tokens.tokens, token)
     end
 end
-
-
 
 
 struct AnIndex
@@ -384,7 +382,7 @@ function nestTokens(tokens)
     collector = tree
     sections = MustacheTokens() #Array{Any}(undef, 0)
 
-    for i in 1:length(tokens)
+    for i ∈ 1:length(tokens)
         token = tokens[i]
         ## a {{#name}}...{{/name}} will iterate over name
         ## a {{^name}}...{{/name}} does ... if we have no name
@@ -469,9 +467,10 @@ end
 
 function _renderTokensByValue(value::Union{AbstractArray, Tuple}, io, token, writer, context, template, args...)
    inverted = token._type == "^"
-   if (inverted && falsy(value))
-       renderTokens(io, token.collector, writer, ctx_push(context, ""), template, args...)
-   else
+
+    if (inverted && falsy(value))
+        renderTokens(io, token.collector, writer, ctx_push(context, ""), template, args...)
+    else
        n = length(value)
        for (i,v) in enumerate(value)
            renderTokens(io, token.collector, writer, ctx_push(context, v), template, (i,n))
@@ -483,6 +482,7 @@ end
 ## what to do with an index value `.[ind]`?
 ## We have `.[ind]` being of a leaf type (values are not pushed onto a Context) so of simple usage
 function _renderTokensByValue(value::AnIndex, io, token, writer, context, template, idx=(0,0))
+
     idx_match = (value.ind == idx[1]) || (value.ind==-1 && idx[1] == idx[2])
     if token._type == "#" || token._type == "|"
         # print if match
@@ -509,13 +509,14 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
     # not have been expanded - the lambda should do that on
     # its own. In this way you can implement filters or
     # caching.
-
     #    out = (value())(token.collector, render)
     if token._type == "name"
+        push_task_local_storage(context.view)
         out = render(value(), context.view)
     elseif token._type == "|"
         # pass evaluated values
         view = context.parent.view
+        push_task_local_storage(view)
         sec_value = render(MustacheTokens(token.collector), view)
         out = render(string(value(sec_value)), view)
     else
@@ -529,19 +530,16 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
             ## we call render(value(sec_value), context)
             push_task_local_storage(view)
             _render = x -> render(x, view)
-            @show value(sec_value)
-            @show view
             out = try
                 value(sec_value, _render)
             catch err
-                render(value(sec_value), view)
+                value(sec_value)
             end
         else
-            out = render(value, view)
+            out = value
         end
-#        tpl = string(value(sec_value))
-#        out = render(parse(tpl, (token.ltag, token.rtag)),  view)
-
+        # ensure tags are used
+        out = render(parse(out, (token.ltag, token.rtag)),  view)
     end
     write(io, out)
 
@@ -562,17 +560,13 @@ end
 ## was contained in that section.
 function renderTokens(io, tokens, writer, context, template, idx=(0,0))
     for i in 1:length(tokens)
-
         token = tokens[i]
         tokenValue = token.value
-
         if token._type == "#" || token._type == "|"
-
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
             value = lookup(context, tokenValue)
             ctx = isa(value, AnIndex) ? context : Context(value, context)
-
             renderTokensByValue(value, io, token, writer, ctx, template, idx)
 
             # if !isa(value, AnIndex)
@@ -665,7 +659,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
                 ##       parse(value()) ensures that
                 if isa(value, Function)
                     push_task_local_storage(context.view)
-                    val = render(parse(value()))
+                    val = render(parse(value()), context.view)
                 else
                     val = value
                 end
@@ -677,7 +671,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             if !falsy(value)
                 if isa(value, Function)
                     push_task_local_storage(context.view)
-                    val = rander(parse(value()))
+                    val = render(parse(value()), context.view)
                 else
                     val = value
                 end
@@ -695,7 +689,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             if !falsy(value)
                 if isa(value, Function)
                     push_task_local_storage(context.view)
-                    val = value()
+                    val = render(value(), context.view)
                 else
                     val = value
                 end

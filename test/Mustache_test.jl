@@ -102,6 +102,32 @@ d = Dict("iterable"=>Dict("iterable2"=>["a","b","c"]), "lambda"=>(txt) -> "XXX $
 expected = "XXX a\nb\nc\n XXX"
 @test Mustache.render(tpl, d) == expected
 
+## If the value of a section key is a function, it is called with the section's literal block of text, un-rendered, as its first argument. The second argument is a special rendering function that uses the current view as its view argument. It is called in the context of the current view object.
+tpl = mt"{{#:bold}}Hi {{:name}}.{{/:bold}}"
+function bold(text, render)
+    xtra = get(task_local_storage(), :xtra, "")
+    "<b>" * render(text) * "</b>" * xtra
+end
+expected = "<b>Hi Tater.</b>Hi Willy."
+@test Mustache.render(tpl; name="Tater", bold=bold, xtra = "Hi Willy.") == expected
+
+
+
+## if the value of a section variable is a function, it will be called in the context of the current item in the list on each iteration.
+tpl = mt"{{#:beatles}}
+* {{:name}}
+{{/:beatles}}"
+function name()
+    d = task_local_storage()
+    f, l = [get(d, k, "") for k ∈ (:first, :last)]
+    f * " " * l
+end
+beatles = [(first="John", last="Lennon"), (first="Paul", last="McCartney")]
+expected = "* John Lennon\n* Paul McCartney\n"
+@test Mustache.render(tpl, beatles=beatles, name=name) == expected
+
+
+
 
 ## Test with Named Tuples as a view
 tpl = "{{#:NT}}{{:a}} and {{:b}}{{/:NT}}"
