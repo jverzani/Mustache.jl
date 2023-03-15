@@ -1,3 +1,7 @@
+# XXX
+# * if the value of a section variable is a function, it will be called in the context of the current item in the list on each iteration
+# * If the value of a section key is a function, it is called with the section's literal block of text, un-rendered, as its first argument. The second argument is a special rendering function that uses the current view as its view argument. It is called in the context of the current view object.
+
 
 # Token types
 abstract type Token end
@@ -520,8 +524,23 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
         ## Lambdas used for sections should parse with the current delimiters.
         sec_value = toString(token.collector)
         view = context.parent.view
-        tpl = string(value(sec_value))
-        out = render(parse(tpl, (token.ltag, token.rtag)),  view)
+        if isa(value, Function)
+            ## Supposed to be called value(sec_value, render+context) but
+            ## we call render(value(sec_value), context)
+            push_task_local_storage(view)
+            _render = x -> render(x, view)
+            @show value(sec_value)
+            @show view
+            out = try
+                value(sec_value, _render)
+            catch err
+                render(value(sec_value), view)
+            end
+        else
+            out = render(value, view)
+        end
+#        tpl = string(value(sec_value))
+#        out = render(parse(tpl, (token.ltag, token.rtag)),  view)
 
     end
     write(io, out)
@@ -644,14 +663,24 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             if !falsy(value)
                 ## desc: A lambda's return value should parse with the default delimiters.
                 ##       parse(value()) ensures that
-                val = isa(value, Function) ? render(parse(value()), context.view) : value
+                if isa(value, Function)
+                    push_task_local_storage(context.view)
+                    val = render(parse(value()))
+                else
+                    val = value
+                end
                 print(io, val)
             end
 
         elseif token._type == "{"
             value = lookup(context, tokenValue)
             if !falsy(value)
-                val = isa(value, Function) ? render(parse(value()), context.view) : value
+                if isa(value, Function)
+                    push_task_local_storage(context.view)
+                    val = rander(parse(value()))
+                else
+                    val = value
+                end
                 print(io, val)
             end
 
@@ -664,9 +693,12 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
         elseif token._type == "name"
             value = lookup(context, tokenValue)
             if !falsy(value)
-                val = isa(value, Function) ?
-                    render((parse∘string∘value)(), context.view) :
-                    value
+                if isa(value, Function)
+                    push_task_local_storage(context.view)
+                    val = value()
+                else
+                    val = value
+                end
                 print(io, escape_html(val))
             end
 

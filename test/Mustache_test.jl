@@ -60,8 +60,13 @@ tpl = mt"""{{#wrapped}}
 {{/wrapped}}
 """
 
+d = Dict("name" => "Willy", "wrapped" => (txt, r) -> "<b>" * r(txt) * "</b>")
+@test Mustache.render(tpl, d) == "<b>Willy is awesome.\n</b>"
+
+# this shouldn't be "Willy", rather "{{name}}"
 d = Dict("name" => "Willy", "wrapped" => (txt) -> "<b>" * txt * "</b>")
 @test Mustache.render(tpl, d) == "<b>Willy is awesome.\n</b>"
+
 
 ## Test of using Dict in {{#}}/{{/}} things
 tpl = mt"{{#:d}}{{x}} and {{y}}{{/:d}}"
@@ -80,8 +85,6 @@ d = Dict("lambda" => (txt) -> begin
          end
          )
 @test Mustache.render(tpl, d) == "value dollars."
-
-
 
 ## test nested section with filtering lambda
 tpl = """

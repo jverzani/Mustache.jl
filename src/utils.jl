@@ -85,7 +85,19 @@ function normalize(key)
     return key
 end
 
+# push to task local storage to evaluate function
+function push_task_local_storage(view)
+    for (k, v) ∈ pairs(view)
+        task_local_storage(Symbol(k), v)
+    end
+end
+
 
 ## hueristic to avoid loading DataFrames
 ## Once `Tables.jl` support for DataFrames is available, this can be dropped
 is_dataframe(x) = !isa(x, Dict) && !isa(x, Module) &&!isa(x, Array) && occursin(r"DataFrame", string(typeof(x)))
+
+## hacky means to evaluate functions
+macro gobal(v)
+    Expr(:global, Expr(:(=), :this, esc(v)))
+end
