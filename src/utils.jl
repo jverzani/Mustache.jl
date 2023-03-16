@@ -85,12 +85,26 @@ function normalize(key)
     return key
 end
 
+# means to push values into scope of function through
+# magic `this` variable, ala JavaScript
+# user in function has
+# `this = Mustache.get_this()`
+# then `this.prop` should get value or nothing
+struct This{T}
+    __v__::T
+end
+# get
+function Base.getproperty(this::This, key::Symbol)
+    key == :__v__ && return getfield(this, :__v__)
+    get(this.__v__, key, nothing)
+end
+
 # push to task local storage to evaluate function
 function push_task_local_storage(view)
-    for (k, v) ∈ pairs(view)
-        task_local_storage(Symbol(k), v)
-    end
+    task_local_storage(:__this__,This(view))
 end
+
+get_this() = get(task_local_storage(), :__this__, This(()))
 
 
 ## hueristic to avoid loading DataFrames

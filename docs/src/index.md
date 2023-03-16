@@ -420,13 +420,12 @@ tpl = mt"{{#:beatles}}
 
 when `beatles` is a vector of named tuples (or some other `Tables.jl` object) and `name` is a function.
 
-When iterating over `beatles`, `name` can reference the rows of the `beatles` object by name. In `JavaScript`, this is done with `this.XXX`. In `Julia`, the values are stored in the `task_local_storage` object (with symbols as keys) allowing the access:
+When iterating over `beatles`, `name` can reference the rows of the `beatles` object by name. In `JavaScript`, this is done with `this.XXX`. In `Julia`, the values are stored in the `task_local_storage` object (with symbols as keys) allowing the access. The `Mustache.get_this` function allows `JavaScript`-like usage:
 
 ```julia
 function name()
-    d = task_local_storage()
-    f, l = [get(d, k, "") for k ∈ (:first, :last)]
-    f * " " * l
+    this = Mustache.get_this()
+    this.first * " " * this.last
 end
 beatles = [(first="John", last="Lennon"), (first="Paul", last="McCartney")]
 
