@@ -539,7 +539,7 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
             out = value
         end
         # ensure tags are used
-        out = render(parse(out, (token.ltag, token.rtag)),  view)
+        out = render(parse(string(out), (token.ltag, token.rtag)),  view)
     end
     write(io, out)
 
