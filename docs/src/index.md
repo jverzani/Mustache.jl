@@ -81,7 +81,7 @@ Mustache.render(goes_together, x="Salt", y="pepper")
 Mustache.render(goes_together, x="Bread", y="butter")
 ```
 
-Keyword arguments can also be passed to a `Tokens` object directly (bypassing the use of `render`):
+`Tokens` objects are functors; keyword arguments can also be passed to a `Tokens` object directly (bypassing the use of `render`):
 
 ```julia
 goes_together = mt"{{{:x}}} and {{{:y}}}."
@@ -195,7 +195,8 @@ Mustache.render(mt"a {{:b}} c", b = () -> "Bea")  # "a Bea c"
 ```
 
 ```julia
-Mustache.render(mt"Written in the year {{:yr}}."; yr = year∘now) # "Written in the year 2022."
+using Dates
+Mustache.render(mt"Written in the year {{:yr}}."; yr = year∘now) # "Written in the year 2023."
 ```
 
 ### Sections
@@ -228,6 +229,17 @@ specification:
 ```julia
 Mustache.render("{{#:a}}one{{/:a}}", a=length)  # "3"
 ```
+
+The specification has been widened to accept functions of two arguments, the string and a render function:
+
+```julia
+tpl = mt"{{#:bold}}Hi {{:name}}.{{/:bold}}"
+function bold(text, render)
+    "<b>" * render(text) * "</b>"
+end
+tpl(; name="Tater", bold=bold) # "<b>Hi Tater.</b>"
+```
+
 
 
 If the tag "|" is used, the section value will be rendered first, an enhancement to the specification.

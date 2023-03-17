@@ -512,7 +512,7 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
     #    out = (value())(token.collector, render)
     if token._type == "name"
         push_task_local_storage(context.view)
-        out = render(value(), context.view)
+        out = render(string(value()), context.view)
     elseif token._type == "|"
         # pass evaluated values
         view = context.parent.view
@@ -689,7 +689,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             if !falsy(value)
                 if isa(value, Function)
                     push_task_local_storage(context.view)
-                    val = render(value(), context.view)
+                    val = render(string(value()), context.view)
                 else
                     val = value
                 end

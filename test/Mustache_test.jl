@@ -123,7 +123,7 @@ function name()
 end
 beatles = [(first="John", last="Lennon"), (first="Paul", last="McCartney")]
 expected = "* John Lennon\n* Paul McCartney\n"
-@test tpl(;beatles, name) == expected
+@test tpl(; beatles=beatles, name=name) == expected
 
 
 
