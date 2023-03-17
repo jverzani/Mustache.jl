@@ -659,7 +659,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
                 ##       parse(value()) ensures that
                 if isa(value, Function)
                     push_task_local_storage(context.view)
-                    val = render(parse(value()), context.view)
+                    val = render(parse(string(value())), context.view)
                 else
                     val = value
                 end
@@ -671,7 +671,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             if !falsy(value)
                 if isa(value, Function)
                     push_task_local_storage(context.view)
-                    val = render(parse(value()), context.view)
+                    val = render(parse(string(value())), context.view)
                 else
                     val = value
                 end
