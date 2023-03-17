@@ -104,7 +104,6 @@ end
 ## After checking several specific types, if view is Tables compatible
 ## this will return "column" corresponding to the key
 function lookup_in_view(view, key)
-
     val = _lookup_in_view(view, key)
     !falsy(val) && return val
 
@@ -171,12 +170,14 @@ _lookup_in_view(view, key) = nothing
 
 ## Default lookup is likely not great,
 function __lookup_in_view(view, key)
-
     k = normalize(key)
+    k′ = Symbol(k)
 
     # check propertyname, then fieldnames
     if k in propertynames(view)
         getproperty(view, k)
+    elseif k′ in propertynames(view)
+        getproperty(view, k′)
     else
 
         nms = fieldnames(typeof(view))

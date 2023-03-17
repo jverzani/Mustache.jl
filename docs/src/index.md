@@ -81,7 +81,7 @@ Mustache.render(goes_together, x="Salt", y="pepper")
 Mustache.render(goes_together, x="Bread", y="butter")
 ```
 
-Keyword arguments can also be passed to a `Tokens` object directly (bypassing the use of `render`):
+`Tokens` objects are functors; keyword arguments can also be passed to a `Tokens` object directly (bypassing the use of `render`):
 
 ```julia
 goes_together = mt"{{{:x}}} and {{{:y}}}."
@@ -195,7 +195,8 @@ Mustache.render(mt"a {{:b}} c", b = () -> "Bea")  # "a Bea c"
 ```
 
 ```julia
-Mustache.render(mt"Written in the year {{:yr}}."; yr = year∘now) # "Written in the year 2022."
+using Dates
+Mustache.render(mt"Written in the year {{:yr}}."; yr = year∘now) # "Written in the year 2023."
 ```
 
 ### Sections
@@ -228,6 +229,17 @@ specification:
 ```julia
 Mustache.render("{{#:a}}one{{/:a}}", a=length)  # "3"
 ```
+
+The specification has been widened to accept functions of two arguments, the string and a render function:
+
+```julia
+tpl = mt"{{#:bold}}Hi {{:name}}.{{/:bold}}"
+function bold(text, render)
+    "<b>" * render(text) * "</b>"
+end
+tpl(; name="Tater", bold=bold) # "<b>Hi Tater.</b>"
+```
+
 
 
 If the tag "|" is used, the section value will be rendered first, an enhancement to the specification.
@@ -408,6 +420,31 @@ implemented for now -- does not allow for iteration. That is
 constructs like `{{#.[1]}}` don't introduce iteration, but only offer
 a conditional check.
 
+### Iterating when the value of a section variable is a function
+
+From the Mustache documentation, consider the template
+
+```julia
+tpl = mt"{{#:beatles}}
+* {{:name}}
+{{/:beatles}}"
+```
+
+when `beatles` is a vector of named tuples (or some other `Tables.jl` object) and `name` is a function.
+
+When iterating over `beatles`, `name` can reference the rows of the `beatles` object by name. In `JavaScript`, this is done with `this.XXX`. In `Julia`, the values are stored in the `task_local_storage` object (with symbols as keys) allowing the access. The `Mustache.get_this` function allows `JavaScript`-like usage:
+
+```julia
+function name()
+    this = Mustache.get_this()
+    this.first * " " * this.last
+end
+beatles = [(first="John", last="Lennon"), (first="Paul", last="McCartney")]
+
+tpl(; beatles, name) # "* John Lennon\n* Paul McCartney\n"
+```
+
+
 ### Conditional checking without iteration
 
 The section tag, `#`, check for existence; pushes the object into the view; and then iterates over the object. For cases where iteration is not desirable; the tag type `@` can be used.
@@ -492,9 +529,12 @@ To summarize the different tags marking a variable:
      `nothing` will use the text between the matching tags, marked
      with `{{/variable}}`; otherwise that text will be skipped. (Like
      an `if/end` block.)
-   - if `variable` is a function, it will be applied to contents of the
-     section. Use of `|` instead of `#` will instruct the rendering of
-     the contents before applying the function.
+   - if `variable` is a function, it will be applied to contents of
+     the section. Use of `|` instead of `#` will instruct the
+     rendering of the contents before applying the function. The spec
+     allows for a function to have signature `(x, render)` where `render` is
+     used internally to convert. This implementation allows rendering
+     when `(x)` is the single argument.
    - if `variable` is a `Tables.jl` compatible object (row wise, with
      named rows), will iterate over the values, pushing the named
      tuple to be the top-most view for the part of the template up to

@@ -60,8 +60,13 @@ tpl = mt"""{{#wrapped}}
 {{/wrapped}}
 """
 
+d = Dict("name" => "Willy", "wrapped" => (txt, r) -> "<b>" * r(txt) * "</b>")
+@test Mustache.render(tpl, d) == "<b>Willy is awesome.\n</b>"
+
+# this shouldn't be "Willy", rather "{{name}}"
 d = Dict("name" => "Willy", "wrapped" => (txt) -> "<b>" * txt * "</b>")
 @test Mustache.render(tpl, d) == "<b>Willy is awesome.\n</b>"
+
 
 ## Test of using Dict in {{#}}/{{/}} things
 tpl = mt"{{#:d}}{{x}} and {{y}}{{/:d}}"
@@ -81,8 +86,6 @@ d = Dict("lambda" => (txt) -> begin
          )
 @test Mustache.render(tpl, d) == "value dollars."
 
-
-
 ## test nested section with filtering lambda
 tpl = """
 {{#lambda}}
@@ -98,6 +101,31 @@ tpl = """
 d = Dict("iterable"=>Dict("iterable2"=>["a","b","c"]), "lambda"=>(txt) -> "XXX $txt XXX")
 expected = "XXX a\nb\nc\n XXX"
 @test Mustache.render(tpl, d) == expected
+
+## If the value of a section key is a function, it is called with the section's literal block of text, un-rendered, as its first argument. The second argument is a special rendering function that uses the current view as its view argument. It is called in the context of the current view object.
+tpl = mt"{{#:bold}}Hi {{:name}}.{{/:bold}}"
+function bold(text, render)
+    this = Mustache.get_this()
+    "<b>" * render(text) * "</b>" * this.xtra
+end
+expected = "<b>Hi Tater.</b>Hi Willy."
+@test Mustache.render(tpl; name="Tater", bold=bold, xtra = "Hi Willy.") == expected
+
+
+
+## if the value of a section variable is a function, it will be called in the context of the current item in the list on each iteration.
+tpl = mt"{{#:beatles}}
+* {{:name}}
+{{/:beatles}}"
+function name()
+    this = Mustache.get_this()
+    this.first * " " * this.last
+end
+beatles = [(first="John", last="Lennon"), (first="Paul", last="McCartney")]
+expected = "* John Lennon\n* Paul McCartney\n"
+@test tpl(; beatles=beatles, name=name) == expected
+
+
 
 
 ## Test with Named Tuples as a view
