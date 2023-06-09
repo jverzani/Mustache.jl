@@ -156,4 +156,9 @@ tpl = """^{{^boolean}}
 tpl = """|{{^ boolean }}={{/ boolean }}|"""
 
 	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false)) == """|=|"""
+
+	## Inverted section should not affect following render.
+tpl = """|{{^ boolean }}={{/ boolean }} {{ following.subfield }}|"""
+
+	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>false, "following"=>Dict("subfield"=>1))) == """|= 1|"""
 end
