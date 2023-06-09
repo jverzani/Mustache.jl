@@ -583,10 +583,10 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             ## display if falsy, unlike #
             value = lookup(context, tokenValue)
             if !isa(value, AnIndex)
-                context = Context(value, context)
+                ctx = Context(value, context)
 
                 if falsy(value)
-                    renderTokensByValue(value, io, token, writer, context, template, idx)
+                    renderTokensByValue(value, io, token, writer, ctx, template, idx)
                 end
             else
                 # for indices falsy test is performed in
