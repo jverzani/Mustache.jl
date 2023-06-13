@@ -65,23 +65,26 @@ function lookup(ctx::Context, key)
                 ## do something with "."
                 ## we use .[ind] to refer to value in parent of given index;
                 m = match(r"^\.\[(.*)\]$", key)
-                m === nothing && break
 
-                idx = m.captures[1]
-                vals = context.parent.view
 
-                # this has limited support for indices: "end", or a number, but no
-                # arithmetic, such as `end-1`.
-                ## This is for an iterable; rather than
-                ## limit the type, we let non-iterables error.
-                if true # isa(vals, AbstractVector)  || isa(vals, Tuple) # supports getindex(v, i)?
-                if idx == "end"
-                    value′ = AnIndex(-1, vals[end])
+                if m !== nothing
+                    idx = m.captures[1]
+                    vals = context.parent.view
+
+                    # this has limited support for indices: "end", or a number, but no
+                    # arithmetic, such as `end-1`.
+                    ## This is for an iterable; rather than
+                    ## limit the type, we let non-iterables error.
+                    if true # isa(vals, AbstractVector)  || isa(vals, Tuple) # supports getindex(v, i)?
+                        if idx == "end"
+                            value′ = AnIndex(-1, vals[end])
+                        else
+                            ind = Base.parse(Int, idx)
+                            value′ = AnIndex(ind, string(vals[ind]))
+                        end
+                    end
                 else
-                    ind = Base.parse(Int, idx)
-                    value′ = AnIndex(ind, string(vals[ind]))
-                end
-                    #break
+                    !global_lookup && break
                 end
             end
         end

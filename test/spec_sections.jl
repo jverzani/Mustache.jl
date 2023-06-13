@@ -203,6 +203,18 @@ tpl = """#{{#boolean}}
 tpl = """|{{# boolean }}={{/ boolean }}|"""
 
 	@test Mustache.render(tpl, Dict{Any,Any}("boolean"=>true)) == """|=|"""
+
+
+	## Nested object fields should be accessible via global lookup
+tpl = """|{{# inner }}{{ field.subfield }}{{/ inner }} {{# inner }}{{ ~field.subfield }}{{/ inner }}|"""
+
+	@test Mustache.render(tpl, Dict{Any,Any}("inner"=>Dict("field"=>Dict("subfield"=>1)),"field"=>Dict("subfield"=>2))) == """|1 2|"""
+
+	## Local lookup should resolve local object if it is present
+tpl = """|{{# inner }}{{{ field }}}{{/ inner }} {{# inner }}{{ ~field.subfield }}{{/ inner }}|"""
+
+	@test Mustache.render(tpl, Dict{Any,Any}("inner"=>Dict("field"=>Dict()),"field"=>Dict("subfield"=>2))) == """|Dict{Any, Any}() 2|"""
+
 end
 
 
