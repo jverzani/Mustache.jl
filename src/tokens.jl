@@ -69,7 +69,7 @@ struct AnIndex
     value::String
 end
 Base.string(ind::AnIndex) = string(ind.value)
-
+Base.iterate(I::AnIndex, st=nothing) = st === nothing ? (I.ind, nothing) : nothing
 
 ### We copy some functions from Tokenize
 function peekchar(io::Base.GenericIOBuffer)
@@ -296,7 +296,8 @@ function make_tokens(template, tags)
                     m = match(r"\n([\s\t\h]*)$", text_value)
                 end
                 indent = m == nothing ? "" : m.captures[1]
-                tag_token = TagToken(_type, token_value, ltag, rtag, indent)
+                tag_token = TagToken(_type, token_value, ltag, rtag,
+                                     indent==nothing ? "" : indent)
 
             elseif _type in ("#", "^", "|")
 

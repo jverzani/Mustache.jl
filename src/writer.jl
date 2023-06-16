@@ -27,7 +27,7 @@ function compile(io::IO, w::Writer, template, tags)
 end
 
 function compilePartial(w::Writer, name, template, tags)
-    fn = compile(w, template, tags)
+    fn = sprint(io -> compile(io, w, template, tags))
     w._partialCache[name] = fn
     fn
 end
