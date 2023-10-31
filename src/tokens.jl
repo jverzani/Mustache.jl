@@ -530,7 +530,8 @@ function _renderTokensByValue(value::Function, io, token, writer, context, templ
             ## Supposed to be called value(sec_value, render+context) but
             ## we call render(value(sec_value), context)
             push_task_local_storage(view)
-            _render = x -> render(x, view)
+            tags = (token.ltag, token.rtag)
+            _render = x -> render(parse(x, tags), view)
             out = try
                 value(sec_value, _render)
             catch err

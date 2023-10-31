@@ -306,4 +306,24 @@ tpl2 = mt"""
 
     ## Issue #143 look up key before checking for dotted
     @test render("Hello, {{ values.name }}!", Dict("values.name"=>"world")) == "Hello, world!"
+
+    ## Issue 156 function calls with other tags
+    tpla = """
+<<#:vec>>
+- <<{name}>>
+- <<#:uppercase>><<{name}>><</:uppercase>>
+<</:vec>>
+"""
+    tplb = """
+{{#:vec}}
+- {{{name}}}
+- {{#:uppercase}}{{{name}}}{{/:uppercase}}
+{{/:vec}}
+"""
+    vec = [Dict("name" => x) for x in ("a", "b")]
+    _uppercase(str, render) = uppercase(render(str))
+    a = Mustache.render(Mustache.parse(tpla, ("<<", ">>")); vec, uppercase=_uppercase)
+    b = Mustache.render(Mustache.parse(tplb); vec, uppercase=_uppercase)
+    @test a == b
+
 end
