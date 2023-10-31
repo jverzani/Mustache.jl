@@ -15,12 +15,13 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.6' # lowest supported version
+          - '1.0' # lowest supports, possible errors
+          - '1.6' # lowest supported version; no errors
           - '1'   # last released version
         os:
           - ubuntu-latest
           - macos-latest
-#          - windows-latest
+          - windows-latest
         arch:
           - x64
     steps:
