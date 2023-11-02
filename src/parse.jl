@@ -18,7 +18,7 @@ called).
 
 ## Variable substitution.
 
-Like basic string interpolation, variable subsitution can be performed using a non-prefixed tag:
+Like basic string interpolation, variable substitution can be performed using a non-prefixed tag:
 
 ```jldoctest mustache
 julia> using Mustache
@@ -34,7 +34,7 @@ julia> a(; scissors = "8< ... >8")
 "Cut: 8< ... >8"
 ```
 
-Both using a symbol, as the values to subsitute are passed through keyword arguments. The latter uses triple braces to inhibit the escaping of HTML entities.
+Both using a symbol, as the values to substitute are passed through keyword arguments. The latter uses triple braces to inhibit the escaping of HTML entities.
 
 Tags can be given special meanings through prefixes. For example, to avoid the HTML escaping an `&` can be used:
 
@@ -115,7 +115,7 @@ julia> a(; countdown = 5:-1:1)
 
 ## Partials
 
-Partials allow subsitution. The use of the tag prefex `>` includes either a file or a string and renders it accordingly:
+Partials allow substitution. The use of the tag prefix `>` includes either a file or a string and renders it accordingly:
 
 ```jldoctest mustache
 julia> a = mt"{{>:partial}}";

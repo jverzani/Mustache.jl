@@ -28,8 +28,8 @@ function write_spec_file(fname)
     println(io, """
 using Mustache
 using Test
-""")        
-    
+""")
+
     x = D[fname]
     println(io, "@testset \" $fname \" begin\n")
     for (i,t) in enumerate(x["tests"])
@@ -45,20 +45,20 @@ using Test
                 data[k] = v
             end
         end
-        
+
         val = try
             Mustache.render(t["template"], data)
         catch err
             "Failed"
         end
-        
+
         expected = t["expected"]
         expected_ = replace(expected, "\\" => "\\\\")
         expected_ = replace(expected_, r"\"" => "\\\"")
         expected_ = "\"\"\"" * expected_ * "\"\"\""
 
-        
-        
+
+
         println(io, "\n\t## $desc")
         print(io, "tpl = \"\"\"")
         print(io, tpl)
@@ -77,7 +77,7 @@ end
 
 
 # partials are different, as they refer to an external file
-# tihs should clean up temp files, but we don't run as part of test suite
+# this should clean up temp files, but we don't run as part of test suite
 # test 7 fails, but I think that one is wrong
 using Test
 function test_partials()
@@ -85,7 +85,7 @@ function test_partials()
         for (i,t) in enumerate(D[spec]["tests"])
             if haskey(t, "partials")
                 println("""Test $spec / $i""")
-        
+
                 d = t["data"]
                 partial = t["partials"]
                 for (k,v) in partial
@@ -93,11 +93,11 @@ function test_partials()
                     write(io, v)
                     close(io)
                 end
-                
+
                 tpl = t["template"]
                 expected = t["expected"]
-                out =  Mustache.render(tpl, d) 
-                
+                out =  Mustache.render(tpl, d)
+
                 val = out == expected
                 if val
                     @test val
@@ -110,7 +110,7 @@ function test_partials()
                         println("""$(t["desc"]): FAILED:\n $out != $expected""")
                     end
                 end
-                
+
                 for (k,v) in partial
                     rm(k)
                 end
@@ -118,6 +118,3 @@ function test_partials()
         end
     end
 end
-        
-
-        

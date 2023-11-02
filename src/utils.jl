@@ -14,7 +14,7 @@ curlyRe = r"\s*\}"
 # & unescape a variable
 # = set delimiters {{=<% %>=}} will set delimiters to <% %>
 # ! comments
-# | lamda "section" with *evaluated* value
+# | lamdda "section" with *evaluated* value
 tagRe = r"^[#^/<>{&=!|]"
 
 function asRegex(txt)
@@ -107,11 +107,6 @@ end
 get_this() = get(task_local_storage(), :__this__, This(()))
 
 
-## hueristic to avoid loading DataFrames
+## heuristic to avoid loading DataFrames
 ## Once `Tables.jl` support for DataFrames is available, this can be dropped
 is_dataframe(x) = !isa(x, Dict) && !isa(x, Module) &&!isa(x, Array) && occursin(r"DataFrame", string(typeof(x)))
-
-## hacky means to evaluate functions
-macro gobal(v)
-    Expr(:global, Expr(:(=), :this, esc(v)))
-end
