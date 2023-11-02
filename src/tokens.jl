@@ -183,7 +183,7 @@ end
 
 
 
-# stip whitespace at head of io stream
+# strip whitespace at head of io stream
 WHITESPACE = (' ', '\t', '\r')
 function popfirst!_whitespace(io)
 
@@ -227,7 +227,7 @@ end
 
 
 
-## Make the intial set of tokens before nesting
+## Make the initial set of tokens before nesting
 function make_tokens(template, tags)
 
     ltag, rtag = tags
@@ -334,7 +334,7 @@ function make_tokens(template, tags)
 
             # we strip text_value back to \n or beginning
             text_token.value = replace(text_token.value, r" *$" => "")
-            # strip whitspace at outset of io and "\n"
+            # strip whitespace at outset of io and "\n"
             popfirst!_whitespace(io)
 
             if !end_of_road(io)
