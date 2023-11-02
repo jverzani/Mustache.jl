@@ -291,7 +291,7 @@ tpl = mt"""
 </html>
 """
 ```
-This can be used to generate a web page for `whos`-like values:
+This can be used to generate a web page for `varinfo`-like values:
 
 ```julia
 _names = String[]
