@@ -322,8 +322,8 @@ tpl2 = mt"""
 """
     vec = [Dict("name" => x) for x in ("a", "b")]
     _uppercase(str, render) = uppercase(render(str))
-    a = Mustache.render(Mustache.parse(tpla, ("<<", ">>")); vec, uppercase=_uppercase)
-    b = Mustache.render(Mustache.parse(tplb); vec, uppercase=_uppercase)
+    a = Mustache.render(Mustache.parse(tpla, ("<<", ">>")); vec=vec, uppercase=_uppercase)
+    b = Mustache.render(Mustache.parse(tplb); vec=vec, uppercase=_uppercase)
     @test a == b
 
 end
