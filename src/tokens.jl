@@ -124,7 +124,7 @@ end
 ####
 
 ## this is modified from dpeekchar in Tokenize
-function peekaheadmatch(io::IOBuffer, m=['{','{'])
+function peekaheadmatch(io::IO, m=['{','{'])
     if !io.readable || io.ptr > io.size
         return false
     end
