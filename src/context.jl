@@ -68,7 +68,8 @@ function lookup(ctx::Context, key)
 
 
                 if m !== nothing
-                    idx = m.captures[1]
+                    idx = first(m.captures)
+                    isnothing(idx) && throw(ArgumentError("XXX"))
                     vals = context.parent.view
 
                     # this has limited support for indices: "end", or a number, but no
@@ -147,7 +148,9 @@ function _lookup_in_view(view::Pair, key)
 end
 
 function _lookup_in_view(view::NamedTuple, key)
-    get(view, normalize(key), nothing)
+    key′ = normalize(key)
+    haskey(view, key′) && return getindex(view, key′)
+    return nothing
 end
 
 function _lookup_in_view(view::Module, key)
