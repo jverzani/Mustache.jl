@@ -69,7 +69,7 @@ function lookup(ctx::Context, key)
 
                 if m !== nothing
                     idx = first(m.captures)
-                    isnothing(idx) && throw(ArgumentError("XXX"))
+                    idx == nothing && throw(ArgumentError("XXX"))
                     vals = context.parent.view
 
                     # this has limited support for indices: "end", or a number, but no
