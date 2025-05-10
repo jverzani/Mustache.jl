@@ -1,5 +1,4 @@
 ## context
-
 ## A context stores objects where named values are looked up.
 mutable struct Context
     view ## of what? a Dict, Module, CompositeKind, DataFrame.parent.
