@@ -163,7 +163,7 @@ end
 
 String macro that interpolates values escaped by dollar signs, then parses strings.
 
-Note: modified from a macro in [HypertextLiteral](https://github.com/clarkevans/HypertextLiteral.jl/blob/master/src/macros.jl).
+Note: very lightly modified from a macro in [HypertextLiteral](https://github.com/JuliaPluto/HypertextLiteral.jl/blob/master/src/macro.jl).
 
 Example:
 
@@ -177,21 +177,26 @@ macro jmt_str(expr::String)
     # Essentially this is an ad-hoc scanner of the string, splitting
     # it by `$` to find interpolated parts and delegating the hard work
     # to `Meta.parse`, treating everything else as a literal string.
-
     args = Any[]
     start = idx = 1
-    strlen = length(expr)
+    strlen = lastindex(expr)
     while true
         idx = findnext(isequal('$'), expr, start)
         if idx == nothing
+           chunk = expr[start:strlen]
            push!(args, expr[start:strlen])
            break
         end
-        push!(args, expr[start:idx-1])
-        start = idx + 1
+        push!(args, expr[start:prevind(expr, idx)])
+        start = nextind(expr, idx)
+        if length(expr) >= start && expr[start] == '$'
+            push!(args, "\$")
+            start += 1
+            continue
+        end
         (nest, tail) = Meta.parse(expr, start; greedy=false)
         if nest == nothing
-            throw("missing interpolation expression")
+            throw("missing expression at $idx: $(expr[start:end])")
         end
         if !(expr[start] == '(' || nest isa Symbol)
             throw(DomainError(nest,
@@ -208,7 +213,6 @@ macro jmt_str(expr::String)
         push!(args, nest)
         start = tail
     end
-
     quote
         Mustache.parse(string($(map(esc, args)...)))
     end
