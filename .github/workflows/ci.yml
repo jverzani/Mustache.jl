@@ -72,9 +72,9 @@ jobs:
         shell: julia --project=docs --color=yes {0}
         run: |
           using Documenter: DocMeta, doctest
-          using Roots
-          DocMeta.setdocmeta!(Roots, :DocTestSetup, :(using Roots); recursive=true)
-          doctest(Roots)
+          using Mustache
+          DocMeta.setdocmeta!(Mustache, :DocTestSetup, :(using Mustache); recursive=true)
+          doctest(Mustache)
       - uses: julia-actions/julia-buildpkg@v1
       - name: Deploy
         run: julia --project=docs docs/make.jl
