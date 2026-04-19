@@ -67,5 +67,5 @@ Renders a template from `filepath` and `view`.
 !!! note
     This function simply combines `Mustache.render` and `Mustache.load` and may be deprecated in the future.
 """
-render_from_file(filepath, view) = render(Mustache.load(filepath), view)
+render_from_file(filepath::AbstractString, view) = render(Mustache.load(filepath), view)
 render_from_file(filepath::AbstractString; kwargs...) = render(Mustache.load(filepath); kwargs...)

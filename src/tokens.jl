@@ -358,7 +358,7 @@ function make_tokens(template, tags)
 
             openSection = pop!(sections)
             if openSection.value != token_value
-                throw(ArgumentError("Unclosed section: " * openSection.value * " at $t0"))
+                throw(ArgumentError("Unclosed section: $(openSection.value) at $t0"))
             end
         end
 
@@ -366,7 +366,7 @@ function make_tokens(template, tags)
 
     if length(sections) > 0
         openSection = pop!(sections)
-        throw(ArgumentError("Unclosed section " * string(openSection.value)))
+        throw(ArgumentError("Unclosed section $(openSection.value)"))
     end
 
     return(tokens)

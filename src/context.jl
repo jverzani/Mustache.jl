@@ -148,7 +148,7 @@ function _lookup_in_view(view::Pair, key)
 end
 
 function _lookup_in_view(view::NamedTuple, key)
-    key′ = normalize(key)
+    key′ = normalize(key)::Symbol
     haskey(view, key′) && return getindex(view, key′)
     return nothing
 end
