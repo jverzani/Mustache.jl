@@ -71,11 +71,6 @@ function escapeRe(string)
     replace(string, r"[\-\[\]{}()*+?.,\\\^$|#\s]" => "\\\$&");
 end
 
-function escapeTags(tags)
-   [Regex(escapeRe(tags[1]) * "\\s*"),
-    Regex("\\s*" * escapeRe(tags[2]))]
-end
-
 # key may be string or a ":symbol"
 function normalize(key)
     if occursin(r"^:", key)

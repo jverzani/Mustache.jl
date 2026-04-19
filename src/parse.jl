@@ -233,15 +233,15 @@ Tokens are memoized for efficiency,
 
 Additional arguments are passed to `Mustache.parse` (for adjusting the tags).
 """
-function load(filepath, args...)
+function load(filepath::AbstractString, args...)
 
     isfile(filepath) || throw(ArgumentError("File $filepath not found"))
 
     key = string(mtime(filepath)) * filepath * string(hash(args))
     haskey(TEMPLATES,key) && return  TEMPLATES[key]
 
-    open(filepath) do s
-        global tpl = parse(read(s, String), args...)
+    tpl = open(filepath) do s
+        parse(read(s, String), args...)
     end
 
     TEMPLATES[key] = tpl
