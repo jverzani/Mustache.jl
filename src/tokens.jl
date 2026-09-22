@@ -38,6 +38,15 @@ collector::Vector
 BooleanToken(_type, value, ltag, rtag) = new(_type, value, ltag, rtag, Any[])
 end
 
+struct FilteredTag
+    key::String
+    filter::String
+end
+
+struct InlineFilter
+    func::Function
+end
+
 mutable struct MustacheTokens
     tokens::Vector{Token}
 end
@@ -47,6 +56,28 @@ Base.length(tokens::MustacheTokens) = length(tokens.tokens)
 Base.lastindex(tokens::MustacheTokens) = lastindex(tokens.tokens)
 Base.getindex(tokens::MustacheTokens, ind) = getindex(tokens.tokens, ind)
 Base.pop!(tokens::MustacheTokens) = pop!(tokens.tokens)
+
+function Base.show(io::IO, ::MIME"text/plain", tokens::MustacheTokens)
+    print(io, "MustacheTokens")
+    isempty(tokens.tokens) && return
+    for token in tokens.tokens
+        print(io, "\n")
+        show_token(io, token, 0)
+    end
+end
+
+show_token(io::IO, token::Token, indent::Int) = print(io, " "^indent, repr(token))
+
+function show_token(io::IO, token::Union{SectionToken, BooleanToken}, indent::Int)
+    print(io, " "^indent, typeof(token).name.name,
+          "(", repr(token._type), ", ", repr(token.value),
+          ", ", repr(token.ltag), ", ", repr(token.rtag), ")")
+    isempty(token.collector) && return
+    for child in token.collector
+        print(io, "\n")
+        show_token(io, child, indent + 2)
+    end
+end
 
 function Base.push!(tokens::MustacheTokens, token::Token)
     # squash if possible
@@ -439,6 +470,47 @@ function _toString(::Val{Symbol("#")}, t)
     out
 end
 
+function parse_filtered_tag(token_value)
+    parts = split(token_value, ";", limit=2)
+    length(parts) == 2 || return nothing
+    key = stripWhitespace(parts[1])
+    filter = stripWhitespace(parts[2])
+    isempty(key) && return nothing
+    isempty(filter) && return nothing
+    FilteredTag(key, filter)
+end
+
+function resolve_filter(filter_name)
+    parsed = try
+        Meta.parse(filter_name)
+    catch
+        nothing
+    end
+
+    if parsed isa Expr && parsed.head == :->
+        return InlineFilter(Base.invokelatest(eval, parsed))
+    end
+
+    filter = lookup(Context(Main), filter_name)
+    filter === nothing && (filter = lookup(Context(Base), filter_name))
+    filter
+end
+
+function resolve_tag_value(context, token)
+    token_value = token.value
+    token._type == "name" || token._type == "&" || token._type == "{" || return lookup(context, token_value)
+
+    filtered = parse_filtered_tag(token_value)
+    filtered === nothing && return lookup(context, token_value)
+
+    value = lookup(context, filtered.key)
+    filter = lookup(context, filtered.filter)
+    filter === nothing && (filter = resolve_filter(filtered.filter))
+    filter isa InlineFilter && return Base.invokelatest(filter.func, value)
+    filter isa Function || throw(ArgumentError("Filtered tag requires a function for '$(filtered.filter)'"))
+    return filter isa Function ? filter(value) : filter
+end
+
 
 ## ----------------------------------------------------
 
@@ -655,7 +727,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             end
 
         elseif token._type == "&"
-            value = lookup(context, tokenValue)
+            value = resolve_tag_value(context, token)
             if !falsy(value)
                 ## desc: A lambda's return value should parse with the default delimiters.
                 ##       parse(value()) ensures that
@@ -669,7 +741,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             end
 
         elseif token._type == "{"
-            value = lookup(context, tokenValue)
+            value = resolve_tag_value(context, token)
             if !falsy(value)
                 if isa(value, Function)
                     push_task_local_storage(context.view)
@@ -687,7 +759,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             end
 
         elseif token._type == "name"
-            value = lookup(context, tokenValue)
+            value = resolve_tag_value(context, token)
             if !falsy(value)
                 if isa(value, Function)
                     push_task_local_storage(context.view)

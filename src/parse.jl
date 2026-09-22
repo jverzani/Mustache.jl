@@ -93,6 +93,24 @@ julia> a(; variable="length", fn=length)
 "The word 'length' has 6 letters."
 ```
 
+Variable tags may also apply a post-lookup function with `;`:
+
+```jldoctest mustache
+julia> a = mt"Hello {{:name; uppercase}}!";
+
+julia> a(; name="world", uppercase=uppercase)
+"Hello WORLD!"
+```
+
+Anonymous functions are also accepted:
+
+```jldoctest mustache
+julia> a = mt"Hello {{:name; x -> uppercase(x)}}!";
+
+julia> a(; name="world")
+"Hello WORLD!"
+```
+
 ### Iterate over values
 
 If the variable in a section is an iterable container, the values will be iterated over. `Tables.jl` compatible values are iterated in a row by row manner, such as this view, which is a tuple of named tuples:

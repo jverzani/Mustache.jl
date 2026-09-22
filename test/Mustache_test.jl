@@ -86,6 +86,35 @@ d = Dict("lambda" => (txt) -> begin
          )
 @test Mustache.render(tpl, d) == "value dollars."
 
+tpl = mt"Hello {{:name; uppercase}}!"
+@test tpl(name="world", uppercase=uppercase) == "Hello WORLD!"
+
+tpl = mt"{{{:name; uppercase}}}"
+@test tpl(name="<world>", uppercase=uppercase) == "<WORLD>"
+
+tpl = mt"{{&:name; uppercase}}"
+@test tpl(name="<world>", uppercase=uppercase) == "<WORLD>"
+
+tpl = mt"{{:name; format_name}}"
+format_name(name) = "[$name]"
+@test tpl(name="world", format_name=format_name) == "[world]"
+
+main_only_filter(name) = "<$name>"
+tpl = mt"{{:name; main_only_filter}}"
+@test tpl(name="world") == "&lt;world&gt;"
+
+tpl = mt"{{:name; uppercase}}"
+@test tpl(name="world") == "WORLD"
+
+tpl = mt"{{:name; x -> uppercase(x)}}"
+@test tpl(name="world") == "WORLD"
+
+tpl = mt"{{:name; x -> \"[$x]\"}}"
+@test tpl(name="world") == "[world]"
+
+tpl = mt"{{:name; missing_filter}}"
+@test_throws ArgumentError tpl(name="world")
+
 ## test nested section with filtering lambda
 tpl = """
 {{#lambda}}

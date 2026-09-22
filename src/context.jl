@@ -36,10 +36,76 @@ function lookup_dotted(ctx::Context, dotted)
     ctx.view
 end
 
+function row_values(view)
+    Tables.istable(view) && return nothing
+    view isa NamedTuple && return nothing
+    isa(view, AbstractString) && return nothing
+    vals = try
+        collect(view)
+    catch
+        nothing
+    end
+    vals isa AbstractVector || return nothing
+    length(vals) > 1 || return nothing
+    vals
+end
+
+function section_values(view)
+    vals = row_values(view)
+    vals === nothing && return view
+    names = try
+        propertynames(view)
+    catch
+        ()
+    end
+    isempty(names) && return vals
+    all(name -> begin
+        value = try
+            getproperty(view, name)
+        catch
+            nothing
+        end
+        !(value isa AbstractArray || value isa Tuple)
+    end, names) ? vals : view
+end
+
 # look up key in context
 function lookup(ctx::Context, key)
     if haskey(ctx._cache, key)
         return ctx._cache[key]
+    end
+
+    stripped_key = stripWhitespace(key)
+    if all(==('.'), stripped_key) && length(stripped_key) > 1
+        context = ctx
+        steps = length(stripped_key) - 2
+        while steps > 0 && context !== nothing
+            context = context.parent
+            steps -= 1
+        end
+        value = if context === nothing
+            nothing
+        elseif stripped_key == ".."
+            context.view
+        else
+            context.view
+        end
+        ctx._cache[key] = value
+        return value
+    end
+
+    m = match(r"^(\.{2,})(.+)$", stripped_key)
+    if m !== nothing
+        dots, remainder = m.captures
+        context = ctx
+        steps = length(dots) - 2
+        while steps > 0 && context !== nothing
+            context = context.parent
+            steps -= 1
+        end
+        value = context === nothing ? nothing : lookup(Context(context.view), remainder)
+        ctx._cache[key] = value
+        return value
     end
 
     # use global lookup down
@@ -135,7 +201,11 @@ end
 
 # look up key in view, return `nothing` if not found
 function _lookup_in_view(view::AbstractDict, key)
-    get(view, normalize(key), nothing)
+    normalized = normalize(key)
+    haskey(view, normalized) && return get(view, normalized, nothing)
+    normalized isa Symbol && return get(view, String(normalized), nothing)
+    normalized isa String && return get(view, Symbol(normalized), nothing)
+    nothing
 end
 
 # support legacy use of `first` and `second` as variable names
@@ -148,7 +218,8 @@ function _lookup_in_view(view::Pair, key)
 end
 
 function _lookup_in_view(view::NamedTuple, key)
-    key′ = normalize(key)::Symbol
+    key′ = normalize(key)
+    key′ isa Symbol || return nothing
     haskey(view, key′) && return getindex(view, key′)
     return nothing
 end
