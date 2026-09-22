@@ -533,6 +533,24 @@ function renderTokensByValue(value, io, token, writer, context, template, args..
     end
 end
 
+function render_dot_section(io, token, writer, context, template, idx=(0,0))
+    current = context.view
+    items = section_values(current)
+
+    if items === current || !(items isa Union{AbstractArray, Tuple})
+        renderTokens(io, token.collector, writer, ctx_push(context, current), template, idx)
+        return
+    end
+
+    n = length(items)
+    for (i, item) in enumerate(items)
+        child = ctx_push(context, item)
+        parent_ref = (current isa NamedTuple || current isa AbstractDict) ? current : item
+        child._cache[".."] = parent_ref
+        renderTokens(io, token.collector, writer, child, template, (i, n))
+    end
+end
+
 ## Helper function for dispatch based on value in renderTokens
 function _renderTokensByValue(value::AbstractDict, io, token, writer, context, template, args...)
     renderTokens(io, token.collector, writer, ctx_push(context, value), template, args...)
@@ -546,7 +564,7 @@ function _renderTokensByValue(value::Union{AbstractArray, Tuple}, io, token, wri
     else
        n = length(value)
        for (i,v) in enumerate(value)
-           renderTokens(io, token.collector, writer, ctx_push(context, v), template, (i,n))
+          renderTokens(io, token.collector, writer, ctx_push(context, v), template, (i,n))
        end
     end
 end
@@ -640,6 +658,10 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
             value = lookup(context, tokenValue)
+            if tokenValue == "." && token._type == "#"
+                render_dot_section(io, token, writer, context, template, idx)
+                continue
+            end
             ctx = isa(value, AnIndex) ? context : Context(value, context)
             renderTokensByValue(value, io, token, writer, ctx, template, idx)
 

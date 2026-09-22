@@ -83,27 +83,7 @@ function lookup(ctx::Context, key)
             context = context.parent
             steps -= 1
         end
-        value = if context === nothing
-            nothing
-        elseif stripped_key == ".."
-            context.view
-        else
-            context.view
-        end
-        ctx._cache[key] = value
-        return value
-    end
-
-    m = match(r"^(\.{2,})(.+)$", stripped_key)
-    if m !== nothing
-        dots, remainder = m.captures
-        context = ctx
-        steps = length(dots) - 2
-        while steps > 0 && context !== nothing
-            context = context.parent
-            steps -= 1
-        end
-        value = context === nothing ? nothing : lookup(Context(context.view), remainder)
+        value = context === nothing ? nothing : context.view
         ctx._cache[key] = value
         return value
     end

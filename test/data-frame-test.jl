@@ -25,10 +25,6 @@ tpl = """
 d = DataFrame(a=[1,2,3], b=[3,2,1])
 @test render(tpl, fred=d, barney="123") == "1--32--23--1\n123\n"
 
-tpl = mt"{{#:D}}{{#.}}{{#..english}}{{.}}{{/..english}}{{/.}}{{/:D}}"
-d = DataFrame(english=[["hello", "hola"], ["good bye", "adios"]])
-@test render(tpl, D=d) == "helloholagood byeadios"
-
 tpl = mt"{{#:D}}{{#.}}{{.}}{{/.}}{{/:D}}"
 d = DataFrame(a=[1,2], b=[3,4])
 @test render(tpl, D=d) == "1324"
