@@ -31,6 +31,18 @@ tpl = mt"""a:{{x}} b:{{y}}"""
 tpl = "{{#b}}this doesn't show{{/b}}{{#a}}this does show{{/a}}"
 @test render(tpl, Dict("a" => 1)) == "this does show"
 
+tpl = "{{#a |> x -> x > 1}}shown{{/a}}"
+@test render(tpl, Dict("a" => 2)) == "shown"
+@test render(tpl, Dict("a" => 1)) == ""
+
+tpl = "{{^a |> x -> x > 1}}shown{{/a}}"
+@test render(tpl, Dict("a" => 1)) == "shown"
+@test render(tpl, Dict("a" => 2)) == ""
+
+tpl = "{{#a |> >=(10)}}shown{{/a}}"
+@test render(tpl, Dict("a" => 12)) == "shown"
+@test render(tpl, Dict("a" => 5)) == ""
+
 ## dict using symbols
 d = Dict(:a => x, :b => y)
 tpl = "a:{{:a}} b:{{:b}}"
@@ -86,33 +98,33 @@ d = Dict("lambda" => (txt) -> begin
          )
 @test Mustache.render(tpl, d) == "value dollars."
 
-tpl = mt"Hello {{:name; uppercase}}!"
+tpl = mt"Hello {{:name |> uppercase}}!"
 @test tpl(name="world", uppercase=uppercase) == "Hello WORLD!"
 
-tpl = mt"{{{:name; uppercase}}}"
+tpl = mt"{{{:name |> uppercase}}}"
 @test tpl(name="<world>", uppercase=uppercase) == "<WORLD>"
 
-tpl = mt"{{&:name; uppercase}}"
+tpl = mt"{{&:name |> uppercase}}"
 @test tpl(name="<world>", uppercase=uppercase) == "<WORLD>"
 
-tpl = mt"{{:name; format_name}}"
+tpl = mt"{{:name |> format_name}}"
 format_name(name) = "[$name]"
 @test tpl(name="world", format_name=format_name) == "[world]"
 
 main_only_filter(name) = "<$name>"
-tpl = mt"{{:name; main_only_filter}}"
+tpl = mt"{{:name |> main_only_filter}}"
 @test tpl(name="world") == "&lt;world&gt;"
 
-tpl = mt"{{:name; uppercase}}"
+tpl = mt"{{:name |> uppercase}}"
 @test tpl(name="world") == "WORLD"
 
-tpl = mt"{{:name; x -> uppercase(x)}}"
+tpl = mt"{{:name |> x -> uppercase(x)}}"
 @test tpl(name="world") == "WORLD"
 
-tpl = mt"{{:name; x -> \"[$x]\"}}"
+tpl = mt"{{:name |> x -> \"[$x]\"}}"
 @test tpl(name="world") == "[world]"
 
-tpl = mt"{{:name; missing_filter}}"
+tpl = mt"{{:name |> missing_filter}}"
 @test_throws ArgumentError tpl(name="world")
 
 ## test nested section with filtering lambda

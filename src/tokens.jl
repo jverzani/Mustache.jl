@@ -44,7 +44,7 @@ struct FilteredTag
 end
 
 struct InlineFilter
-    func::Function
+    func
 end
 
 mutable struct MustacheTokens
@@ -388,7 +388,7 @@ function make_tokens(template, tags)
             end
 
             openSection = pop!(sections)
-            if openSection.value != token_value
+            if section_name(openSection.value) != token_value
                 throw(ArgumentError("Unclosed section: $(openSection.value) at $t0"))
             end
         end
@@ -471,7 +471,7 @@ function _toString(::Val{Symbol("#")}, t)
 end
 
 function parse_filtered_tag(token_value)
-    parts = split(token_value, ";", limit=2)
+    parts = split(token_value, "|>", limit=2)
     length(parts) == 2 || return nothing
     key = stripWhitespace(parts[1])
     filter = stripWhitespace(parts[2])
@@ -479,6 +479,8 @@ function parse_filtered_tag(token_value)
     isempty(filter) && return nothing
     FilteredTag(key, filter)
 end
+
+section_name(token_value) = something((filtered = parse_filtered_tag(token_value); filtered === nothing ? nothing : filtered.key), token_value)
 
 function resolve_filter(filter_name)
     parsed = try
@@ -491,6 +493,11 @@ function resolve_filter(filter_name)
         return InlineFilter(Base.invokelatest(eval, parsed))
     end
 
+    if parsed !== nothing && !(parsed isa Symbol)
+        value = Base.invokelatest(eval, parsed)
+        return value
+    end
+
     filter = lookup(Context(Main), filter_name)
     filter === nothing && (filter = lookup(Context(Base), filter_name))
     filter
@@ -498,7 +505,7 @@ end
 
 function resolve_tag_value(context, token)
     token_value = token.value
-    token._type == "name" || token._type == "&" || token._type == "{" || return lookup(context, token_value)
+    token._type in ("name", "&", "{", "#", "^") || return lookup(context, token_value)
 
     filtered = parse_filtered_tag(token_value)
     filtered === nothing && return lookup(context, token_value)
@@ -507,8 +514,8 @@ function resolve_tag_value(context, token)
     filter = lookup(context, filtered.filter)
     filter === nothing && (filter = resolve_filter(filtered.filter))
     filter isa InlineFilter && return Base.invokelatest(filter.func, value)
-    filter isa Function || throw(ArgumentError("Filtered tag requires a function for '$(filtered.filter)'"))
-    return filter isa Function ? filter(value) : filter
+    applicable(filter, value) || throw(ArgumentError("Filtered tag requires a callable filter for '$(filtered.filter)'"))
+    return Base.invokelatest(filter, value)
 end
 
 
@@ -657,7 +664,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
         if token._type == "#" || token._type == "|"
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
-            value = lookup(context, tokenValue)
+            value = token._type == "#" ? resolve_tag_value(context, token) : lookup(context, tokenValue)
             if tokenValue == "." && token._type == "#"
                 render_dot_section(io, token, writer, context, template, idx)
                 continue
@@ -675,12 +682,10 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
 
 
         elseif token._type == "^"
-
             ## display if falsy, unlike #
-            value = lookup(context, tokenValue)
+            value = resolve_tag_value(context, token)
             if !isa(value, AnIndex)
                 ctx = Context(value, context)
-
                 if falsy(value)
                     renderTokensByValue(value, io, token, writer, ctx, template, idx)
                 end

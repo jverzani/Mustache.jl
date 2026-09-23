@@ -93,19 +93,22 @@ julia> a(; variable="length", fn=length)
 "The word 'length' has 6 letters."
 ```
 
-Variable tags may also apply a post-lookup function with `;`:
+Variable tags may also apply a post-lookup function with `|>`:
 
 ```jldoctest mustache
-julia> a = mt"Hello {{:name; uppercase}}!";
+julia> a = mt"Hello {{:name |> uppercase}}!";
 
 julia> a(; name="world", uppercase=uppercase)
 "Hello WORLD!"
 ```
 
+This also works for section and inverted-section tags, applying the function
+before truthiness or iteration is decided.
+
 Anonymous functions are also accepted:
 
 ```jldoctest mustache
-julia> a = mt"Hello {{:name; x -> uppercase(x)}}!";
+julia> a = mt"Hello {{:name |> x -> uppercase(x)}}!";
 
 julia> a(; name="world")
 "Hello WORLD!"

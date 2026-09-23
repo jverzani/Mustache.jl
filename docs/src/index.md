@@ -210,11 +210,11 @@ Mustache.render(mt"Written in the year {{:yr}}."; yr = year∘now) # "Written in
 
 #### Filtering
 
-This isn't part of the Mustache spec, but a filter can be applied to the value after it is looked up and before it is rendered. The tag syntax uses a semicolon, `:` to disambiguate the variable from its filter, as in `{{:varname; functionname}}`. The named function is looked up in the same view (or `Main`, then `Base` if not found) and is
+This isn't part of the Mustache spec, but a filter can be applied to the value after it is looked up and before it is rendered. The tag syntax uses Julia's pipe operator, as in `{{:varname |> functionname}}`. The named function is looked up in the same view (or `Main`, then `Base` if not found) and is
 called with the resolved value.
 
 ```@example mustache
-Mustache.render(mt"Hello {{:name; uppercase}}!", name="world", uppercase=uppercase)
+Mustache.render(mt"Hello {{:name |> uppercase}}!", name="world", uppercase=uppercase)
 ```
 
 Inline anonymous functions are accepted too:
@@ -237,6 +237,8 @@ Tags beginning with `#varname` and closed with `/varname` create
 "sections."  These have different behaviors depending on the value of
 the variable.
 
+The syntax ``{{#varname |> f}}`` applies the function `f` to the looked up value of `varname` before applying the section logic.
+
 #### Using a true(ish) value to conditionally display a section
 
 When the variable is not a function or a container the
@@ -255,6 +257,18 @@ a(; b=false) # "" also, as `b` is "falsy" (e.g., false, nothing, "")
 Related, if the tag begins with `^varname` and ends with `/varname`
 the text between these tags is included only if the variable is *not*
 defined or is `falsy`.
+
+Inverted tags may have a function call on the looked up value through the syntax `{{^varname |> f}}`.
+
+This example will show only one of the statements:
+
+```@example mustache
+tpl = mt"""
+{{#:x |> >=(10)}} bigger than or equal 10 {{/:x}}
+{{^:x |> >=(10)}} less than 10 {{/:x}}
+"""
+tpl(; x = 5) |> print
+```
 
 #### Using a function to modify the string within a section
 
@@ -348,19 +362,18 @@ a conditional check.
 
 For data frames, the rows are iterated over. Data frames in `Julia` have named columns, not rows.
 Here is a template for making a markdown table from a data frame.
-It uses a filter to process the unnamed values of an iterable.
+The first line shows a filter applied to an iterable in a section tag. The second line shows function application to a variable. The rest shows nested iteration over unnamed elements.
 
 ```@example mustache
 tpl = mt"""
-|{{:d; x -> join(names(x), " |")}}|
-|{{:d; r -> join(repeat([":----|"], size(r,2)))}}
+|{{#:d |> names}} {{.}} | {{/:d}}
+|{{:d  |> r -> ":----|" ^ size(r,2)}}
 {{#:d}}
 |{{#.}}{{.}}|{{/.}}
 {{/:d}}
 : {{:TITLE}}
 """
 ```
-
 
 
 We illustrate on some synthetic data.
@@ -563,7 +576,7 @@ Tags referencing variables can have a filter applied:
 
 ```@example mustache
 tpl = mt"""
-{{:x}} --> {{:x; uppercasefirst}} --> {{:x; x-> uppercase(x[1:2]) * x[3:end]}} --> {{:x; uppercase}}
+{{:x}} --> {{:x |> uppercasefirst}} --> {{:x |> x-> uppercase(x[1:2]) * x[3:end]}} --> {{:x |> uppercase}}
 """
 tpl(; x = "boo")  |> print
 ```
