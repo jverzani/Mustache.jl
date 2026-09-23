@@ -1,5 +1,73 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Mustache.jl · Mustache</title><meta name="title" content="Mustache.jl · Mustache"/><meta property="og:title" content="Mustache.jl · Mustache"/><meta property="twitter:title" content="Mustache.jl · Mustache"/><meta name="description" content="Documentation for Mustache."/><meta property="og:description" content="Documentation for Mustache."/><meta property="twitter:description" content="Documentation for Mustache."/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href>Mustache</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Mustache.jl</a><ul class="internal"><li><a class="tocitem" href="#Examples"><span>Examples</span></a></li><li><a class="tocitem" href="#Alternatives"><span>Alternatives</span></a></li><li><a class="tocitem" href="#Differences-from-Mustache.js"><span>Differences from Mustache.js</span></a></li><li><a class="tocitem" href="#API"><span>API</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Mustache.jl</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Mustache.jl</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/jverzani/Mustache.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/jverzani/Mustache.jl/blob/master/docs/src/index.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Mustache.jl"><a class="docs-heading-anchor" href="#Mustache.jl">Mustache.jl</a><a id="Mustache.jl-1"></a><a class="docs-heading-anchor-permalink" href="#Mustache.jl" title="Permalink"></a></h1><p>Documentation for <a href="https://github.com/jverzani/Mustache.jl">Mustache.jl</a>.</p><h2 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h2><p>Following the main <a href="http://mustache.github.io/mustache.5.html">documentation</a> for <code>Mustache.js</code> we have a &quot;typical Mustache template&quot; defined by:</p><pre><code class="language-julia hljs">using Mustache
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mustache.jl — Mustache</title>
+  <link rel="stylesheet" href="./assets/materialdocs.css?v=44c09035">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <meta name="title" content="Mustache.jl — Mustache">
+  <meta property="og:title" content="Mustache.jl — Mustache">
+  <meta property="twitter:title" content="Mustache.jl — Mustache">
+  <meta name="description" content="Documentation for Mustache.">
+  <meta property="og:description" content="Documentation for Mustache.">
+  <meta property="twitter:description" content="Documentation for Mustache.">
+  <script>
+    (function(){
+      document.documentElement.classList.add('no-transition');
+      var t=localStorage.getItem('md-theme');if(t)document.documentElement.setAttribute('data-theme',t);
+      window.addEventListener('load',function(){setTimeout(function(){document.documentElement.classList.remove('no-transition');},50);});
+    })()
+  </script>
+</head>
+<body data-warn-outdated>
+  <header class="md-navbar">
+    <button id="md-hamburger" class="md-icon-btn md-hamburger" aria-label="Toggle navigation" aria-expanded="false"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <span class="md-navbar-title">Mustache</span>
+    <span class="md-navbar-spacer"></span>
+    <button id="md-search-btn" class="md-search-bar" aria-label="Search documentation" aria-expanded="false">
+      <svg class="md-icon md-search-bar-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <span class="md-search-bar-label">Search docs</span>
+      <kbd class="md-search-bar-kbd">Ctrl K</kbd>
+    </button>
+    <div id="md-version" class="md-version" hidden>
+      <button id="md-version-btn" class="md-version-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Select documentation version">
+        <span id="md-version-current" class="md-version-current"></span>
+        <svg class="md-icon md-version-caret" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M7 10l5 5 5-5z"/></svg>
+      </button>
+      <ul id="md-version-menu" class="md-version-menu" role="listbox" hidden></ul>
+    </div>
+    <a class="md-icon-btn md-repo-link" href="https://github.com/jverzani/Mustache.jl" title="View the repository on GitHub" aria-label="View the repository on GitHub" rel="noopener" target="_blank"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .3a12 12 0 00-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.1.9 2.2v3.3c0 .3.1.7.8.6A12 12 0 0012 .3z"/></svg><span class="md-repo-label">GitHub</span></a>
+    <button id="md-theme-toggle" class="md-icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode"><svg class="md-icon md-icon-light" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg><svg class="md-icon md-icon-dark" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg></button>
+  </header>
+  <div class="md-layout md-layout-no-sidebar">
+    <aside class="md-toc">
+      <div class="md-toc-inner">
+        <p class="md-toc-title">On this page</p>
+          <a class="md-toc-link md-toc-h2" href="#Examples">Examples</a>
+          <a class="md-toc-link md-toc-h2" href="#The-pipeline">The pipeline</a>
+            <a class="md-toc-link md-toc-h3" href="#Rendering">Rendering</a>
+            <a class="md-toc-link md-toc-h3" href="#Views">Views</a>
+            <a class="md-toc-link md-toc-h3" href="#Templates-and-tokens">Templates and tokens</a>
+            <a class="md-toc-link md-toc-h3" href="#Tags">Tags</a>
+            <a class="md-toc-link md-toc-h3" href="#Additional-features">Additional features</a>
+          <a class="md-toc-link md-toc-h2" href="#Summary-of-tags">Summary of tags</a>
+          <a class="md-toc-link md-toc-h2" href="#Alternatives">Alternatives</a>
+          <a class="md-toc-link md-toc-h2" href="#Differences-from-Mustache.js">Differences from Mustache.js</a>
+          <a class="md-toc-link md-toc-h2" href="#API">API</a>
+      </div>
+    </aside>
+    <main class="md-content">
+      <article class="md-article">
+      <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/jverzani/Mustache.jl/blob/master/docs/src/index.md" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
+<h1 id="Mustache.jl" class="md-heading">Mustache.jl<a href="#Mustache.jl" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
+<p>Documentation for <a href="https://github.com/jverzani/Mustache.jl">Mustache.jl</a>.</p>
+<h2 id="Examples" class="md-heading">Examples<a href="#Examples" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>Following the main <a href="http://mustache.github.io/mustache.5.html">documentation</a> for <code class="md-code-inline">Mustache.js</code> we have a &quot;typical Mustache template&quot; defined by (along with a bit of an anti-tax sentiment):</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">using Mustache
 
 tpl = mt&quot;&quot;&quot;
 Hello {{name}}
@@ -7,141 +75,526 @@ You have just won {{value}} dollars!
 {{#in_ca}}
 Well, {{taxed_value}} dollars, after taxes.
 {{/in_ca}}
-&quot;&quot;&quot;</code></pre><p>The values with braces (mustaches on their side) are looked up in a view, such as a dictionary or module. For example,</p><pre><code class="language-julia hljs">d = Dict(
+&quot;&quot;&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">MustacheTokens
+Mustache.TextToken(&quot;text&quot;, &quot;Hello &quot;)
+Mustache.TagToken(&quot;name&quot;, &quot;name&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+Mustache.TextToken(&quot;text&quot;, &quot;\nYou have just won &quot;)
+Mustache.TagToken(&quot;name&quot;, &quot;value&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+Mustache.TextToken(&quot;text&quot;, &quot; dollars!\n&quot;)
+SectionToken(&quot;#&quot;, &quot;in_ca&quot;, &quot;{{&quot;, &quot;}}&quot;)
+  Mustache.TextToken(&quot;text&quot;, &quot;Well, &quot;)
+  Mustache.TagToken(&quot;name&quot;, &quot;taxed_value&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+  Mustache.TextToken(&quot;text&quot;, &quot; dollars, after taxes.\n&quot;)</code></pre>
+</div>
+<p>The values with braces (mustaches on their side) are looked up in a view, such as a dictionary or module. For example,</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">d = Dict(
 &quot;name&quot; =&gt; &quot;Chris&quot;,
 &quot;value&quot; =&gt; 10000,
 &quot;taxed_value&quot; =&gt; 10000 - (10000 * 0.4),
 &quot;in_ca&quot; =&gt; true)
 
-Mustache.render(tpl, d)</code></pre><p>Yielding</p><pre><code class="nohighlight hljs">Hello Chris
+Mustache.render(tpl, d) |&gt; print</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">Hello Chris
 You have just won 10000 dollars!
-Well, 6000.0 dollars, after taxes.</code></pre><p>The <code>render</code> function pieces things together. Like <code>print</code>, the first argument is for an optional <code>IO</code> instance. In the above example, where one is not provided, a string is returned.</p><p>The flow is</p><ul><li><p>a template is parsed into tokens by <code>Mustache.parse</code>. This can be called directly, indirectly through the non-standard string literal <code>mt</code>, or when loading a file with <code>Mustache.load</code>. The templates use tags comprised of matching mustaches (<code>{}</code>), either two or three, to indicate a value to be substituted for. These tags may be adjusted when <code>parse</code> is called.</p></li><li><p>The tokens and a view are <code>render</code>ed. The <code>render</code> function takes tokens as its second argument. If this argument is a string, <code>parse</code> is called internally. The <code>render</code> function than reassambles the template, substituting values, as appropriate, from the &quot;view&quot; passed to it and writes the output to the specified <code>io</code> argument.</p></li></ul><p>There are only 4 exports: <code>mt</code> and <code>jmt</code>, string literals to specify a template, <code>render</code>, and <code>render_from_file</code>.</p><p>The view used to provide values to substitute into the template can be specified in a variety of ways. The above example used a dictionary. A Module may also be used, such as <code>Main</code>:</p><pre><code class="language-julia hljs">name, value, taxed_value, in_ca = &quot;Christine&quot;, 10000, 10000 - (10000 * 0.4), false
-Mustache.render(tpl, Main) |&gt; print</code></pre><p>Which yields:</p><pre><code class="nohighlight hljs">Hello Christine
-You have just won 10000 dollars!</code></pre><p>Further, keyword arguments can be used when the variables in the templates are symbols:</p><pre><code class="language-julia hljs">goes_together = mt&quot;{{{:x}}} and {{{:y}}}.&quot;
-Mustache.render(goes_together, x=&quot;Salt&quot;, y=&quot;pepper&quot;)
-Mustache.render(goes_together, x=&quot;Bread&quot;, y=&quot;butter&quot;)</code></pre><p><code>Tokens</code> objects are functors; keyword arguments can also be passed to a <code>Tokens</code> object directly (bypassing the use of <code>render</code>):</p><pre><code class="language-julia hljs">goes_together = mt&quot;{{{:x}}} and {{{:y}}}.&quot;
-goes_together(x=&quot;Fish&quot;, y=&quot;chips&quot;)</code></pre><p>Similarly, a named tuple may be used as a view.  As well, one can use Composite Kinds. This may make writing <code>show</code> methods easier:</p><pre><code class="language-julia hljs">using Distributions
+Well, 6000.0 dollars, after taxes.</code></pre>
+</div>
+<p>The <code class="md-code-inline">render</code> function pieces things together. Like <code class="md-code-inline">print</code>, the first argument is for an optional <code class="md-code-inline">IO</code> instance. In the above example, where one is not provided, a string is returned. (The <code class="md-code-inline">print</code> call is for formatting purposes.)</p>
+<p>The flow is</p>
+<ul>
+<li><p>a template is parsed into tokens by <code class="md-code-inline">Mustache.parse</code>. This can be called directly, indirectly through the non-standard string literal <code class="md-code-inline">mt</code>, the non-standard string literal <code class="md-code-inline">jmt</code> (which allows for string interpolation), or when loading a file with <code class="md-code-inline">Mustache.load</code>. The templates use tags comprised of matching mustaches (<code class="md-code-inline">{}</code>), either two or three, to indicate a value to be substituted for. These particular symbols indicating tags may be adjusted when <code class="md-code-inline">parse</code> is called.</p>
+</li>
+<li><p>The tokens and a view are <code class="md-code-inline">render</code>ed into a string. The <code class="md-code-inline">render</code> function takes tokens as its second argument. If this argument is a string, <code class="md-code-inline">parse</code> is called internally. The <code class="md-code-inline">render</code> function than reassambles the template, substituting values, as appropriate, from the &quot;view&quot; passed to it and writes the output to the specified <code class="md-code-inline">io</code> argument.</p>
+</li>
+</ul>
+<p>There are only 4 exports: <code class="md-code-inline">mt</code> and <code class="md-code-inline">jmt</code> (string literals to specify a template), <code class="md-code-inline">render</code>, and <code class="md-code-inline">render_from_file</code>.</p>
+<h2 id="The-pipeline" class="md-heading">The pipeline<a href="#The-pipeline" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>A template is specified and rendered with values coming from a view. This section gives some more detail.</p>
+<h3 id="Rendering" class="md-heading">Rendering<a href="#Rendering" class="md-heading-anchor" aria-label="Link to this section">#</a></h3>
+<p>The <code class="md-code-inline">render</code> function combines tokens and a view to fill in the template. The basic call is <code class="md-code-inline">render([io::IO], tokens, view)</code>, however there are variants:</p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">render(tokens; view...)</code></p>
+</li>
+<li><p><code class="md-code-inline">render(tokens; kwargs...)</code></p>
+</li>
+</ul>
+<p>Or (where<code class="md-code-inline">string</code> is parsed into tokens before rendering):</p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">render(string, view)</code></p>
+</li>
+<li><p><code class="md-code-inline">render(string; kwargs...)</code></p>
+</li>
+</ul>
+<p><code class="md-code-inline">MustacheTokens</code> objects are functors; keyword arguments can also be passed to a <code class="md-code-inline">Tokens</code> object directly which resolves to calling <code class="md-code-inline">render</code>.</p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">tokens([io::IO], view)</code></p>
+</li>
+<li><p><code class="md-code-inline">tokens([io::IO]; kwargs...)</code></p>
+</li>
+</ul>
+<p>For example:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">goes_together = mt&quot;{{{:x}}} and {{{:y}}}.&quot;
+goes_together(; x=&quot;Fish&quot;, y=&quot;chips&quot;)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;Fish and chips.&quot;</code></pre>
+</div>
+<h3 id="Views" class="md-heading">Views<a href="#Views" class="md-heading-anchor" aria-label="Link to this section">#</a></h3>
+<p>Views are used to hold values for the templates variables. There are many possible objects that can be used for views:</p>
+<ul class="md-list-tight">
+<li><p>a dictionary</p>
+</li>
+<li><p>a named tuple</p>
+</li>
+<li><p>keyword arguments to <code class="md-code-inline">render</code></p>
+</li>
+<li><p>a composite type</p>
+</li>
+<li><p>a module</p>
+</li>
+<li><p>data frame</p>
+</li>
+</ul>
+<p>The tags are looked up in the context of a view, so the view is used to provide values to substitute into the template. The lookup allows for different types of view. The above example used a dictionary. A Module may also be used, such as <code class="md-code-inline">Main</code>:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">name, value, taxed_value, in_ca = &quot;Christine&quot;, 10000, 10000 - (10000 * 0.4), false
+Mustache.render(tpl, Main) |&gt; print</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">Hello
+You have just won  dollars!</code></pre>
+</div>
+<p>Which yields:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code>Hello Christine
+You have just won 10000 dollars!</code></pre>
+</div>
+<p>Similarly, a named tuple may be used as a view.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl(; name=&quot;Bill&quot;, value=1, taxed_value =0.5, in_ca = true) |&gt; print</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">Hello Bill
+You have just won 1 dollars!
+Well, 0.5 dollars, after taxes.</code></pre>
+</div>
+<p>As well, one can use composite types. This could make writing <code class="md-code-inline">show</code> methods easier (though string interpolation is as easy in this example):</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">using Distributions
 tpl = &quot;Beta distribution with alpha={{α}}, beta={{β}}&quot;
-Mustache.render(tpl, Beta(1, 2))</code></pre><p>gives</p><pre><code class="nohighlight hljs">&quot;Beta distribution with alpha=1.0, beta=2.0&quot;</code></pre><h3 id="Rendering"><a class="docs-heading-anchor" href="#Rendering">Rendering</a><a id="Rendering-1"></a><a class="docs-heading-anchor-permalink" href="#Rendering" title="Permalink"></a></h3><p>The <code>render</code> function combines tokens and a view to fill in the template. The basic call is <code>render([io::IO], tokens, view)</code>, however there are variants:</p><ul><li><code>render(tokens; kwargs...)</code></li><li><code>render(string, view)</code>  (<code>string</code> is parsed into tokens)</li><li><code>render(string; kwargs...)</code></li></ul><p>Finally, tokens are callable, so there are these variants to call <code>render</code>:</p><ul><li><code>tokens([io::IO], view)</code></li><li><code>tokens([io::IO]; kwargs...)</code></li></ul><h3 id="Views"><a class="docs-heading-anchor" href="#Views">Views</a><a id="Views-1"></a><a class="docs-heading-anchor-permalink" href="#Views" title="Permalink"></a></h3><p>Views are used to hold values for the templates variables. There are many possible objects that can be used for views:</p><ul><li>a dictionary</li><li>a named tuple</li><li>keyword arguments to <code>render</code></li><li>a module</li></ul><p>For templates which iterate over a variable, these can be</p><ul><li>a <code>Tables.jl</code> compatible object with row iteration support (e.g., A <code>DataFrame</code>, a tuple of named tuples, ...)</li><li>a vector or tuple (in which case &quot;<code>.</code>&quot; is used to match</li></ul><h3 id="Templates-and-tokens"><a class="docs-heading-anchor" href="#Templates-and-tokens">Templates and tokens</a><a id="Templates-and-tokens-1"></a><a class="docs-heading-anchor-permalink" href="#Templates-and-tokens" title="Permalink"></a></h3><p>A template is parsed into tokens. The <code>render</code> function combines the tokens with the view to create the output.</p><ul><li><p>Parsing is done at compile time, if the <code>mt</code> string literal is used to define the template. If re-using a template, this is encouraged, as it will be more performant.</p></li><li><p>If string interpolation is desired prior to the parsing into tokens, the <code>jmt</code> string literal can be used.</p></li><li><p>As well, a string can be used to define a template. When <code>parse</code> is called, the string will be parsed into tokens. This is the flow if <code>render</code> is called on a string (and not tokens).</p></li></ul><h3 id="Variables"><a class="docs-heading-anchor" href="#Variables">Variables</a><a id="Variables-1"></a><a class="docs-heading-anchor-permalink" href="#Variables" title="Permalink"></a></h3><p>Tags representing variables for substitution have the form <code>{{varname}}</code>, <code>{{:symbol}}</code>, or their triple-braced versions <code>{{{varname}}}</code> or <code>{{{:symbol}}}</code>.</p><p>The <code>varname</code> version will match variables in a view such as a dictionary or a module.</p><p>The <code>:symbol</code> version will match variables passed in via named tuple or keyword arguments.</p><pre><code class="language-julia hljs">b = &quot;be&quot;
+Mustache.render(tpl, Beta(1, 2))</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;Beta distribution with alpha=1.0, beta=2.0&quot;</code></pre>
+</div>
+<p>Further, keyword arguments can be used when the variables in the templates are symbols:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">goes_together = mt&quot;{{{:x}}} and {{{:y}}}.&quot;
+Mustache.render(goes_together; x=&quot;Salt&quot;, y=&quot;pepper&quot;)
+Mustache.render(goes_together; x=&quot;Bread&quot;, y=&quot;butter&quot;)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;Bread and butter.&quot;</code></pre>
+</div>
+<h4 id="Multiple-views" class="md-heading">Multiple views<a href="#Multiple-views" class="md-heading-anchor" aria-label="Link to this section">#</a></h4>
+<p>Support for more than one view is also provided. A simple example with two named tuples is:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl = mt&quot;&quot;&quot;{{:a}} {{:b}} {{:c}}&quot;&quot;&quot;
+tpl((;a=1, b=2), (;c=3))</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;1 2 3&quot;</code></pre>
+</div>
+<p>When competing views specify the same value, the resolution comes from left to right with keyword arguments overriding any positional argument:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl((;a=1, b=2, c=4), (;c=3)), tpl((;a=1, b=2, c=4), (;c=3); c=5)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">(&quot;1 2 4&quot;, &quot;1 2 5&quot;)</code></pre>
+</div>
+<h3 id="Templates-and-tokens" class="md-heading">Templates and tokens<a href="#Templates-and-tokens" class="md-heading-anchor" aria-label="Link to this section">#</a></h3>
+<p>A template is parsed into tokens.</p>
+<ul class="md-list-tight">
+<li><p>Parsing is done at compile time, if the <code class="md-code-inline">mt</code> string literal is used to define the template. If re-using a template, this is encouraged, as it will be more performant.</p>
+</li>
+</ul>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">mt&quot;&quot;&quot;
+{{:x}} is  {{:y}}
+&quot;&quot;&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">MustacheTokens
+Mustache.TextToken(&quot;text&quot;, &quot;&quot;)
+Mustache.TagToken(&quot;name&quot;, &quot;:x&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+Mustache.TextToken(&quot;text&quot;, &quot; is  &quot;)
+Mustache.TagToken(&quot;name&quot;, &quot;:y&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+Mustache.TextToken(&quot;text&quot;, &quot;\n&quot;)</code></pre>
+</div>
+<ul class="md-list-tight">
+<li><p>If string interpolation is desired prior to the parsing into tokens, the <code class="md-code-inline">jmt</code> string literal can be used.</p>
+</li>
+</ul>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">x = &quot;John&quot;
+jmt&quot;&quot;&quot;
+$x is {{:y}}
+&quot;&quot;&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">MustacheTokens
+Mustache.TextToken(&quot;text&quot;, &quot;John is &quot;)
+Mustache.TagToken(&quot;name&quot;, &quot;:y&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+Mustache.TextToken(&quot;text&quot;, &quot;\n&quot;)</code></pre>
+</div>
+<p>(This can prove useful if two passes through a template are needed.)</p>
+<ul class="md-list-tight">
+<li><p>As well, a string can be used to define a template. When <code class="md-code-inline">parse</code> is called, the string will be parsed into tokens. This is the flow if <code class="md-code-inline">render</code> is called on a string (and not tokens).</p>
+</li>
+</ul>
+<h3 id="Tags" class="md-heading">Tags<a href="#Tags" class="md-heading-anchor" aria-label="Link to this section">#</a></h3>
+<p>A template use tags to specify areas to be filled in by a view. There are numerous tag types, summarized in a table near the end of this document.</p>
+<h4 id="Variables" class="md-heading">Variables<a href="#Variables" class="md-heading-anchor" aria-label="Link to this section">#</a></h4>
+<p>Tags representing variables for substitution have the form <code class="md-code-inline">{{varname}}</code>, <code class="md-code-inline">{{:symbol}}</code>, or their triple-braced versions <code class="md-code-inline">{{{varname}}}</code> or <code class="md-code-inline">{{{:symbol}}}</code>.</p>
+<p>The <code class="md-code-inline">varname</code> version will match variables in a view such as a dictionary or a module.</p>
+<p>The <code class="md-code-inline">:symbol</code> version will match variables passed in via named tuple or keyword arguments; also dictionaries with symbols for keys.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">b = &quot;be&quot;
 Mustache.render(mt&quot;a {{b}} c&quot;, Main)  # &quot;a be c&quot;
 Mustache.render(mt&quot;a {{:b}} c&quot;, b=&quot;bee&quot;) # &quot;a bee c&quot;
-Mustache.render(mt&quot;a {{:b}} c&quot;, (b=&quot;bee&quot;, c=&quot;sea&quot;)) # &quot;a bee c&quot;</code></pre><p>The triple brace prevents HTML substitution for entities such as <code>&lt;</code>. The following are escaped when only double braces are used: &quot;&amp;&quot;, &quot;&lt;&quot;, &quot;&gt;&quot;, &quot;&#39;&quot;, &quot;\&quot;, and &quot;/&quot;.</p><pre><code class="language-julia hljs">Mustache.render(mt&quot;a {{:b}} c&quot;, b = &quot;%&lt; bee &gt;%&quot;)   # &quot;a %&amp;lt; bee &amp;gt;% c&quot;
-Mustache.render(mt&quot;a {{{:b}}} c&quot;, b = &quot;%&lt; bee &gt;%&quot;) # &quot;a %&lt; bee &gt;% c&quot;</code></pre><p>If different tags are specified to <code>parse</code>, say <code>&lt;&lt;</code> or <code>&gt;&gt;</code>, then <code>&lt;&lt;{</code> and <code>}&gt;&gt;</code> indicate the prevention of substitution.</p><pre><code class="language-julia hljs">tokens = Mustache.parse(&quot;a &lt;&lt;:b&gt;&gt; c&quot;, (&quot;&lt;&lt;&quot;, &quot;&gt;&gt;&quot;))
+Mustache.render(mt&quot;a {{:b}} c&quot;, (b=&quot;bee&quot;, c=&quot;sea&quot;)) # &quot;a bee c&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;a bee c&quot;</code></pre>
+</div>
+<p>The triple brace prevents HTML substitution for entities such as <code class="md-code-inline">&lt;</code>. The following are escaped when only double braces are used: &quot;&amp;&quot;, &quot;&lt;&quot;, &quot;&gt;&quot;, &quot;&#39;&quot;, &quot;\&quot;, and &quot;/&quot;.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Mustache.render(mt&quot;a {{:b}} c&quot;, b = &quot;%&lt; bee &gt;%&quot;)   # &quot;a %&amp;lt; bee &amp;gt;% c&quot;
+Mustache.render(mt&quot;a {{{:b}}} c&quot;, b = &quot;%&lt; bee &gt;%&quot;) # &quot;a %&lt; bee &gt;% c&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;a %&lt; bee &gt;% c&quot;</code></pre>
+</div>
+<p>If different tags are specified to <code class="md-code-inline">parse</code>, say <code class="md-code-inline">&lt;&lt;</code> or <code class="md-code-inline">&gt;&gt;</code>, then <code class="md-code-inline">&lt;&lt;{</code> and <code class="md-code-inline">}&gt;&gt;</code> indicate the prevention of substitution.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tokens = Mustache.parse(&quot;a &lt;&lt;:b&gt;&gt; c&quot;, (&quot;&lt;&lt;&quot;, &quot;&gt;&gt;&quot;))
 Mustache.render(tokens, b = &quot;%&lt; B &gt;%&quot;)  # a %&amp;lt; B &amp;gt;% c&quot;
 
 tokens = Mustache.parse(&quot;a &lt;&lt;{:b}&gt;&gt; c&quot;, (&quot;&lt;&lt;&quot;, &quot;&gt;&gt;&quot;))
-Mustache.render(tokens, b = &quot;%&lt; B &gt;%&quot;)  # &quot;a %&lt; B &gt;% c&quot;</code></pre><p>If the variable refers to a function, the value will be the result of calling the function with no arguments passed in.</p><pre><code class="language-julia hljs">Mustache.render(mt&quot;a {{:b}} c&quot;, b = () -&gt; &quot;Bea&quot;)  # &quot;a Bea c&quot;</code></pre><pre><code class="language-julia hljs">using Dates
-Mustache.render(mt&quot;Written in the year {{:yr}}.&quot;; yr = year∘now) # &quot;Written in the year 2023.&quot;</code></pre><h3 id="Sections"><a class="docs-heading-anchor" href="#Sections">Sections</a><a id="Sections-1"></a><a class="docs-heading-anchor-permalink" href="#Sections" title="Permalink"></a></h3><p>In the main example, the template included:</p><pre><code class="nohighlight hljs">{{#in_ca}}
+Mustache.render(tokens, b = &quot;%&lt; B &gt;%&quot;)  # &quot;a %&lt; B &gt;% c&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;a %&lt; B &gt;% c&quot;</code></pre>
+</div>
+<p>If the variable refers to a function, the value will be the result of calling the function with no arguments passed in.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Mustache.render(mt&quot;a {{:b}} c&quot;, b = () -&gt; &quot;Bea&quot;)  # &quot;a Bea c&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;a Bea c&quot;</code></pre>
+</div>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">using Dates
+Mustache.render(mt&quot;Written in the year {{:yr}}.&quot;; yr = year∘now) # &quot;Written in the year 2023.&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;Written in the year 2026.&quot;</code></pre>
+</div>
+<h4 id="Filtering" class="md-heading">Filtering<a href="#Filtering" class="md-heading-anchor" aria-label="Link to this section">#</a></h4>
+<p>This isn&#39;t part of the Mustache spec, but a filter can be applied to the value after it is looked up and before it is rendered. The tag syntax uses Julia&#39;s pipe operator, as in <code class="md-code-inline">{{:varname |&gt; functionname}}</code>. The named function is looked up in the same view (or <code class="md-code-inline">Main</code>, then <code class="md-code-inline">Base</code> if not found) and is called with the resolved value.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Mustache.render(mt&quot;Hello {{:name |&gt; uppercase}}!&quot;, name=&quot;world&quot;, uppercase=uppercase)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;Hello WORLD!&quot;</code></pre>
+</div>
+<p>Inline anonymous functions are accepted too:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Mustache.render(mt&quot;Hello {{:name |&gt; x -&gt; uppercase(x)}}!&quot;, name=&quot;world&quot;)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;Hello WORLD!&quot;</code></pre>
+</div>
+<p>A filter can be passed through the view if that flexibility is needed:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl = mt&quot;Hello {{:name |&gt; λ}}&quot;
+tpl(; name=&quot;world&quot;, λ=uppercase)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;Hello WORLD&quot;</code></pre>
+</div>
+<p>If this package is called from within a module, it might be necessary to pass in <code class="md-code-inline">@__MODULE__</code> to the render function if a filter is defined within the current module.</p>
+<h4 id="Sections" class="md-heading">Sections<a href="#Sections" class="md-heading-anchor" aria-label="Link to this section">#</a></h4>
+<p>In the main example, the template included:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code>{{#in_ca}}
 Well, {{taxed_value}} dollars, after taxes.
-{{/in_ca}}</code></pre><p>Tags beginning with <code>#varname</code> and closed with <code>/varname</code> create &quot;sections.&quot;  These have different behaviors depending on the value of the variable. When the variable is not a function or a container the part between them is used only if the variable is defined and not &quot;falsy:&quot;</p><pre><code class="language-julia hljs">a = mt&quot;{{#:b}}Hi{{/:b}}&quot;;
-a(; b=true) # &quot;Hi&quot;
-a(; c=true) # &quot;&quot;
-a(; b=false) # &quot;&quot; also, as `b` is &quot;falsy&quot; (e.g., false, nothing, &quot;&quot;)</code></pre><p>If the variable name refers to a function that function will be passed the unevaluated string within the section, as expected by the Mustache specification:</p><pre><code class="language-julia hljs">Mustache.render(&quot;{{#:a}}one{{/:a}}&quot;, a=length)  # &quot;3&quot;</code></pre><p>The specification has been widened to accept functions of two arguments, the string and a render function:</p><pre><code class="language-julia hljs">tpl = mt&quot;{{#:bold}}Hi {{:name}}.{{/:bold}}&quot;
+{{/in_ca}}</code></pre>
+</div>
+<p>Tags beginning with <code class="md-code-inline">#varname</code> and closed with <code class="md-code-inline">/varname</code> create &quot;sections.&quot;  These have different behaviors depending on the value of the variable.</p>
+<p>The syntax <code class="md-code-inline">{{#varname |&gt; f}}</code> applies the function <code class="md-code-inline">f</code> to the looked up value of <code class="md-code-inline">varname</code> before applying the section logic.</p>
+<h5 id="Using-a-true(ish)-value-to-conditionally-display-a-section" class="md-heading">Using a true(ish) value to conditionally display a section<a href="#Using-a-true(ish)-value-to-conditionally-display-a-section" class="md-heading-anchor" aria-label="Link to this section">#</a></h5>
+<p>When the variable is not a function or a container the part between them is used only if the variable is defined and not &quot;falsy:&quot;</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">a = mt&quot;{{#:b}}Hi{{/:b}}&quot;;
+a(; b=true)  # &quot;Hi&quot;
+a(; c=true)  # &quot;&quot;
+a(; b=false) # &quot;&quot; also, as `b` is &quot;falsy&quot; (e.g., false, nothing, &quot;&quot;)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;&quot;</code></pre>
+</div>
+<p>The Mustache spec call itself &quot;logicless&quot; but using a filter can add logic. For example this pattern will only show the value of <code class="md-code-inline">x</code> if <code class="md-code-inline">x</code> is a number:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-{julia}">tpl = mt&quot;{{# :x |&gt; r -&gt; isa(r, Number)}}{{:x}}{{/ :x}}&quot;
+tpl(; x = &quot;one&quot;), tpl(;, x=1)</code></pre>
+</div>
+<h4 id="Inverted-section-tags" class="md-heading">Inverted section tags<a href="#Inverted-section-tags" class="md-heading-anchor" aria-label="Link to this section">#</a></h4>
+<p>Related, if the tag begins with <code class="md-code-inline">^varname</code> and ends with <code class="md-code-inline">/varname</code> the text between these tags is included only if the variable is <em>not</em> defined or is <code class="md-code-inline">falsy</code>.</p>
+<p>Inverted tags may have a function call on the looked up value through the syntax <code class="md-code-inline">{{^varname |&gt; f}}</code>.</p>
+<p>This example will show only one of the statements:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl = mt&quot;&quot;&quot;
+{{#:x |&gt; &gt;=(10)}} bigger than or equal 10 {{/:x}}
+{{^:x |&gt; &gt;=(10)}} less than 10 {{/:x}}
+&quot;&quot;&quot;
+tpl(; x = 5) |&gt; print</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">
+ less than 10</code></pre>
+</div>
+<h4 id="Using-a-function-to-modify-the-string-within-a-section" class="md-heading">Using a function to modify the string within a section<a href="#Using-a-function-to-modify-the-string-within-a-section" class="md-heading-anchor" aria-label="Link to this section">#</a></h4>
+<p>If the variable name refers to a function that function will be passed the unevaluated string within the section, as expected by the Mustache specification:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Mustache.render(&quot;{{#:a}}one{{/:a}}&quot;, a=length)  # &quot;3&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;3&quot;</code></pre>
+</div>
+<p>The specification has been widened to accept functions of two arguments, the string and a render function:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl = mt&quot;{{#:bold}}Hi {{:name}}.{{/:bold}}&quot;
 function bold(text, render)
     &quot;&lt;b&gt;&quot; * render(text) * &quot;&lt;/b&gt;&quot;
 end
-tpl(; name=&quot;Tater&quot;, bold=bold) # &quot;&lt;b&gt;Hi Tater.&lt;/b&gt;&quot;</code></pre><p>If the tag &quot;|&quot; is used, the section value will be rendered first, an enhancement to the specification.</p><pre><code class="language-julia hljs">fmt(txt) = &quot;&lt;b&gt;&quot; * string(round(parse(Float64, txt), digits=2)) * &quot;&lt;/b&gt;&quot;;
+tpl(; name=&quot;Tater&quot;, bold=bold) # &quot;&lt;b&gt;Hi Tater.&lt;/b&gt;&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;&lt;b&gt;Hi Tater.&lt;/b&gt;&quot;</code></pre>
+</div>
+<p>If the tag &quot;|&quot; is used, the section value will be rendered first, an enhancement to the specification.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">fmt(txt) = &quot;&lt;b&gt;&quot; * string(round(parse(Float64, txt), digits=2)) * &quot;&lt;/b&gt;&quot;;
 tpl = &quot;&quot;&quot;{{|:lambda}}{{:value}}{{/:lambda}} dollars.&quot;&quot;&quot;;
-Mustache.render(tpl, value=1.23456789, lambda=fmt)  # &quot;&lt;b&gt;1.23&lt;/b&gt; dollars.&quot;</code></pre><p>(Without the <code>|</code> in the tag, an error, <code>ERROR: ArgumentError: cannot parse &quot;{{:value}}&quot; as Float64</code>, will be thrown.)</p><h3 id="Inverted"><a class="docs-heading-anchor" href="#Inverted">Inverted</a><a id="Inverted-1"></a><a class="docs-heading-anchor-permalink" href="#Inverted" title="Permalink"></a></h3><p>Related, if the tag begins with <code>^varname</code> and ends with <code>/varname</code> the text between these tags is included only if the variable is <em>not</em> defined or is <code>falsy</code>.</p><h3 id="Iteration"><a class="docs-heading-anchor" href="#Iteration">Iteration</a><a id="Iteration-1"></a><a class="docs-heading-anchor-permalink" href="#Iteration" title="Permalink"></a></h3><p>If the section variable, <code>{{#varname}}</code>, binds to an iterable collection, then the text in the section is repeated for each item in the collection with the view used for the context of the template given by the item.</p><p>This is useful for collections of named objects, such as DataFrames (where the collection is comprised of rows) or arrays of dictionaries. For <code>Tables.jl</code> objects the rows are iterated over.</p><p>For data frames, the variable names are specified as symbols or strings. Here is a template for making a web page:</p><pre><code class="language-julia hljs">tpl = mt&quot;&quot;&quot;
-&lt;html&gt;
-&lt;head&gt;
-&lt;title&gt;{{:TITLE}}&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;table&gt;
-&lt;tr&gt;&lt;th&gt;name&lt;/th&gt;&lt;th&gt;summary&lt;/th&gt;&lt;/tr&gt;
-{{#:D}}
-&lt;tr&gt;&lt;td&gt;{{:names}}&lt;/td&gt;&lt;td&gt;{{:summs}}&lt;/td&gt;&lt;/tr&gt;
-{{/:D}}
-&lt;/body&gt;
-&lt;/html&gt;
-&quot;&quot;&quot;</code></pre><p>This can be used to generate a web page for <code>varinfo</code>-like values:</p><pre><code class="language-julia hljs">_names = String[]
-_summaries = String[]
-for s in sort(map(string, names(Main)))
-    v = Symbol(s)
-    if isdefined(Main,v)
-        push!(_names, s)
-        push!(_summaries, summary(eval(v)))
-    end
-end
-
-using DataFrames
-d = DataFrame(names=_names, summs=_summaries)
-
-out = Mustache.render(tpl, TITLE=&quot;A quick table&quot;, D=d)
-print(out)</code></pre><p>This can be compared to using an array of <code>Dict</code>s, convenient if you have data by the row:</p><pre><code class="language-julia hljs">A = [Dict(&quot;a&quot; =&gt; &quot;eh&quot;, &quot;b&quot; =&gt; &quot;bee&quot;),
-     Dict(&quot;a&quot; =&gt; &quot;ah&quot;, &quot;b&quot; =&gt; &quot;buh&quot;)]
-tpl = mt&quot;{{#:A}}Pronounce a as {{a}} and b as {{b}}. {{/:A}}&quot;
-Mustache.render(tpl, A=A) |&gt; print</code></pre><p>yielding</p><pre><code class="nohighlight hljs">Pronounce a as eh and b as bee. Pronounce a as ah and b as buh.</code></pre><p>The same approach can be made to make a LaTeX table from a data frame:</p><pre><code class="language-julia hljs">
-function df_to_table(df, label=&quot;label&quot;, caption=&quot;caption&quot;)
-    fmt = repeat(&quot;c&quot;, size(df,2))
-    header = join(string.(names(df)), &quot; &amp; &quot;)
-    row = join([&quot;{{:$x}}&quot; for x in map(string, names(df))], &quot; &amp; &quot;)
-
-tpl=&quot;&quot;&quot;
-\\begin{table}
-  \\centering
-  \\begin{tabular}{$fmt}
-  $header\\\\
-{{#:DF}}    $row\\\\
-{{/:DF}}  \\end{tabular}
-  \\caption{$caption}
-  \\label{tab:$label}
-\\end{table}
-&quot;&quot;&quot;
-
-    Mustache.render(tpl, DF=df)
-end</code></pre><p>In the above, a string is used above – and not a <code>mt</code> macro – so that string interpolation can happen. The <code>jmt_str</code> string macro allows for substitution, so the above template could also have been more simply written as:</p><pre><code class="language-julia hljs">function df_to_table(df, label=&quot;label&quot;, caption=&quot;caption&quot;)
-    fmt = repeat(&quot;c&quot;, size(df,2))
-    header = join(string.(names(df)), &quot; &amp; &quot;)
-    row = join([&quot;{{:$x}}&quot; for x in map(string, names(df))], &quot; &amp; &quot;)
-
-tpl = jmt&quot;&quot;&quot;
-\begin{table}
-  \centering
-  \begin{tabular}{$fmt}
-  $header\\
-{{#:DF}}    $row\\
-{{/:DF}}  \end{tabular}
-  \caption{$caption}
-  \label{tab:$label}
-\end{table}
-&quot;&quot;&quot;
-
-    Mustache.render(tpl, DF=df)
-end</code></pre><h4 id="Iterating-over-vectors"><a class="docs-heading-anchor" href="#Iterating-over-vectors">Iterating over vectors</a><a id="Iterating-over-vectors-1"></a><a class="docs-heading-anchor-permalink" href="#Iterating-over-vectors" title="Permalink"></a></h4><p>Though it isn&#39;t part of the Mustache specification, when iterating over an unnamed vector or tuple, <code>Mustache.jl uses</code> <code>{{.}}</code> to refer to the item:</p><pre><code class="language-julia hljs">tpl = mt&quot;{{#:vec}}{{.}} {{/:vec}}&quot;
-Mustache.render(tpl, vec = [&quot;A1&quot;, &quot;B2&quot;, &quot;C3&quot;])  # &quot;A1 B2 C3 &quot;</code></pre><p>Note the extra space after <code>C3</code>.</p><p>There is also <em>limited</em> support for indexing with the iteration of a vector that allows one to treat the last element differently. The syntax <code>.[ind]</code> refers to the value <code>vec[ind]</code>. (There is no support for the usual arithmetic on indices.)</p><p>To print commas one can use this pattern:</p><pre><code class="language-julia hljs">tpl = mt&quot;{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}&quot;
-Mustache.render(tpl, vec = [&quot;A1&quot;, &quot;B2&quot;, &quot;C3&quot;])  # &quot;A1, B2, C3&quot;</code></pre><p>To put the first value in bold, but no others, say:</p><pre><code class="language-julia hljs">tpl = mt&quot;&quot;&quot;
+Mustache.render(tpl, value=1.23456789, lambda=fmt)  # &quot;&lt;b&gt;1.23&lt;/b&gt; dollars.&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;&lt;b&gt;1.23&lt;/b&gt; dollars.&quot;</code></pre>
+</div>
+<p>(Without the <code class="md-code-inline">|</code> in the tag, an error, <code class="md-code-inline">ERROR: ArgumentError: cannot parse &quot;{{:value}}&quot; as Float64</code>, will be thrown.)</p>
+<h4 id="Iteration-in-a-section" class="md-heading">Iteration in a section<a href="#Iteration-in-a-section" class="md-heading-anchor" aria-label="Link to this section">#</a></h4>
+<p>If the section variable, <code class="md-code-inline">{{#varname}}</code>, binds to an iterable collection, then the text in the section is repeated for each item in the collection with the view used for the context of the template given by the item.</p>
+<p>This is useful for collections of named objects, such as DataFrames (where the collection is comprised of rows) or arrays of dictionaries. For <code class="md-code-inline">Tables.jl</code> objects the rows are iterated over.</p>
+<h5 id="Iterating-over-vectors" class="md-heading">Iterating over vectors<a href="#Iterating-over-vectors" class="md-heading-anchor" aria-label="Link to this section">#</a></h5>
+<p>Iterating over a associative array, like a dictionary or named tuple, the keys are used as variable name. Though it isn&#39;t part of the Mustache specification, when iterating over a vector or tuple—which have no obvious key save for index—<code class="md-code-inline">Mustache.jl uses</code> <code class="md-code-inline">{{.}}</code> to refer to the item:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl = mt&quot;{{#:vec}}{{.}} {{/:vec}}&quot;
+Mustache.render(tpl, vec = [&quot;A1&quot;, &quot;B2&quot;, &quot;C3&quot;])  # &quot;A1 B2 C3 &quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;A1 B2 C3 &quot;</code></pre>
+</div>
+<p>Note the extra space after <code class="md-code-inline">C3</code>.</p>
+<p>There is also <em>limited</em> support for indexing with the iteration of a vector that allows one to treat the last element differently. The syntax <code class="md-code-inline">.[ind]</code> refers to the value <code class="md-code-inline">vec[ind]</code>. (There is no support for the usual arithmetic on indices.)</p>
+<p>To print commas one can use this pattern:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl = mt&quot;{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}&quot;
+Mustache.render(tpl, vec = [&quot;A1&quot;, &quot;B2&quot;, &quot;C3&quot;])  # &quot;A1, B2, C3&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;A1, B2, C3&quot;</code></pre>
+</div>
+<p>To put the first value in bold, but no others, say:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl = mt&quot;&quot;&quot;
 {{#:vec}}
 {{#.[1]}}&lt;bold&gt;{{.}}&lt;/bold&gt;{{/.[1]}}
 {{^.[1]}}{{.}}{{/.[1]}}
 {{/:vec}}
 &quot;&quot;&quot;
-Mustache.render(tpl, vec = [&quot;A1&quot;, &quot;B2&quot;, &quot;C3&quot;])  # basically &quot;&lt;bold&gt;A1&lt;/bold&gt;B2 C3&quot;</code></pre><p>This was inspired by <a href="http://stackoverflow.com/questions/11147373/only-show-the-first-item-in-list-using-mustache">this</a> question, but the syntax chosen was more Julian. This syntax – as implemented for now – does not allow for iteration. That is constructs like <code>{{#.[1]}}</code> don&#39;t introduce iteration, but only offer a conditional check.</p><h3 id="Iterating-when-the-value-of-a-section-variable-is-a-function"><a class="docs-heading-anchor" href="#Iterating-when-the-value-of-a-section-variable-is-a-function">Iterating when the value of a section variable is a function</a><a id="Iterating-when-the-value-of-a-section-variable-is-a-function-1"></a><a class="docs-heading-anchor-permalink" href="#Iterating-when-the-value-of-a-section-variable-is-a-function" title="Permalink"></a></h3><p>From the Mustache documentation, consider the template</p><pre><code class="language-julia hljs">tpl = mt&quot;{{#:beatles}}
-* {{:name}}
-{{/:beatles}}&quot;</code></pre><p>when <code>beatles</code> is a vector of named tuples (or some other <code>Tables.jl</code> object) and <code>name</code> is a function.</p><p>When iterating over <code>beatles</code>, <code>name</code> can reference the rows of the <code>beatles</code> object by name. In <code>JavaScript</code>, this is done with <code>this.XXX</code>. In <code>Julia</code>, the values are stored in the <code>task_local_storage</code> object (with symbols as keys) allowing the access. The <code>Mustache.get_this</code> function allows <code>JavaScript</code>-like usage:</p><pre><code class="language-julia hljs">function name()
+Mustache.render(tpl, vec = [&quot;A1&quot;, &quot;B2&quot;, &quot;C3&quot;])  # basically &quot;&lt;bold&gt;A1&lt;/bold&gt;B2 C3&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;&lt;bold&gt;A1&lt;/bold&gt;\n\n\nB2\n\nC3\n&quot;</code></pre>
+</div>
+<p>This was inspired by <a href="http://stackoverflow.com/questions/11147373/only-show-the-first-item-in-list-using-mustache">this</a> question, but the syntax chosen was more Julian. This syntax – as implemented for now – does not allow for iteration. That is constructs like <code class="md-code-inline">{{#.[1]}}</code> don&#39;t introduce iteration, but only offer a conditional check.</p>
+<h5 id="Iterating-over-DataFrames-or-other-Tables-compatible-objects" class="md-heading">Iterating over DataFrames or other Tables compatible objects<a href="#Iterating-over-DataFrames-or-other-Tables-compatible-objects" class="md-heading-anchor" aria-label="Link to this section">#</a></h5>
+<p>For data frames, the rows are iterated over. Data frames in <code class="md-code-inline">Julia</code> have named columns, not rows. Here is a template for making a markdown table from a data frame. The first line shows a filter applied to an iterable in a section tag. The second line shows function application to a variable. The rest shows nested iteration over unnamed elements.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl = mt&quot;&quot;&quot;
+|{{#:d |&gt; names}} {{.}} | {{/:d}}
+|{{:d  |&gt; r -&gt; &quot;:----|&quot; ^ size(r,2)}}
+{{#:d}}
+|{{#.}}{{.}}|{{/.}}
+{{/:d}}
+: {{:TITLE}}
+&quot;&quot;&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">MustacheTokens
+Mustache.TextToken(&quot;text&quot;, &quot;|&quot;)
+SectionToken(&quot;#&quot;, &quot;:d |&gt; names&quot;, &quot;{{&quot;, &quot;}}&quot;)
+  Mustache.TextToken(&quot;text&quot;, &quot; &quot;)
+  Mustache.TagToken(&quot;name&quot;, &quot;.&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+  Mustache.TextToken(&quot;text&quot;, &quot; | &quot;)
+Mustache.TextToken(&quot;text&quot;, &quot;\n|&quot;)
+Mustache.TagToken(&quot;name&quot;, &quot;:d  |&gt; r -&gt; \&quot;:----|\&quot; ^ size(r,2)&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+Mustache.TextToken(&quot;text&quot;, &quot;\n&quot;)
+SectionToken(&quot;#&quot;, &quot;:d&quot;, &quot;{{&quot;, &quot;}}&quot;)
+  Mustache.TextToken(&quot;text&quot;, &quot;|&quot;)
+  SectionToken(&quot;#&quot;, &quot;.&quot;, &quot;{{&quot;, &quot;}}&quot;)
+    Mustache.TextToken(&quot;text&quot;, &quot;&quot;)
+    Mustache.TagToken(&quot;name&quot;, &quot;.&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+    Mustache.TextToken(&quot;text&quot;, &quot;|&quot;)
+  Mustache.TagToken(&quot;/&quot;, &quot;.&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+  Mustache.TextToken(&quot;text&quot;, &quot;\n&quot;)
+Mustache.TextToken(&quot;text&quot;, &quot;: &quot;)
+Mustache.TagToken(&quot;name&quot;, &quot;:TITLE&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+Mustache.TextToken(&quot;text&quot;, &quot;\n&quot;)</code></pre>
+</div>
+<p>We illustrate on some synthetic data.</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">using DataFrames
+d = DataFrame(names=[&quot;John&quot;, &quot;Paul&quot;, &quot;George&quot;, &quot;Ringo&quot;], hand=[&quot;right&quot;, &quot;left&quot;, &quot;right&quot;, &quot;right&quot;])
+tpl(; d, TITLE=&quot;dominant hand&quot;) |&gt; print</code></pre>
+</div>
+<p>This can be compared to using an array of <code class="md-code-inline">Dict</code>s, convenient if you have data by the row:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">A = [Dict(&quot;a&quot; =&gt; &quot;eh&quot;, &quot;b&quot; =&gt; &quot;bee&quot;),
+     Dict(&quot;a&quot; =&gt; &quot;ah&quot;, &quot;b&quot; =&gt; &quot;buh&quot;)]
+tpl = mt&quot;{{#:A}}Pronounce a as {{a}} and b as {{b}}. {{/:A}}&quot;
+Mustache.render(tpl, A=A) |&gt; print</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">Pronounce a as eh and b as bee. Pronounce a as ah and b as buh.</code></pre>
+</div>
+<h4 id="Iterating-when-the-value-of-a-section-variable-is-a-function" class="md-heading">Iterating when the value of a section variable is a function<a href="#Iterating-when-the-value-of-a-section-variable-is-a-function" class="md-heading-anchor" aria-label="Link to this section">#</a></h4>
+<p>From the Mustache documentation, consider the template</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl = mt&quot;&quot;&quot;{{#:beatles}}
+* {{:makename}}
+{{/:beatles}}
+&quot;&quot;&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">MustacheTokens
+Mustache.TextToken(&quot;text&quot;, &quot;&quot;)
+SectionToken(&quot;#&quot;, &quot;:beatles&quot;, &quot;{{&quot;, &quot;}}&quot;)
+  Mustache.TextToken(&quot;text&quot;, &quot;* &quot;)
+  Mustache.TagToken(&quot;name&quot;, &quot;:makename&quot;, &quot;{{&quot;, &quot;}}&quot;, &quot;&quot;)
+  Mustache.TextToken(&quot;text&quot;, &quot;\n&quot;)</code></pre>
+</div>
+<p>when <code class="md-code-inline">beatles</code> is a vector of named tuples (or some other <code class="md-code-inline">Tables.jl</code> object) and <code class="md-code-inline">name</code> is a function.</p>
+<p>When iterating over <code class="md-code-inline">beatles</code>, <code class="md-code-inline">name</code> can reference the rows of the <code class="md-code-inline">beatles</code> object by name. In <code class="md-code-inline">JavaScript</code>, this is done with <code class="md-code-inline">this.XXX</code>. In <code class="md-code-inline">Julia</code>, the values are stored in the <code class="md-code-inline">task_local_storage</code> object (with symbols as keys) allowing the access. The <code class="md-code-inline">Mustache.get_this</code> function allows <code class="md-code-inline">JavaScript</code>-like usage:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">function makename()
     this = Mustache.get_this()
     this.first * &quot; &quot; * this.last
 end
 beatles = [(first=&quot;John&quot;, last=&quot;Lennon&quot;), (first=&quot;Paul&quot;, last=&quot;McCartney&quot;)]
 
-tpl(; beatles, name) # &quot;* John Lennon\n* Paul McCartney\n&quot;</code></pre><h3 id="Conditional-checking-without-iteration"><a class="docs-heading-anchor" href="#Conditional-checking-without-iteration">Conditional checking without iteration</a><a id="Conditional-checking-without-iteration-1"></a><a class="docs-heading-anchor-permalink" href="#Conditional-checking-without-iteration" title="Permalink"></a></h3><p>The section tag, <code>#</code>, check for existence; pushes the object into the view; and then iterates over the object. For cases where iteration is not desirable; the tag type <code>@</code> can be used.</p><p>Compare these:</p><pre><code class="language-julia hljs">julia&gt; struct RANGE
+tpl(; beatles, makename) |&gt; print</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">* John Lennon
+* Paul McCartney</code></pre>
+</div>
+<p>Using a filter, this might be more explicitly done through:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">mname(r) = r.first * &quot; &quot; * r.last
+tpl = mt&quot;&quot;&quot;
+{{# :beatles }}
+* {{. |&gt; mname }}
+{{/ :beatles }}
+&quot;&quot;&quot;
+tpl(@__MODULE__; beatles) |&gt; print   # pass module to lookup `mname` within</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">* John Lennon
+* Paul McCartney</code></pre>
+</div>
+<h4 id="Conditional-checking-without-iteration" class="md-heading">Conditional checking without iteration<a href="#Conditional-checking-without-iteration" class="md-heading-anchor" aria-label="Link to this section">#</a></h4>
+<p>The section tag, <code class="md-code-inline">#</code>, checks for existence; pushes the object into the view; and then iterates over the object. For cases where iteration is not desirable; the tag type <code class="md-code-inline">@</code> can be used.</p>
+<p>Compare these:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">struct RANGE
   range
 end
 
-julia&gt; tpl = mt&quot;&quot;&quot;
+tpl = mt&quot;&quot;&quot;
 &lt;input type=&quot;range&quot; {{@:range}} min=&quot;{{start}}&quot; step=&quot;{{step}}&quot; max=&quot;{{stop}}&quot; {{/:range}}&gt;
 &quot;&quot;&quot;;
 
-julia&gt; Mustache.render(tpl, RANGE(1:1:2))
-&quot;&lt;input type=\&quot;range\&quot;  min=\&quot;1\&quot; step=\&quot;1\&quot; max=\&quot;2\&quot; &gt;\n&quot;
+Mustache.render(tpl, RANGE(1:1:2))
 
-julia&gt; tpl = mt&quot;&quot;&quot;
+tpl = mt&quot;&quot;&quot;
 &lt;input type=&quot;range&quot; {{#:range}} min=&quot;{{start}}&quot; step=&quot;{{step}}&quot; max=&quot;{{stop}}&quot; {{/:range}}&gt;
 &quot;&quot;&quot;;
 
-julia&gt; Mustache.render(tpl, RANGE(1:1:2)) # iterates over Range.range
-&quot;&lt;input type=\&quot;range\&quot;  min=\&quot;1\&quot; step=\&quot;1\&quot; max=\&quot;2\&quot;  min=\&quot;1\&quot; step=\&quot;1\&quot; max=\&quot;2\&quot; &gt;\n&quot;</code></pre><h3 id="Non-eager-finding-of-values"><a class="docs-heading-anchor" href="#Non-eager-finding-of-values">Non-eager finding of values</a><a id="Non-eager-finding-of-values-1"></a><a class="docs-heading-anchor-permalink" href="#Non-eager-finding-of-values" title="Permalink"></a></h3><p>A view might have more than one variable bound to a symbol. The first one found is replaced in the template <em>unless</em> the variable is prefaced with <code>~</code>. This example illustrates:</p><pre><code class="language-julia hljs">d = Dict(:two=&gt;Dict(:x=&gt;3), :x=&gt;2)
+Mustache.render(tpl, RANGE(1:1:2)) # iterates over Range.range</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;&lt;input type=\&quot;range\&quot;  min=\&quot;1\&quot; step=\&quot;1\&quot; max=\&quot;2\&quot;  min=\&quot;1\&quot; step=\&quot;1\&quot; max=\&quot;2\&quot; &gt;\n&quot;</code></pre>
+</div>
+<h3 id="Additional-features" class="md-heading">Additional features<a href="#Additional-features" class="md-heading-anchor" aria-label="Link to this section">#</a></h3>
+<h4 id="Non-eager-finding-of-values" class="md-heading">Non-eager finding of values<a href="#Non-eager-finding-of-values" class="md-heading-anchor" aria-label="Link to this section">#</a></h4>
+<p>A view might have more than one variable bound to a symbol. The first one found is replaced in the template <em>unless</em> the variable is prefaced with <code class="md-code-inline">~</code>. This example illustrates:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">d = Dict(:two=&gt;Dict(:x=&gt;3), :x=&gt;2)
 tpl = mt&quot;&quot;&quot;
 {{#:one}}
 {{#:two}}
@@ -150,15 +603,155 @@ tpl = mt&quot;&quot;&quot;
 {{/:one}}
 &quot;&quot;&quot;
 Mustache.render(tpl, one=d) # &quot;2\n&quot;
-Mustache.render(tpl, one=d, x=1) # &quot;1\n&quot;</code></pre><p>Were <code>{{:x}}</code> used, the value <code>3</code> would have been found within the dictionary <code>Dict(:x=&gt;3)</code>; however, the presence of <code>{{~:x}}</code> is an instruction to keep looking up in the specified view to find other values, and use the last one found to substitute in. (This is hinted at in <a href="https://github.com/janl/mustache.js/issues/399">this issue</a>)</p><h3 id="Partials"><a class="docs-heading-anchor" href="#Partials">Partials</a><a id="Partials-1"></a><a class="docs-heading-anchor-permalink" href="#Partials" title="Permalink"></a></h3><p>Partials are used to include partial templates into a template.</p><p>Partials begin with a greater than sign, like <code>{{&gt; box.tpl }}</code>. In this example, the file <code>box.tpl</code> is opened and inserted into the template, then populated. A full path may be specified.</p><p>They also inherit the calling context.</p><p>In this way you may want to think of partials as includes, imports, template expansion, nested templates, or subtemplates, even though those aren&#39;t literally the case here.</p><p>The partial specified by <code>{{&lt; box.tpl }}</code> is not parsed, rather included as is into the file. This can be faster.</p><p>The variable can be a filename, as indicated above, or if not a variable. For example</p><pre><code class="language-julia hljs">julia&gt; tpl = &quot;&quot;&quot;\&quot;{{&gt;partial}}\&quot;&quot;&quot;&quot;
-&quot;\&quot;{{&gt;partial}}\&quot;&quot;
+Mustache.render(tpl, one=d, x=1) # &quot;1\n&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;1\n&quot;</code></pre>
+</div>
+<p>Were <code class="md-code-inline">{{:x}}</code> used, the value <code class="md-code-inline">3</code> would have been found within the dictionary <code class="md-code-inline">Dict(:x=&gt;3)</code>; however, the presence of <code class="md-code-inline">{{~:x}}</code> is an instruction to keep looking up in the specified view to find other values, and use the last one found to substitute in. (This is hinted at in <a href="https://github.com/janl/mustache.js/issues/399">this issue</a>)</p>
+<h4 id="Partials" class="md-heading">Partials<a href="#Partials" class="md-heading-anchor" aria-label="Link to this section">#</a></h4>
+<p>Partials are used to include partial templates into a template.</p>
+<p>Partials begin with a greater than sign, like <code class="md-code-inline">{{&gt; box.tpl }}</code>. In this example, the file <code class="md-code-inline">box.tpl</code> is opened and inserted into the template, then populated. A full path may be specified.</p>
+<p>They also inherit the calling context.</p>
+<p>In this way you may want to think of partials as includes, imports, template expansion, nested templates, or subtemplates, even though those aren&#39;t literally the case here.</p>
+<p>The partial specified by <code class="md-code-inline">{{&lt; box.tpl }}</code> is not parsed, rather included as is into the file. This can be faster.</p>
+<p>The variable can be a filename, as indicated above, or if not a variable. For example</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl = &quot;&quot;&quot;\&quot;{{&gt;partial}}\&quot;&quot;&quot;&quot;
 
-julia&gt; Mustache.render(tpl, Dict(&quot;partial&quot;=&gt;&quot;*{{text}}*&quot;,&quot;text&quot;=&gt;&quot;content&quot;))
-&quot;\&quot;*content*\&quot;&quot;</code></pre><h3 id="Summary-of-tags"><a class="docs-heading-anchor" href="#Summary-of-tags">Summary of tags</a><a id="Summary-of-tags-1"></a><a class="docs-heading-anchor-permalink" href="#Summary-of-tags" title="Permalink"></a></h3><p>To summarize the different tags marking a variable:</p><ul><li><code>{{variable}}</code> does substitution of the value held in <code>variable</code> in the current view; escapes HTML characters</li><li><code>{{{variable}}}</code> does substitution of the value held in <code>variable</code> in the current view; does not escape HTML characters. The outer pair of mustache braces can be adjusted using <code>Mustache.parse</code>.</li><li><code>{{&amp;variable}}</code> is an alternative syntax for triple braces (useful with custom braces)</li><li><code>{{~variable}}</code> does substitution of the value held in <code>variable</code> in the outmost view</li><li><code>{{#variable}}</code> depending on the type of variable, does the following:<ul><li>if <code>variable</code> is not a functions container and is not absent or <code>nothing</code> will use the text between the matching tags, marked with <code>{{/variable}}</code>; otherwise that text will be skipped. (Like an <code>if/end</code> block.)</li><li>if <code>variable</code> is a function, it will be applied to contents of the section. Use of <code>|</code> instead of <code>#</code> will instruct the rendering of the contents before applying the function. The spec allows for a function to have signature <code>(x, render)</code> where <code>render</code> is used internally to convert. This implementation allows rendering when <code>(x)</code> is the single argument.</li><li>if <code>variable</code> is a <code>Tables.jl</code> compatible object (row wise, with named rows), will iterate over the values, pushing the named tuple to be the top-most view for the part of the template up to <code>{{\variable}}</code>.</li><li>if <code>variable</code> is a vector or tuple – for the part of the template up to <code>{{\variable}}</code> – will iterate over the values. Use <code>{{.}}</code> to refer to the (unnamed) values. The values <code>.[end]</code> and <code>.[i]</code>, for a numeric literal, will refer to values in the vector or tuple.</li></ul></li><li><code>{{^variable}}</code>/<code>{{.variable}}</code> tags will show the values when <code>variable</code> is not defined, or is <code>nothing</code>.</li><li><code>{{&gt;partial}}</code> will include the partial value into the template, filling in the template using the current view. The partial can be a variable or a filename (checked with <code>isfile</code>).</li><li><code>{{&lt;partial}}</code> directly include partial value into template without filling in with the current view.</li><li><code>{{!comment}}</code> comments begin with a bang, <code>!</code></li></ul><h2 id="Alternatives"><a class="docs-heading-anchor" href="#Alternatives">Alternatives</a><a id="Alternatives-1"></a><a class="docs-heading-anchor-permalink" href="#Alternatives" title="Permalink"></a></h2><p><code>Julia</code> provides some alternatives to this package which are better suited for many jobs:</p><ul><li><p>For simple substitution inside a string there is string <a href="https://docs.julialang.org/en/latest/manual/strings/">interpolation</a>.</p></li><li><p>For piecing together pieces of text either the <code>string</code> function or string concatenation (the <code>*</code> operator) are useful. (Also an <code>IOBuffer</code> is useful for larger tasks of this type.)</p></li><li><p>For formatting numbers and text, the <a href="https://github.com/JuliaLang/Formatting.jl">Formatting.jl</a> package, the <a href="https://github.com/JuliaString/Format.jl">Format</a> package, and the <a href="https://github.com/JuliaString/StringLiterals.jl">StringLiterals</a> package are available.</p></li><li><p>The <a href="https://github.com/MechanicalRabbit/HypertextLiteral.jl">HypertextLiteral</a> package is useful when interpolating HTML, SVG, or SGML tagged content.</p></li></ul><h2 id="Differences-from-Mustache.js"><a class="docs-heading-anchor" href="#Differences-from-Mustache.js">Differences from Mustache.js</a><a id="Differences-from-Mustache.js-1"></a><a class="docs-heading-anchor-permalink" href="#Differences-from-Mustache.js" title="Permalink"></a></h2><p>This project deviates from Mustache.js in a few significant ways:</p><ul><li><p>Julia structures are used, not JavaScript objects. As illustrated, one can use Dicts, Modules, DataFrames, functions, ...</p></li><li><p>In the Mustache spec, when lambdas are used as section names, the function is passed the unevaluated section:</p></li></ul><pre><code class="language-julia hljs">template = &quot;&lt;{{#lambda}}{{x}}{{/lambda}}&gt;&quot;
+Mustache.render(tpl, Dict(&quot;partial&quot;=&gt;&quot;*{{text}}*&quot;,&quot;text&quot;=&gt;&quot;content&quot;))</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;\&quot;*content*\&quot;&quot;</code></pre>
+</div>
+<h2 id="Summary-of-tags" class="md-heading">Summary of tags<a href="#Summary-of-tags" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>To summarize the different tags marking a variable or container:</p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">{{variable}}</code> does substitution of the value held in <code class="md-code-inline">variable</code> in the current view; escapes HTML characters. The double braces can be adjusted using <code class="md-code-inline">Mustache.parse</code>.</p>
+</li>
+<li><p><code class="md-code-inline">{{{variable}}}</code> does substitution of the value held in <code class="md-code-inline">variable</code> in the current view; does not escape HTML characters. The outer pair of mustache braces can be adjusted using <code class="md-code-inline">Mustache.parse</code>.</p>
+</li>
+<li><p><code class="md-code-inline">{{&amp;variable}}</code> is an alternative syntax for triple braces (useful with custom braces)</p>
+</li>
+<li><p><code class="md-code-inline">{{~variable}}</code> does substitution of the value held in <code class="md-code-inline">variable</code> in the outmost view</p>
+</li>
+<li><p><code class="md-code-inline">{{#variable}}</code> is section syntax. Sections are closed by <code class="md-code-inline">{{/variable}}</code>. Depending on the type of variable, it specifies the following:</p>
+<ul class="md-list-tight">
+<li><p>if <code class="md-code-inline">variable</code> is not a container or a function and is not absent or <code class="md-code-inline">nothing</code> will use the text between the matching tags, marked with <code class="md-code-inline">{{/variable}}</code>; otherwise that text will be skipped. (Like an <code class="md-code-inline">if/end</code> block.)</p>
+</li>
+<li><p>if <code class="md-code-inline">variable</code> is a function, it will be applied to contents of the section. Use of <code class="md-code-inline">|</code> instead of <code class="md-code-inline">#</code> will instruct the rendering of the contents before applying the function. The spec allows for a function to have signature <code class="md-code-inline">(x, render)</code> where <code class="md-code-inline">render</code> is used internally to convert. This implementation allows rendering when <code class="md-code-inline">(x)</code> is the single argument.</p>
+</li>
+<li><p>if <code class="md-code-inline">variable</code> is a <code class="md-code-inline">Tables.jl</code> compatible object (row wise, with named rows), will iterate over the values, pushing the named tuple to be the top-most view for the part of the template up to <code class="md-code-inline">{{\variable}}</code>.</p>
+</li>
+<li><p>if <code class="md-code-inline">variable</code> is a vector or tuple—for the part of the template up to <code class="md-code-inline">{{\variable}}</code>—will iterate over the values. Use <code class="md-code-inline">{{.}}</code> to refer to the (unnamed) values. The values <code class="md-code-inline">.[end]</code> and <code class="md-code-inline">.[i]</code>, for a numeric literal, will refer to values in the vector or tuple. For tabular data, <code class="md-code-inline">{{.}}</code> can also be iterated over.</p>
+</li>
+</ul>
+</li>
+<li><p><code class="md-code-inline">{{^variable}}</code>/<code class="md-code-inline">{{.variable}}</code> tags will show the values when <code class="md-code-inline">variable</code> is not defined, or is <code class="md-code-inline">nothing</code>.</p>
+</li>
+<li><p><code class="md-code-inline">{{&gt;partial}}</code> will include the partial value into the template, filling in the template using the current view. The partial can be a variable or a filename (checked with <code class="md-code-inline">isfile</code>).</p>
+</li>
+<li><p><code class="md-code-inline">{{&lt;partial}}</code> directly include partial value into template without filling in with the current view.</p>
+</li>
+<li><p><code class="md-code-inline">{{!comment}}</code> comments begin with a bang, <code class="md-code-inline">!</code></p>
+</li>
+</ul>
+<h2 id="Alternatives" class="md-heading">Alternatives<a href="#Alternatives" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p><code class="md-code-inline">Julia</code> provides some alternatives to this package which are better suited for many jobs:</p>
+<ul>
+<li><p>For simple substitution inside a string there is string <a href="https://docs.julialang.org/en/latest/manual/strings/">interpolation</a>.</p>
+</li>
+<li><p>For piecing together pieces of text either the <code class="md-code-inline">string</code> function or string concatenation (the <code class="md-code-inline">*</code> operator) are useful. (Also an <code class="md-code-inline">IOBuffer</code> is useful for larger tasks of this type.)</p>
+</li>
+<li><p>For formatting numbers and text, the <a href="https://github.com/JuliaLang/Formatting.jl">Formatting.jl</a> package, the <a href="https://github.com/JuliaString/Format.jl">Format</a> package, and the <a href="https://github.com/JuliaString/StringLiterals.jl">StringLiterals</a> package are available.</p>
+</li>
+<li><p>The <a href="https://github.com/MechanicalRabbit/HypertextLiteral.jl">HypertextLiteral</a> package is useful when interpolating HTML, SVG, or SGML tagged content.</p>
+</li>
+</ul>
+<h2 id="Differences-from-Mustache.js" class="md-heading">Differences from Mustache.js<a href="#Differences-from-Mustache.js" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>This project deviates from Mustache.js in a few significant ways:</p>
+<ul>
+<li><p>Julia structures are used, not JavaScript objects. As illustrated, one can use Dicts, Modules, DataFrames, functions, ...</p>
+</li>
+<li><p>In the Mustache spec, when lambdas are used as section names, the function is passed the unevaluated section:</p>
+</li>
+</ul>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">template = &quot;&lt;{{#lambda}}{{x}}{{/lambda}}&gt;&quot;
 data = Dict(&quot;x&quot; =&gt; &quot;Error!&quot;, &quot;lambda&quot; =&gt; (txt) -&gt;  txt == &quot;{{x}}&quot; ? &quot;yes&quot; : &quot;no&quot;)
-Mustache.render(template, data) ## &quot;&lt;yes&gt;&quot;, as txt == &quot;{{x}}&quot;</code></pre><p>The tag &quot;|&quot; is similar to the section tag &quot;#&quot;, but will receive the <em>evaluated</em> section:</p><pre><code class="language-julia hljs">template = &quot;&lt;{{|lambda}}{{x}}{{/lambda}}&gt;&quot;
+Mustache.render(template, data) ## &quot;&lt;yes&gt;&quot;, as txt == &quot;{{x}}&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;&lt;yes&gt;&quot;</code></pre>
+</div>
+<p>The tag &quot;|&quot; is similar to the section tag &quot;#&quot;, but will receive the <em>evaluated</em> section:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">template = &quot;&lt;{{|lambda}}{{x}}{{/lambda}}&gt;&quot;
 data = Dict(&quot;x&quot; =&gt; &quot;Error!&quot;, &quot;lambda&quot; =&gt; (txt) -&gt;  txt == &quot;{{x}}&quot; ? &quot;yes&quot; : &quot;no&quot;)
-Mustache.render(template, data) ## &quot;&lt;no&gt;&quot;, as &quot;Error!&quot; != &quot;{{x}}&quot;</code></pre><h2 id="API"><a class="docs-heading-anchor" href="#API">API</a><a id="API-1"></a><a class="docs-heading-anchor-permalink" href="#API" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="Mustache.Mustache"><a class="docstring-binding" href="#Mustache.Mustache"><code>Mustache.Mustache</code></a> — <span class="docstring-category">Module</span></summary><section><div><p>Mustache</p><p><a href="https://github.com/jverzani/Mustache.jl">Mustache</a> is a templating package for <code>Julia</code> based on <a href="http://mustache.github.io/">Mustache.js</a>. [ <a href="https://jverzani.github.io/Mustache.jl/dev/">Docs</a> ]</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jverzani/Mustache.jl/blob/9117f03c379d9e5c36168c377fc95fc3c93f1cbd/src/Mustache.jl#L1-L5">source</a></section></details></article><article><details class="docstring" open="true"><summary id="Mustache.load-Tuple{AbstractString, Vararg{Any}}"><a class="docstring-binding" href="#Mustache.load-Tuple{AbstractString, Vararg{Any}}"><code>Mustache.load</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">Mustache.load(filepath, args...)</code></pre><p>Load file specified through  <code>filepath</code> and return the compiled tokens. Tokens are memoized for efficiency,</p><p>Additional arguments are passed to <code>Mustache.parse</code> (for adjusting the tags).</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jverzani/Mustache.jl/blob/9117f03c379d9e5c36168c377fc95fc3c93f1cbd/src/parse.jl#L228-L235">source</a></section></details></article><article><details class="docstring" open="true"><summary id="Mustache.parse"><a class="docstring-binding" href="#Mustache.parse"><code>Mustache.parse</code></a> — <span class="docstring-category">Function</span></summary><section><div><p>Mustache.parse(template, tags = (&quot;{{&quot;, &quot;}}&quot;))</p><p>Parse a template into tokens.</p><ul><li><code>template</code>: a string containing a template</li><li><code>tags</code>: the tags used to indicate a variable. Adding interior braces (<code>{</code>,<code>}</code>) around the  variable will prevent HTML escaping. (That is for the default tags, <code>{{{varname}}}</code> is used; for tags like <code>(&quot;&lt;&lt;&quot;,&quot;&gt;&gt;&quot;)</code> then <code>&lt;&lt;{varname}&gt;&gt;</code> is used.)</li></ul><p><strong>Extended</strong></p><p>The template interprets tags in different ways. The string macro <code>mt</code> is used below to both <code>parse</code> (on construction) and <code>render</code> (when called).</p><p><strong>Variable substitution.</strong></p><p>Like basic string interpolation, variable substitution can be performed using a non-prefixed tag:</p><pre><code class="language-julia-repl hljs">julia&gt; using Mustache
+Mustache.render(template, data) ## &quot;&lt;no&gt;&quot;, as &quot;Error!&quot; != &quot;{{x}}&quot;</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">&quot;&lt;no&gt;&quot;</code></pre>
+</div>
+<p>Tags referencing variables can have a filter applied:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tpl = mt&quot;&quot;&quot;
+{{:x}} --&gt; {{:x |&gt; uppercasefirst}} --&gt; {{:x |&gt; x-&gt; uppercase(x[1:2]) * x[3:end]}} --&gt; {{:x |&gt; uppercase}}
+&quot;&quot;&quot;
+tpl(; x = &quot;boo&quot;)  |&gt; print</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">boo --&gt; Boo --&gt; BOo --&gt; BOO</code></pre>
+</div>
+<h2 id="API" class="md-heading">API<a href="#API" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<div class="md-docstring" id="Mustache.Mustache">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Mustache.Mustache</code></h4>
+<a class="md-docstring-source" href="https://github.com/jverzani/Mustache.jl/blob/ad42d6610e313c07d324f911d5039a3ba54de7c4/src/Mustache.jl#L1-L5" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<p>Mustache</p>
+<p><a href="https://github.com/jverzani/Mustache.jl">Mustache</a> is a templating package for <code class="md-code-inline">Julia</code> based on <a href="http://mustache.github.io/">Mustache.js</a>. [ <a href="https://jverzani.github.io/Mustache.jl/dev/">Docs</a> ]</p>
+</div>
+</div>
+<div class="md-docstring" id="Mustache.load-Tuple{AbstractString, Vararg{Any}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Mustache.load</code> — <span class="md-docstring-sig">Tuple{AbstractString, Vararg{Any}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/jverzani/Mustache.jl/blob/ad42d6610e313c07d324f911d5039a3ba54de7c4/src/parse.jl#L249-L256" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Mustache.load(filepath, args...)</code></pre>
+</div>
+<p>Load file specified through  <code class="md-code-inline">filepath</code> and return the compiled tokens. Tokens are memoized for efficiency,</p>
+<p>Additional arguments are passed to <code class="md-code-inline">Mustache.parse</code> (for adjusting the tags).</p>
+</div>
+</div>
+<div class="md-docstring" id="Mustache.parse">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Mustache.parse</code> — <span class="md-docstring-sig">Union{Tuple{Any}, Tuple{Any, Any}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/jverzani/Mustache.jl/blob/ad42d6610e313c07d324f911d5039a3ba54de7c4/src/parse.jl#L5-L163" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<p>Mustache.parse(template, tags = (&quot;{{&quot;, &quot;}}&quot;))</p>
+<p>Parse a template into tokens.</p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">template</code>: a string containing a template</p>
+</li>
+<li><p><code class="md-code-inline">tags</code>: the tags used to indicate a variable. Adding interior braces (<code class="md-code-inline">{</code>,<code class="md-code-inline">}</code>) around the  variable will prevent HTML escaping. (That is for the default tags, <code class="md-code-inline">{{{varname}}}</code> is used; for tags like <code class="md-code-inline">(&quot;&lt;&lt;&quot;,&quot;&gt;&gt;&quot;)</code> then <code class="md-code-inline">&lt;&lt;{varname}&gt;&gt;</code> is used.)</p>
+</li>
+</ul>
+<p><strong>Extended</strong></p>
+<p>The template interprets tags in different ways. The string macro <code class="md-code-inline">mt</code> is used below to both <code class="md-code-inline">parse</code> (on construction) and <code class="md-code-inline">render</code> (when called).</p>
+<p><strong>Variable substitution.</strong></p>
+<p>Like basic string interpolation, variable substitution can be performed using a non-prefixed tag:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; using Mustache
 
 julia&gt; a = mt&quot;Some {{:variable}}.&quot;;
 
@@ -168,39 +761,209 @@ julia&gt; a(; variable=&quot;pig&quot;)
 julia&gt; a = mt&quot;Cut: {{{:scissors}}}&quot;;
 
 julia&gt; a(; scissors = &quot;8&lt; ... &gt;8&quot;)
-&quot;Cut: 8&lt; ... &gt;8&quot;</code></pre><p>Both using a symbol, as the values to substitute are passed through keyword arguments. The latter uses triple braces to inhibit the escaping of HTML entities.</p><p>Tags can be given special meanings through prefixes. For example, to avoid the HTML escaping an <code>&amp;</code> can be used:</p><pre><code class="language-julia-repl hljs">julia&gt; a = mt&quot;Cut: {{&amp;:scissors}}&quot;;
+&quot;Cut: 8&lt; ... &gt;8&quot;</code></pre>
+</div>
+<p>Both using a symbol, as the values to substitute are passed through keyword arguments. The latter uses triple braces to inhibit the escaping of HTML entities.</p>
+<p>Tags can be given special meanings through prefixes. For example, to avoid the HTML escaping an <code class="md-code-inline">&amp;</code> can be used:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; a = mt&quot;Cut: {{&amp;:scissors}}&quot;;
 
 julia&gt; a(; scissors = &quot;8&lt; ... &gt;8&quot;)
-&quot;Cut: 8&lt; ... &gt;8&quot;</code></pre><p><strong>Sections</strong></p><p>Tags can create &quot;sections&quot; which can be used to conditionally include text, apply a function to text, or iterate over the values passed to <code>render</code>.</p><p><strong>Include text</strong></p><p>To include text, the <code>#</code> prefix can open a section followed by a <code>/</code> to close the section:</p><pre><code class="language-julia-repl hljs">julia&gt; a = mt&quot;I see a {{#:ghost}}ghost{{/:ghost}}&quot;;
+&quot;Cut: 8&lt; ... &gt;8&quot;</code></pre>
+</div>
+<p><strong>Sections</strong></p>
+<p>Tags can create &quot;sections&quot; which can be used to conditionally include text, apply a function to text, or iterate over the values passed to <code class="md-code-inline">render</code>.</p>
+<p><strong>Include text</strong></p>
+<p>To include text, the <code class="md-code-inline">#</code> prefix can open a section followed by a <code class="md-code-inline">/</code> to close the section:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; a = mt&quot;I see a {{#:ghost}}ghost{{/:ghost}}&quot;;
 
 julia&gt; a(; ghost=true)
 &quot;I see a ghost&quot;
 
 julia&gt; a(; ghost=false)
-&quot;I see a &quot;</code></pre><p>The latter is to illustrate that if the variable does not exist or is &quot;falsy&quot;, the section text will not display.</p><p>The <code>^</code> prefix shows text when the variable is not present.</p><pre><code class="language-julia-repl hljs">julia&gt; a = mt&quot;I see {{#:ghost}}a ghost{{/:ghost}}{{^:ghost}}nothing{{/:ghost}}&quot;;
+&quot;I see a &quot;</code></pre>
+</div>
+<p>The latter is to illustrate that if the variable does not exist or is &quot;falsy&quot;, the section text will not display.</p>
+<p>The <code class="md-code-inline">^</code> prefix shows text when the variable is not present.</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; a = mt&quot;I see {{#:ghost}}a ghost{{/:ghost}}{{^:ghost}}nothing{{/:ghost}}&quot;;
 
 julia&gt; a(; ghost=false)
-&quot;I see nothing&quot;</code></pre><p><strong>Apply a function to the text</strong></p><p>If the variable refers to a function, it will be applied to the text within the section:</p><pre><code class="language-julia-repl hljs">julia&gt; a = mt&quot;{{#:fn}}How many letters{{/:fn}}&quot;;
+&quot;I see nothing&quot;</code></pre>
+</div>
+<p><strong>Apply a function to the text</strong></p>
+<p>If the variable refers to a function, it will be applied to the text within the section:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; a = mt&quot;{{#:fn}}How many letters{{/:fn}}&quot;;
 
 julia&gt; a(; fn=length)
-&quot;16&quot;</code></pre><p>The use of the prefix <code>!</code> will first render the text in the section, then apply the function:</p><pre><code class="language-julia-repl hljs">julia&gt; a = mt&quot;The word &#39;{{:variable}}&#39; has {{|:fn}}{{:variable}}{{/:fn}} letters.&quot;;
+&quot;16&quot;</code></pre>
+</div>
+<p>The use of the prefix <code class="md-code-inline">!</code> will first render the text in the section, then apply the function:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; a = mt&quot;The word &#39;{{:variable}}&#39; has {{|:fn}}{{:variable}}{{/:fn}} letters.&quot;;
 
 julia&gt; a(; variable=&quot;length&quot;, fn=length)
-&quot;The word &#39;length&#39; has 6 letters.&quot;</code></pre><p><strong>Iterate over values</strong></p><p>If the variable in a section is an iterable container, the values will be iterated over. <code>Tables.jl</code> compatible values are iterated in a row by row manner, such as this view, which is a tuple of named tuples:</p><pre><code class="language-julia-repl hljs">julia&gt; a = mt&quot;{{#:data}}x={{:x}}, y={{:y}} ... {{/:data}}&quot;;
+&quot;The word &#39;length&#39; has 6 letters.&quot;</code></pre>
+</div>
+<p>Variable tags may also apply a post-lookup function with <code class="md-code-inline">|&gt;</code>:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; a = mt&quot;Hello {{:name |&gt; uppercase}}!&quot;;
+
+julia&gt; a(; name=&quot;world&quot;, uppercase=uppercase)
+&quot;Hello WORLD!&quot;</code></pre>
+</div>
+<p>This also works for section and inverted-section tags, applying the function before truthiness or iteration is decided.</p>
+<p>Anonymous functions are also accepted:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; a = mt&quot;Hello {{:name |&gt; x -&gt; uppercase(x)}}!&quot;;
+
+julia&gt; a(; name=&quot;world&quot;)
+&quot;Hello WORLD!&quot;</code></pre>
+</div>
+<p><strong>Iterate over values</strong></p>
+<p>If the variable in a section is an iterable container, the values will be iterated over. <code class="md-code-inline">Tables.jl</code> compatible values are iterated in a row by row manner, such as this view, which is a tuple of named tuples:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; a = mt&quot;{{#:data}}x={{:x}}, y={{:y}} ... {{/:data}}&quot;;
 
 julia&gt; a(; data=((x=1,y=2), (x=2, y=4)))
-&quot;x=1, y=2 ... x=2, y=4 ... &quot;</code></pre><p>Iterables like vectors, tuples, or ranges – which have no named values – can have their values referenced by a <code>{{.}}</code> tag:</p><pre><code class="language-julia-repl hljs">julia&gt; a = mt&quot;{{#:countdown}}{{.}} ... {{/:countdown}} blastoff&quot;;
+&quot;x=1, y=2 ... x=2, y=4 ... &quot;</code></pre>
+</div>
+<p>Iterables like vectors, tuples, or ranges – which have no named values – can have their values referenced by a <code class="md-code-inline">{{.}}</code> tag:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; a = mt&quot;{{#:countdown}}{{.}} ... {{/:countdown}} blastoff&quot;;
 
 julia&gt; a(; countdown = 5:-1:1)
-&quot;5 ... 4 ... 3 ... 2 ... 1 ...  blastoff&quot;</code></pre><p><strong>Partials</strong></p><p>Partials allow substitution. The use of the tag prefix <code>&gt;</code> includes either a file or a string and renders it accordingly:</p><pre><code class="language-julia-repl hljs">julia&gt; a = mt&quot;{{&gt;:partial}}&quot;;
+&quot;5 ... 4 ... 3 ... 2 ... 1 ...  blastoff&quot;</code></pre>
+</div>
+<p><strong>Partials</strong></p>
+<p>Partials allow substitution. The use of the tag prefix <code class="md-code-inline">&gt;</code> includes either a file or a string and renders it accordingly:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; a = mt&quot;{{&gt;:partial}}&quot;;
 
 julia&gt; a(; partial=&quot;variable is {{:variable}}&quot;, variable=42)
-&quot;variable is 42&quot;</code></pre><p>The use of the tag prefix <code>&lt;</code> just includes the partial (a file in this case) without rendering.</p><p><strong>Comments</strong></p><p>Using the tag-prefix <code>!</code> will comment out the text:</p><pre><code class="language-julia-repl hljs">julia&gt; a = mt&quot;{{! ignore this comment}}This is rendered&quot;;
+&quot;variable is 42&quot;</code></pre>
+</div>
+<p>The use of the tag prefix <code class="md-code-inline">&lt;</code> just includes the partial (a file in this case) without rendering.</p>
+<p><strong>Comments</strong></p>
+<p>Using the tag-prefix <code class="md-code-inline">!</code> will comment out the text:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; a = mt&quot;{{! ignore this comment}}This is rendered&quot;;
 
 julia&gt; a()
-&quot;This is rendered&quot;</code></pre><p>Multi-lne comments are permitted.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jverzani/Mustache.jl/blob/9117f03c379d9e5c36168c377fc95fc3c93f1cbd/src/parse.jl#L5-L142">source</a></section></details></article><article><details class="docstring" open="true"><summary id="Mustache.render-Tuple{IO, Mustache.MustacheTokens, Any}"><a class="docstring-binding" href="#Mustache.render-Tuple{IO, Mustache.MustacheTokens, Any}"><code>Mustache.render</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">render([io], tokens, view)
+&quot;This is rendered&quot;</code></pre>
+</div>
+<p>Multi-lne comments are permitted.</p>
+</div>
+</div>
+<div class="md-docstring" id="Mustache.render-Tuple{IO, Mustache.MustacheTokens, Vararg{Any}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Mustache.render</code> — <span class="md-docstring-sig">Tuple{IO, Mustache.MustacheTokens, Vararg{Any}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/jverzani/Mustache.jl/blob/ad42d6610e313c07d324f911d5039a3ba54de7c4/src/render.jl#L1-L21" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">render([io], tokens, view)
 render([io], tokens; kwargs...)
-(tokens::MustacheTokens)([io]; kwargs...)</code></pre><p>Render a set of tokens with a view, using optional <code>io</code> object to print or store.</p><p><strong>Arguments</strong></p><ul><li><p><code>io::IO</code>: Optional <code>IO</code> object.</p></li><li><p><code>tokens</code>: Either Mustache tokens, or a string to parse into tokens</p></li><li><p><code>view</code>: A view provides a context to look up unresolved symbols demarcated by mustache braces. A view may be specified by a dictionary, a module, a composite type, a vector, a named tuple, a data frame, a <code>Tables</code> object, or keyword arguments.</p></li></ul><div class="admonition is-info" id="Note-e9a8ac553f78df58"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-e9a8ac553f78df58" title="Permalink"></a></header><div class="admonition-body"><p>The <code>render</code> method is currently exported, but this export may be deprecated in the future.</p></div></div></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jverzani/Mustache.jl/blob/9117f03c379d9e5c36168c377fc95fc3c93f1cbd/src/render.jl#L1-L21">source</a></section></details></article><article><details class="docstring" open="true"><summary id="Mustache.render_from_file-Tuple{AbstractString, Any}"><a class="docstring-binding" href="#Mustache.render_from_file-Tuple{AbstractString, Any}"><code>Mustache.render_from_file</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">render_from_file(filepath, view)
-render_from_file(filepath; kwargs...)</code></pre><p>Renders a template from <code>filepath</code> and <code>view</code>.</p><div class="admonition is-info" id="Note-cff357e85dc6973a"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-cff357e85dc6973a" title="Permalink"></a></header><div class="admonition-body"><p>This function simply combines <code>Mustache.render</code> and <code>Mustache.load</code> and may be deprecated in the future.</p></div></div></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jverzani/Mustache.jl/blob/9117f03c379d9e5c36168c377fc95fc3c93f1cbd/src/render.jl#L61-L69">source</a></section></details></article><article><details class="docstring" open="true"><summary id="Mustache.@jmt_str-Tuple{String}"><a class="docstring-binding" href="#Mustache.@jmt_str-Tuple{String}"><code>Mustache.@jmt_str</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">jmt&quot;string&quot;</code></pre><p>String macro that interpolates values escaped by dollar signs, then parses strings.</p><p>Note: very lightly modified from a macro in <a href="https://github.com/JuliaPluto/HypertextLiteral.jl/blob/master/src/macro.jl">HypertextLiteral</a>.</p><p>Example:</p><pre><code class="language-julia hljs">x = 1
+(tokens::MustacheTokens)([io]; kwargs...)</code></pre>
+</div>
+<p>Render a set of tokens with a view, using optional <code class="md-code-inline">io</code> object to print or store.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><p><code class="md-code-inline">io::IO</code>: Optional <code class="md-code-inline">IO</code> object.</p>
+</li>
+<li><p><code class="md-code-inline">tokens</code>: Either Mustache tokens, or a string to parse into tokens</p>
+</li>
+<li><p><code class="md-code-inline">view</code>: A view provides a context to look up unresolved symbols demarcated by mustache braces. A view may be specified by a dictionary, a module, a composite type, a vector, a named tuple, a data frame, a <code class="md-code-inline">Tables</code> object, or keyword arguments.</p>
+</li>
+</ul>
+<div class="md-admonition md-admonition-note">
+<p class="md-admonition-title">Note</p>
+<div class="md-admonition-body">
+<p>The <code class="md-code-inline">render</code> method is currently exported, but this export may be deprecated in the future.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Mustache.render_from_file-Tuple{AbstractString, Any}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Mustache.render_from_file</code> — <span class="md-docstring-sig">Tuple{AbstractString, Any}</span></h4>
+<a class="md-docstring-source" href="https://github.com/jverzani/Mustache.jl/blob/ad42d6610e313c07d324f911d5039a3ba54de7c4/src/render.jl#L69-L77" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">render_from_file(filepath, view)
+render_from_file(filepath; kwargs...)</code></pre>
+</div>
+<p>Renders a template from <code class="md-code-inline">filepath</code> and <code class="md-code-inline">view</code>.</p>
+<div class="md-admonition md-admonition-note">
+<p class="md-admonition-title">Note</p>
+<div class="md-admonition-body">
+<p>This function simply combines <code class="md-code-inline">Mustache.render</code> and <code class="md-code-inline">Mustache.load</code> and may be deprecated in the future.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Mustache.@jmt_str-Tuple{String}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Mustache.@jmt_str</code> — <span class="md-docstring-sig">Tuple{String}</span></h4>
+<a class="md-docstring-source" href="https://github.com/jverzani/Mustache.jl/blob/ad42d6610e313c07d324f911d5039a3ba54de7c4/src/parse.jl#L182-L196" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">jmt&quot;string&quot;</code></pre>
+</div>
+<p>String macro that interpolates values escaped by dollar signs, then parses strings.</p>
+<p>Note: very lightly modified from a macro in <a href="https://github.com/JuliaPluto/HypertextLiteral.jl/blob/master/src/macro.jl">HypertextLiteral</a>.</p>
+<p>Example:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">x = 1
 toks = jmt&quot;$(2x) by {{:a}}&quot;
-toks(; a=2) # &quot;2 by 2&quot;</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jverzani/Mustache.jl/blob/9117f03c379d9e5c36168c377fc95fc3c93f1cbd/src/parse.jl#L161-L175">source</a></section></details></article><article><details class="docstring" open="true"><summary id="Mustache.@mt_str-Tuple{Any}"><a class="docstring-binding" href="#Mustache.@mt_str-Tuple{Any}"><code>Mustache.@mt_str</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">mt&quot;string&quot;</code></pre><p>String macro to parse tokens from a string. See <a href="#Mustache.parse"><code>parse</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jverzani/Mustache.jl/blob/9117f03c379d9e5c36168c377fc95fc3c93f1cbd/src/parse.jl#L150-L155">source</a></section></details></article></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Sunday 19 April 2026 16:19">Sunday 19 April 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+toks(; a=2) # &quot;2 by 2&quot;</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Mustache.@mt_str-Tuple{Any}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Mustache.@mt_str</code> — <span class="md-docstring-sig">Tuple{Any}</span></h4>
+<a class="md-docstring-source" href="https://github.com/jverzani/Mustache.jl/blob/ad42d6610e313c07d324f911d5039a3ba54de7c4/src/parse.jl#L171-L176" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">mt&quot;string&quot;</code></pre>
+</div>
+<p>String macro to parse tokens from a string. See <a href="./#Mustache.parse"><code class="md-code-inline">parse</code></a>.</p>
+</div>
+</div>
+      </article>
+      <footer class="md-footer">
+<p>Built with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and <a href="https://github.com/mthelm85/MaterialDocs.jl">MaterialDocs.jl</a>.</p>
+      </footer>
+    </main>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia-repl.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./siteinfo.js"></script>
+  <script src="./../versions.js"></script>
+  <script src="./assets/materialdocs.js?v=44c09035"></script>
+</body>
+</html>
