@@ -5,7 +5,7 @@ Documentation for [Mustache.jl](https://github.com/jverzani/Mustache.jl).
 
 ## Examples
 
-Following the main [documentation](http://mustache.github.io/mustache.5.html) for `Mustache.js` we have a "typical Mustache template" defined by:
+Following the main [documentation](http://mustache.github.io/mustache.5.html) for `Mustache.js` we have a "typical Mustache template" defined by (along with a bit of an anti-tax sentiment):
 
 
 ```@example mustache
@@ -19,6 +19,8 @@ Well, {{taxed_value}} dollars, after taxes.
 {{/in_ca}}
 """
 ```
+
+
 
 The values with braces (mustaches on their side) are looked up in a view, such as a dictionary or module. For example,
 
@@ -46,8 +48,55 @@ The flow is
 There are only 4 exports: `mt` and `jmt` (string literals to specify a template), `render`, and `render_from_file`.
 
 
-The view used to provide values to substitute into the template can be
-specified in a variety of ways. The above example used a dictionary. A
+
+## The pipeline
+
+A template is specified and rendered with values coming from a view. This section gives some more detail.
+
+### Rendering
+
+The `render` function combines tokens and a view to fill in the template. The basic call is `render([io::IO], tokens, view)`, however there are variants:
+
+
+* `render(tokens; view...)`
+* `render(tokens; kwargs...)`
+
+Or (where`string` is parsed into tokens before rendering):
+
+* `render(string, view)`
+* `render(string; kwargs...)`
+
+
+`MustacheTokens` objects are functors; keyword arguments can also be passed to a `Tokens` object directly which resolves to calling `render`.
+
+* `tokens([io::IO], view)`
+* `tokens([io::IO]; kwargs...)`
+
+For example:
+
+```@example mustache
+goes_together = mt"{{{:x}}} and {{{:y}}}."
+goes_together(; x="Fish", y="chips")
+```
+
+
+
+
+### Views
+
+Views are used to hold values for the templates variables. There are many possible objects that can be used for views:
+
+* a dictionary
+* a named tuple
+* keyword arguments to `render`
+* a composite type
+* a module
+* data frame
+
+
+The tags are looked up in the context of a view, so the view is used
+to provide values to substitute into the template. The lookup allows
+for different types of view. The above example used a dictionary. A
 Module may also be used, such as `Main`:
 
 
@@ -63,6 +112,21 @@ Hello Christine
 You have just won 10000 dollars!
 ```
 
+Similarly, a named tuple may be used as a view.
+
+
+```@example mustache
+tpl(; name="Bill", value=1, taxed_value =0.5, in_ca = true) |> print
+```
+
+
+As well, one can use composite types. This could make writing `show` methods easier (though string interpolation is as easy in this example):
+
+```@example mustache
+using Distributions
+tpl = "Beta distribution with alpha={{α}}, beta={{β}}"
+Mustache.render(tpl, Beta(1, 2))
+```
 
 Further, keyword arguments can be used when the variables in the
 templates are symbols:
@@ -73,61 +137,8 @@ Mustache.render(goes_together; x="Salt", y="pepper")
 Mustache.render(goes_together; x="Bread", y="butter")
 ```
 
-`MustacheTokens` objects are functors; keyword arguments can also be passed to a `Tokens` object directly which resolves to calling `render`:
 
-```@example mustache
-goes_together = mt"{{{:x}}} and {{{:y}}}."
-goes_together(; x="Fish", y="chips")
-```
-
-
-
-Similarly, a named tuple may be used as a view.  As well, one can use
-Composite Kinds. This may make writing `show` methods easier:
-
-```@example mustache
-using Distributions
-tpl = "Beta distribution with alpha={{α}}, beta={{β}}"
-Mustache.render(tpl, Beta(1, 2))
-```
-
-gives
-
-```
-"Beta distribution with alpha=1.0, beta=2.0"
-```
-
-## The pipeline
-
-A template is specified and rendered with values coming from a view. This section gives a more detail.
-
-### Rendering
-
-The `render` function combines tokens and a view to fill in the template. The basic call is `render([io::IO], tokens, view)`, however there are variants:
-
-
-* `render(tokens; kwargs...)`
-* `render(string, view)`  (`string` is parsed into tokens)
-* `render(string; kwargs...)`
-
-Finally, tokens are callable, so there are these variants to call `render`:
-
-* `tokens([io::IO], view)`
-* `tokens([io::IO]; kwargs...)`
-
-### Views
-
-Views are used to hold values for the templates variables. There are many possible objects that can be used for views:
-
-* a dictionary
-* a named tuple
-* keyword arguments to `render`
-* a module
-
-For templates which iterate over a variable, these can be
-
-* a `Tables.jl` compatible object with row iteration support (e.g., A `DataFrame`, a tuple of named tuples, ...)
-* a vector or tuple (in which case "`.`" is used to match)
+It is a current limitation that only one view may be passed in at time.
 
 
 ### Templates and tokens
@@ -150,6 +161,8 @@ jmt"""
 $x is {{:y}}
 """
 ```
+
+(This can prove useful if two passes through a template are needed.)
 
 * As well, a string can be used to define a template. When `parse` is called, the string will be parsed into tokens. This is the flow if `render` is called on a string (and not tokens).
 
@@ -208,7 +221,7 @@ using Dates
 Mustache.render(mt"Written in the year {{:yr}}."; yr = year∘now) # "Written in the year 2023."
 ```
 
-#### Filtering
+### Filtering
 
 This isn't part of the Mustache spec, but a filter can be applied to the value after it is looked up and before it is rendered. The tag syntax uses Julia's pipe operator, as in `{{:varname |> functionname}}`. The named function is looked up in the same view (or `Main`, then `Base` if not found) and is
 called with the resolved value.
@@ -220,8 +233,16 @@ Mustache.render(mt"Hello {{:name |> uppercase}}!", name="world", uppercase=upper
 Inline anonymous functions are accepted too:
 
 ```@example mustache
-Mustache.render(mt"Hello {{:name; x -> uppercase(x)}}!", name="world")
+Mustache.render(mt"Hello {{:name |> x -> uppercase(x)}}!", name="world")
 ```
+
+A filter can be passed through the view if that flexibility is needed:
+
+```@example mustache
+tpl = mt"Hello {{:name |> λ}}"
+tpl(; name="world", λ=uppercase)
+```
+
 
 ### Sections
 
@@ -237,7 +258,7 @@ Tags beginning with `#varname` and closed with `/varname` create
 "sections."  These have different behaviors depending on the value of
 the variable.
 
-The syntax ``{{#varname |> f}}`` applies the function `f` to the looked up value of `varname` before applying the section logic.
+The syntax `{{#varname |> f}}` applies the function `f` to the looked up value of `varname` before applying the section logic.
 
 #### Using a true(ish) value to conditionally display a section
 
@@ -247,12 +268,20 @@ part between them is used only if the variable is defined and not
 
 ```@example mustache
 a = mt"{{#:b}}Hi{{/:b}}";
-a(; b=true) # "Hi"
-a(; c=true) # ""
+a(; b=true)  # "Hi"
+a(; c=true)  # ""
 a(; b=false) # "" also, as `b` is "falsy" (e.g., false, nothing, "")
 ```
 
-##### Inverted
+The Mustache spec call itself "logicless" but using a filter can add logic. For example this pattern will only show the value of `x` if `x` is a number:
+
+```{julia}
+tpl = mt"{{# :x |> r -> isa(r, Number)}}{{:x}}{{/ :x}}"
+tpl(; x = "one"), tpl(;, x=1)
+```
+
+
+##### Inverted section tags
 
 Related, if the tag begins with `^varname` and ends with `/varname`
 the text between these tags is included only if the variable is *not*
@@ -313,6 +342,7 @@ given by the item.
 This is useful for collections of named objects, such as DataFrames
 (where the collection is comprised of rows) or arrays of
 dictionaries. For `Tables.jl` objects the rows are iterated over.
+
 
 ##### Iterating over vectors
 

@@ -498,8 +498,8 @@ function resolve_filter(filter_name)
         return value
     end
 
-    filter = lookup(Context(Main), filter_name)
-    filter === nothing && (filter = lookup(Context(Base), filter_name))
+    filter = lookup(Context(Base), filter_name)
+    filter === nothing && (filter = lookup(Context(Main), filter_name))
     filter
 end
 
