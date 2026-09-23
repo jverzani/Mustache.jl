@@ -137,9 +137,20 @@ Mustache.render(goes_together; x="Salt", y="pepper")
 Mustache.render(goes_together; x="Bread", y="butter")
 ```
 
+#### Multiple views
 
-It is a current limitation that only one view may be passed in at time.
+Support for more than one view is also provided. A simple example with two named tuples is:
 
+```@example mustache
+tpl = mt"""{{:a}} {{:b}} {{:c}}"""
+tpl((;a=1, b=2), (;c=3))
+```
+
+When competing views specify the same value, the resolution comes from left to right with keyword arguments overriding any positional argument:
+
+```@example mustache
+tpl((;a=1, b=2, c=4), (;c=3)), tpl((;a=1, b=2, c=4), (;c=3); c=5)
+```
 
 ### Templates and tokens
 
@@ -168,8 +179,11 @@ $x is {{:y}}
 
 
 
-
 ### Tags
+
+A template use tags to specify areas to be filled in by a view. There are numerous tag types, summarized in a table near the end of this document.
+
+#### Variables
 
 Tags representing variables for substitution have the form `{{varname}}`,
 `{{:symbol}}`, or their triple-braced versions `{{{varname}}}` or
@@ -178,7 +192,7 @@ Tags representing variables for substitution have the form `{{varname}}`,
 
 The `varname` version will match variables in a view such as a dictionary or a module.
 
-The `:symbol` version will match variables passed in via named tuple or keyword arguments.
+The `:symbol` version will match variables passed in via named tuple or keyword arguments; also dictionaries with symbols for keys.
 
 ```@example mustache
 b = "be"
@@ -221,7 +235,7 @@ using Dates
 Mustache.render(mt"Written in the year {{:yr}}."; yr = year∘now) # "Written in the year 2023."
 ```
 
-### Filtering
+#### Filtering
 
 This isn't part of the Mustache spec, but a filter can be applied to the value after it is looked up and before it is rendered. The tag syntax uses Julia's pipe operator, as in `{{:varname |> functionname}}`. The named function is looked up in the same view (or `Main`, then `Base` if not found) and is
 called with the resolved value.
@@ -243,8 +257,9 @@ tpl = mt"Hello {{:name |> λ}}"
 tpl(; name="world", λ=uppercase)
 ```
 
+If this package is called from within a module, it might be necessary to pass in `@__MODULE__` to the render function if a filter is defined within the current module.
 
-### Sections
+#### Sections
 
 In the main example, the template included:
 
@@ -260,7 +275,7 @@ the variable.
 
 The syntax `{{#varname |> f}}` applies the function `f` to the looked up value of `varname` before applying the section logic.
 
-#### Using a true(ish) value to conditionally display a section
+##### Using a true(ish) value to conditionally display a section
 
 When the variable is not a function or a container the
 part between them is used only if the variable is defined and not
@@ -281,7 +296,7 @@ tpl(; x = "one"), tpl(;, x=1)
 ```
 
 
-##### Inverted section tags
+#### Inverted section tags
 
 Related, if the tag begins with `^varname` and ends with `/varname`
 the text between these tags is included only if the variable is *not*
@@ -424,7 +439,7 @@ tpl = mt"{{#:A}}Pronounce a as {{a}} and b as {{b}}. {{/:A}}"
 Mustache.render(tpl, A=A) |> print
 ```
 
-### Iterating when the value of a section variable is a function
+#### Iterating when the value of a section variable is a function
 
 From the Mustache documentation, consider the template
 
@@ -449,10 +464,22 @@ beatles = [(first="John", last="Lennon"), (first="Paul", last="McCartney")]
 tpl(; beatles, makename) |> print
 ```
 
+Using a filter, this might be more explicitly done through:
+
+```@example mustache
+mname(r) = r.first * " " * r.last
+tpl = mt"""
+{{# :beatles }}
+* {{. |> mname }}
+{{/ :beatles }}
+"""
+tpl(@__MODULE__; beatles) |> print   # pass module to lookup `mname` within
+```
+
 
 #### Conditional checking without iteration
 
-The section tag, `#`, check for existence; pushes the object into the view; and then iterates over the object. For cases where iteration is not desirable; the tag type `@` can be used.
+The section tag, `#`, checks for existence; pushes the object into the view; and then iterates over the object. For cases where iteration is not desirable; the tag type `@` can be used.
 
 Compare these:
 
@@ -473,8 +500,6 @@ tpl = mt"""
 
 Mustache.render(tpl, RANGE(1:1:2)) # iterates over Range.range
 ```
-
-
 
 ### Additional features
 

@@ -19,21 +19,29 @@ Render a set of tokens with a view, using optional `io` object to print or store
 !!! note
     The `render` method is currently exported, but this export may be deprecated in the future.
 """
-function render(io::IO, tokens::MustacheTokens, view)
+function render(io::IO, tokens::MustacheTokens, views...; kwargs...)
     _writer = Writer()
-    render(io, _writer, tokens, view)
+    if isempty(kwargs)
+        if length(views) == 1
+            render(io, _writer, tokens, only(views))
+        else
+            renderTokens(io, tokens.tokens, _writer, root_context(views...), tokens)
+        end
+    else
+        renderTokens(io, tokens.tokens, _writer, root_context(views, Dict(kwargs...)), tokens)
+    end
 end
 function render(io::IO, tokens::MustacheTokens; kwargs...)
     render(io, tokens, Dict(kwargs...))
 end
-
-render(tokens::MustacheTokens, view) = sprint(io -> render(io, tokens, view))
+ 
+render(tokens::MustacheTokens, views...; kwargs...) = sprint(io -> render(io, tokens, views...; kwargs...))
 render(tokens::MustacheTokens; kwargs...) = sprint(io -> render(io, tokens; kwargs...))
 
 ## make MustacheTokens callable for kwargs...
 function (m::MustacheTokens)(io::IO, args...; kwargs...)
-    if length(args) == 1
-        render(io, m, first(args))
+    if !isempty(args)
+        render(io, m, args...; kwargs...)
     else
         render(io, m; kwargs...)
     end
@@ -46,13 +54,13 @@ end
 ##
 ## @param template a string containing the template for expansion
 ## @param view a Dict, Module, CompositeType, DataFrame holding variables for expansion
-function render(io::IO, template::AbstractString, view; tags= ("{{", "}}"))
-    return render(io, parse(template, tags), view)
+function render(io::IO, template::AbstractString, views...; tags= ("{{", "}}"), kwargs...)
+    return render(io, parse(template, tags), views...; kwargs...)
 end
 function render(io::IO, template::AbstractString; kwargs...)
     return render(io, parse(template); kwargs...)
 end
-render(template::AbstractString, view; tags=("{{", "}}")) = sprint(io -> render(io, template, view, tags=tags))
+render(template::AbstractString, views...; tags=("{{", "}}"), kwargs...) = sprint(io -> render(io, template, views...; tags=tags, kwargs...))
 render(template::AbstractString; kwargs...) = sprint(io -> render(io, template; kwargs...))
 
 

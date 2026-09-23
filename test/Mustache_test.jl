@@ -17,6 +17,10 @@ end
 @test render(tpl, Main) == "a:ex b:why"
 @test render(tpl, d) == "a:ex b:why"
 @test render(tpl, ThrowAway(x,y)) == "a:ex b:why"
+@test render(tpl, Main; x="override") == "a:override b:why"
+@test tpl(Main; x="override") == "a:override b:why"
+@test tpl((; x="first"), (; x="second", y="third")) == "a:first b:third"
+@test tpl((; x="first"), (; x="second", y="third"); x="override") == "a:override b:third"
 
 
 ## triple quoted

@@ -23,6 +23,16 @@ function ctx_pop(ctx::Context)
     ctx.parent
 end
 
+function root_context(views...)
+    isempty(views) && throw(ArgumentError("At least one view is required"))
+    ctx = Context(last(views))
+    for view in Iterators.reverse(Base.front(views))
+        ctx = Context(view, ctx)
+    end
+    ctx
+end
+root_context(views::Tuple, overrides) = Context(overrides, root_context(views...))
+
 # we have some rules here
 # * Each part of a dotted name should resolve only against its parent.
 # * Any falsey value prior to the last part of the name should yield ''.
