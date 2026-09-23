@@ -11,4 +11,10 @@ tpl = mt"{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}"
 out = Mustache.render(tpl, vec=["A1","B2","C3"])
 @test out == "A1, B2, C3"
 
+tpl = mt"{{#:vec}}{{#.}}{{..}}{{/.}}{{/:vec}}"
+out = Mustache.render(tpl, vec=[["A1","A2"],["B1","B2"]])
+@test out == "A1A2B1B2"
 
+tpl = mt"{{#:vec}}{{#.}}<{{..}}>{{/.}}{{/:vec}}"
+out = Mustache.render(tpl, vec=[["A1","A2"],["B1","B2"]])
+@test out == "<A1><A2><B1><B2>"

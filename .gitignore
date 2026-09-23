@@ -6,3 +6,5 @@ docs/site
 docs/logo.jl
 Manifest.toml
 .travis.yml
+.idea/
+*.iml

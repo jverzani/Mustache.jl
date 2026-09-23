@@ -1,9 +1,11 @@
 using Documenter
+using MaterialDocs
 using Mustache
 
 makedocs(
     sitename = "Mustache",
-    format = Documenter.HTML(),
+    #format = Documenter.HTML(),
+    format   = Material3(theme = :ocean_depth, dark_mode = :toggle),
     modules = [Mustache]
 )
 

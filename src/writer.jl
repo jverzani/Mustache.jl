@@ -43,7 +43,7 @@ end
 function compileTokens(io, w::Writer, tokens, template)
     ## return a function
     function f(w::Writer, view) #  no partials
-       renderTokens(io, tokens, w, Context(view), template) # io in closure
+       renderTokens(io, tokens, w, root_context(view), template) # io in closure
     end
     return(f)
 end

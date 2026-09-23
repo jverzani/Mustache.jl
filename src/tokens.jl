@@ -38,6 +38,15 @@ collector::Vector
 BooleanToken(_type, value, ltag, rtag) = new(_type, value, ltag, rtag, Any[])
 end
 
+struct FilteredTag
+    key::String
+    filter::String
+end
+
+struct InlineFilter
+    func
+end
+
 mutable struct MustacheTokens
     tokens::Vector{Token}
 end
@@ -47,6 +56,28 @@ Base.length(tokens::MustacheTokens) = length(tokens.tokens)
 Base.lastindex(tokens::MustacheTokens) = lastindex(tokens.tokens)
 Base.getindex(tokens::MustacheTokens, ind) = getindex(tokens.tokens, ind)
 Base.pop!(tokens::MustacheTokens) = pop!(tokens.tokens)
+
+function Base.show(io::IO, ::MIME"text/plain", tokens::MustacheTokens)
+    print(io, "MustacheTokens")
+    isempty(tokens.tokens) && return
+    for token in tokens.tokens
+        print(io, "\n")
+        show_token(io, token, 0)
+    end
+end
+
+show_token(io::IO, token::Token, indent::Int) = print(io, " "^indent, repr(token))
+
+function show_token(io::IO, token::Union{SectionToken, BooleanToken}, indent::Int)
+    print(io, " "^indent, typeof(token).name.name,
+          "(", repr(token._type), ", ", repr(token.value),
+          ", ", repr(token.ltag), ", ", repr(token.rtag), ")")
+    isempty(token.collector) && return
+    for child in token.collector
+        print(io, "\n")
+        show_token(io, child, indent + 2)
+    end
+end
 
 function Base.push!(tokens::MustacheTokens, token::Token)
     # squash if possible
@@ -357,7 +388,7 @@ function make_tokens(template, tags)
             end
 
             openSection = pop!(sections)
-            if openSection.value != token_value
+            if section_name(openSection.value) != token_value
                 throw(ArgumentError("Unclosed section: $(openSection.value) at $t0"))
             end
         end
@@ -439,6 +470,54 @@ function _toString(::Val{Symbol("#")}, t)
     out
 end
 
+function parse_filtered_tag(token_value)
+    parts = split(token_value, "|>", limit=2)
+    length(parts) == 2 || return nothing
+    key = stripWhitespace(parts[1])
+    filter = stripWhitespace(parts[2])
+    isempty(key) && return nothing
+    isempty(filter) && return nothing
+    FilteredTag(key, filter)
+end
+
+section_name(token_value) = something((filtered = parse_filtered_tag(token_value); filtered === nothing ? nothing : filtered.key), token_value)
+
+function resolve_filter(filter_name)
+    parsed = try
+        Meta.parse(filter_name)
+    catch
+        nothing
+    end
+
+    if parsed isa Expr && parsed.head == :->
+        return InlineFilter(Base.invokelatest(eval, parsed))
+    end
+
+    if parsed !== nothing && !(parsed isa Symbol)
+        value = Base.invokelatest(eval, parsed)
+        return value
+    end
+
+    filter = lookup(Context(Base), filter_name)
+    filter === nothing && (filter = lookup(Context(Main), filter_name))
+    filter
+end
+
+function resolve_tag_value(context, token)
+    token_value = token.value
+    token._type in ("name", "&", "{", "#", "^") || return lookup(context, token_value)
+
+    filtered = parse_filtered_tag(token_value)
+    filtered === nothing && return lookup(context, token_value)
+
+    value = lookup(context, filtered.key)
+    filter = lookup(context, filtered.filter)
+    filter === nothing && (filter = resolve_filter(filtered.filter))
+    filter isa InlineFilter && return Base.invokelatest(filter.func, value)
+    applicable(filter, value) || throw(ArgumentError("Filtered tag requires a callable filter for '$(filtered.filter)'"))
+    return Base.invokelatest(filter, value)
+end
+
 
 ## ----------------------------------------------------
 
@@ -461,6 +540,24 @@ function renderTokensByValue(value, io, token, writer, context, template, args..
     end
 end
 
+function render_dot_section(io, token, writer, context, template, idx=(0,0))
+    current = context.view
+    items = section_values(current)
+
+    if items === current || !(items isa Union{AbstractArray, Tuple})
+        renderTokens(io, token.collector, writer, ctx_push(context, current), template, idx)
+        return
+    end
+
+    n = length(items)
+    for (i, item) in enumerate(items)
+        child = ctx_push(context, item)
+        parent_ref = (current isa NamedTuple || current isa AbstractDict) ? current : item
+        child._cache[".."] = parent_ref
+        renderTokens(io, token.collector, writer, child, template, (i, n))
+    end
+end
+
 ## Helper function for dispatch based on value in renderTokens
 function _renderTokensByValue(value::AbstractDict, io, token, writer, context, template, args...)
     renderTokens(io, token.collector, writer, ctx_push(context, value), template, args...)
@@ -474,7 +571,7 @@ function _renderTokensByValue(value::Union{AbstractArray, Tuple}, io, token, wri
     else
        n = length(value)
        for (i,v) in enumerate(value)
-           renderTokens(io, token.collector, writer, ctx_push(context, v), template, (i,n))
+          renderTokens(io, token.collector, writer, ctx_push(context, v), template, (i,n))
        end
     end
 end
@@ -567,7 +664,11 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
         if token._type == "#" || token._type == "|"
             ## iterate over value if Dict, Array or DataFrame,
             ## or display conditionally
-            value = lookup(context, tokenValue)
+            value = token._type == "#" ? resolve_tag_value(context, token) : lookup(context, tokenValue)
+            if tokenValue == "." && token._type == "#"
+                render_dot_section(io, token, writer, context, template, idx)
+                continue
+            end
             ctx = isa(value, AnIndex) ? context : Context(value, context)
             renderTokensByValue(value, io, token, writer, ctx, template, idx)
 
@@ -581,12 +682,10 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
 
 
         elseif token._type == "^"
-
             ## display if falsy, unlike #
-            value = lookup(context, tokenValue)
+            value = resolve_tag_value(context, token)
             if !isa(value, AnIndex)
                 ctx = Context(value, context)
-
                 if falsy(value)
                     renderTokensByValue(value, io, token, writer, ctx, template, idx)
                 end
@@ -655,7 +754,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             end
 
         elseif token._type == "&"
-            value = lookup(context, tokenValue)
+            value = resolve_tag_value(context, token)
             if !falsy(value)
                 ## desc: A lambda's return value should parse with the default delimiters.
                 ##       parse(value()) ensures that
@@ -669,7 +768,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             end
 
         elseif token._type == "{"
-            value = lookup(context, tokenValue)
+            value = resolve_tag_value(context, token)
             if !falsy(value)
                 if isa(value, Function)
                     push_task_local_storage(context.view)
@@ -687,7 +786,7 @@ function renderTokens(io, tokens, writer, context, template, idx=(0,0))
             end
 
         elseif token._type == "name"
-            value = lookup(context, tokenValue)
+            value = resolve_tag_value(context, token)
             if !falsy(value)
                 if isa(value, Function)
                     push_task_local_storage(context.view)

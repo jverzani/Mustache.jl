@@ -5,10 +5,10 @@ Documentation for [Mustache.jl](https://github.com/jverzani/Mustache.jl).
 
 ## Examples
 
-Following the main [documentation](http://mustache.github.io/mustache.5.html) for `Mustache.js` we have a "typical Mustache template" defined by:
+Following the main [documentation](http://mustache.github.io/mustache.5.html) for `Mustache.js` we have a "typical Mustache template" defined by (along with a bit of an anti-tax sentiment):
 
 
-```julia
+```@example mustache
 using Mustache
 
 tpl = mt"""
@@ -20,46 +20,87 @@ Well, {{taxed_value}} dollars, after taxes.
 """
 ```
 
+
+
 The values with braces (mustaches on their side) are looked up in a view, such as a dictionary or module. For example,
 
-```julia
+```@example mustache
 d = Dict(
 "name" => "Chris",
 "value" => 10000,
 "taxed_value" => 10000 - (10000 * 0.4),
 "in_ca" => true)
 
-Mustache.render(tpl, d)
-```
-
-Yielding
-
-```
-Hello Chris
-You have just won 10000 dollars!
-Well, 6000.0 dollars, after taxes.
+Mustache.render(tpl, d) |> print
 ```
 
 The `render` function pieces things together. Like `print`, the first
 argument is for an optional `IO` instance. In the above example, where
-one is not provided, a string is returned.
+one is not provided, a string is returned. (The `print` call is for formatting purposes.)
 
 The flow is
 
-* a template is parsed into tokens by `Mustache.parse`. This can be called directly, indirectly through the non-standard string literal `mt`, or when loading a file with `Mustache.load`. The templates use tags comprised of matching mustaches (`{}`), either two or three, to indicate a value to be substituted for. These tags may be adjusted when `parse` is called.
+* a template is parsed into tokens by `Mustache.parse`. This can be called directly, indirectly through the non-standard string literal `mt`, the non-standard string literal `jmt` (which allows for string interpolation), or when loading a file with `Mustache.load`. The templates use tags comprised of matching mustaches (`{}`), either two or three, to indicate a value to be substituted for. These particular symbols indicating tags may be adjusted when `parse` is called.
 
-* The tokens and a view are `render`ed. The `render` function takes tokens as its second argument. If this argument is a string, `parse` is called internally. The `render` function than reassambles the template, substituting values, as appropriate, from the "view" passed to it and writes the output to the specified `io` argument.
-
-
-There are only 4 exports: `mt` and `jmt`, string literals to specify a template, `render`, and `render_from_file`.
+* The tokens and a view are `render`ed into a string. The `render` function takes tokens as its second argument. If this argument is a string, `parse` is called internally. The `render` function than reassambles the template, substituting values, as appropriate, from the "view" passed to it and writes the output to the specified `io` argument.
 
 
-The view used to provide values to substitute into the template can be
-specified in a variety of ways. The above example used a dictionary. A
+There are only 4 exports: `mt` and `jmt` (string literals to specify a template), `render`, and `render_from_file`.
+
+
+
+## The pipeline
+
+A template is specified and rendered with values coming from a view. This section gives some more detail.
+
+### Rendering
+
+The `render` function combines tokens and a view to fill in the template. The basic call is `render([io::IO], tokens, view)`, however there are variants:
+
+
+* `render(tokens; view...)`
+* `render(tokens; kwargs...)`
+
+Or (where`string` is parsed into tokens before rendering):
+
+* `render(string, view)`
+* `render(string; kwargs...)`
+
+
+`MustacheTokens` objects are functors; keyword arguments can also be passed to a `Tokens` object directly which resolves to calling `render`.
+
+* `tokens([io::IO], view)`
+* `tokens([io::IO]; kwargs...)`
+
+For example:
+
+```@example mustache
+goes_together = mt"{{{:x}}} and {{{:y}}}."
+goes_together(; x="Fish", y="chips")
+```
+
+
+
+
+### Views
+
+Views are used to hold values for the templates variables. There are many possible objects that can be used for views:
+
+* a dictionary
+* a named tuple
+* keyword arguments to `render`
+* a composite type
+* a module
+* data frame
+
+
+The tags are looked up in the context of a view, so the view is used
+to provide values to substitute into the template. The lookup allows
+for different types of view. The above example used a dictionary. A
 Module may also be used, such as `Main`:
 
 
-```julia
+```@example mustache
 name, value, taxed_value, in_ca = "Christine", 10000, 10000 - (10000 * 0.4), false
 Mustache.render(tpl, Main) |> print
 ```
@@ -71,83 +112,78 @@ Hello Christine
 You have just won 10000 dollars!
 ```
 
+Similarly, a named tuple may be used as a view.
 
-Further, keyword arguments can be used when the variables in the
-templates are symbols:
 
-```julia
-goes_together = mt"{{{:x}}} and {{{:y}}}."
-Mustache.render(goes_together, x="Salt", y="pepper")
-Mustache.render(goes_together, x="Bread", y="butter")
-```
-
-`Tokens` objects are functors; keyword arguments can also be passed to a `Tokens` object directly (bypassing the use of `render`):
-
-```julia
-goes_together = mt"{{{:x}}} and {{{:y}}}."
-goes_together(x="Fish", y="chips")
+```@example mustache
+tpl(; name="Bill", value=1, taxed_value =0.5, in_ca = true) |> print
 ```
 
 
+As well, one can use composite types. This could make writing `show` methods easier (though string interpolation is as easy in this example):
 
-Similarly, a named tuple may be used as a view.  As well, one can use
-Composite Kinds. This may make writing `show` methods easier:
-
-```julia
+```@example mustache
 using Distributions
 tpl = "Beta distribution with alpha={{α}}, beta={{β}}"
 Mustache.render(tpl, Beta(1, 2))
 ```
 
-gives
+Further, keyword arguments can be used when the variables in the
+templates are symbols:
 
+```@example mustache
+goes_together = mt"{{{:x}}} and {{{:y}}}."
+Mustache.render(goes_together; x="Salt", y="pepper")
+Mustache.render(goes_together; x="Bread", y="butter")
 ```
-"Beta distribution with alpha=1.0, beta=2.0"
+
+#### Multiple views
+
+Support for more than one view is also provided. A simple example with two named tuples is:
+
+```@example mustache
+tpl = mt"""{{:a}} {{:b}} {{:c}}"""
+tpl((;a=1, b=2), (;c=3))
 ```
 
-### Rendering
+When competing views specify the same value, the resolution comes from left to right with keyword arguments overriding any positional argument:
 
-The `render` function combines tokens and a view to fill in the template. The basic call is `render([io::IO], tokens, view)`, however there are variants:
-
-
-* `render(tokens; kwargs...)`
-* `render(string, view)`  (`string` is parsed into tokens)
-* `render(string; kwargs...)`
-
-Finally, tokens are callable, so there are these variants to call `render`:
-
-* `tokens([io::IO], view)`
-* `tokens([io::IO]; kwargs...)`
-
-### Views
-
-Views are used to hold values for the templates variables. There are many possible objects that can be used for views:
-
-* a dictionary
-* a named tuple
-* keyword arguments to `render`
-* a module
-
-For templates which iterate over a variable, these can be
-
-* a `Tables.jl` compatible object with row iteration support (e.g., A `DataFrame`, a tuple of named tuples, ...)
-* a vector or tuple (in which case "`.`" is used to match
-
+```@example mustache
+tpl((;a=1, b=2, c=4), (;c=3)), tpl((;a=1, b=2, c=4), (;c=3); c=5)
+```
 
 ### Templates and tokens
 
-A template is parsed into tokens. The `render` function combines the tokens with the view to create the output.
+A template is parsed into tokens.
 
 * Parsing is done at compile time, if the `mt` string literal is used to define the template. If re-using a template, this is encouraged, as it will be more performant.
 
+```@example mustache
+mt"""
+{{:x}} is  {{:y}}
+"""
+```
+
 * If string interpolation is desired prior to the parsing into tokens, the `jmt` string literal can be used.
+
+```@example mustache
+x = "John"
+jmt"""
+$x is {{:y}}
+"""
+```
+
+(This can prove useful if two passes through a template are needed.)
 
 * As well, a string can be used to define a template. When `parse` is called, the string will be parsed into tokens. This is the flow if `render` is called on a string (and not tokens).
 
 
 
+### Tags
 
-### Variables
+A template use tags to specify areas to be filled in by a view. There are numerous tag types, summarized in a table near the end of this document.
+
+#### Variables
 
 Tags representing variables for substitution have the form `{{varname}}`,
 `{{:symbol}}`, or their triple-braced versions `{{{varname}}}` or
@@ -156,9 +192,9 @@ Tags representing variables for substitution have the form `{{varname}}`,
 
 The `varname` version will match variables in a view such as a dictionary or a module.
 
-The `:symbol` version will match variables passed in via named tuple or keyword arguments.
+The `:symbol` version will match variables passed in via named tuple or keyword arguments; also dictionaries with symbols for keys.
 
-```julia
+```@example mustache
 b = "be"
 Mustache.render(mt"a {{b}} c", Main)  # "a be c"
 Mustache.render(mt"a {{:b}} c", b="bee") # "a bee c"
@@ -170,7 +206,7 @@ The triple brace prevents HTML substitution for
 entities such as `<`. The following are escaped when only double
 braces are used: "&", "<", ">", "'", "\", and "/".
 
-```julia
+```@example mustache
 Mustache.render(mt"a {{:b}} c", b = "%< bee >%")   # "a %&lt; bee &gt;% c"
 Mustache.render(mt"a {{{:b}}} c", b = "%< bee >%") # "a %< bee >% c"
 ```
@@ -178,7 +214,7 @@ Mustache.render(mt"a {{{:b}}} c", b = "%< bee >%") # "a %< bee >% c"
 If different tags are specified to `parse`,
 say `<<` or `>>`, then `<<{` and `}>>` indicate the prevention of substitution.
 
-```julia
+```@example mustache
 tokens = Mustache.parse("a <<:b>> c", ("<<", ">>"))
 Mustache.render(tokens, b = "%< B >%")  # a %&lt; B &gt;% c"
 
@@ -190,16 +226,40 @@ Mustache.render(tokens, b = "%< B >%")  # "a %< B >% c"
 If the variable refers to a function, the value will be the result of
 calling the function with no arguments passed in.
 
-```julia
+```@example mustache
 Mustache.render(mt"a {{:b}} c", b = () -> "Bea")  # "a Bea c"
 ```
 
-```julia
+```@example mustache
 using Dates
 Mustache.render(mt"Written in the year {{:yr}}."; yr = year∘now) # "Written in the year 2023."
 ```
 
-### Sections
+#### Filtering
+
+This isn't part of the Mustache spec, but a filter can be applied to the value after it is looked up and before it is rendered. The tag syntax uses Julia's pipe operator, as in `{{:varname |> functionname}}`. The named function is looked up in the same view (or `Main`, then `Base` if not found) and is
+called with the resolved value.
+
+```@example mustache
+Mustache.render(mt"Hello {{:name |> uppercase}}!", name="world", uppercase=uppercase)
+```
+
+Inline anonymous functions are accepted too:
+
+```@example mustache
+Mustache.render(mt"Hello {{:name |> x -> uppercase(x)}}!", name="world")
+```
+
+A filter can be passed through the view if that flexibility is needed:
+
+```@example mustache
+tpl = mt"Hello {{:name |> λ}}"
+tpl(; name="world", λ=uppercase)
+```
+
+If this package is called from within a module, it might be necessary to pass in `@__MODULE__` to the render function if a filter is defined within the current module.
+
+#### Sections
 
 In the main example, the template included:
 
@@ -211,28 +271,62 @@ Well, {{taxed_value}} dollars, after taxes.
 
 Tags beginning with `#varname` and closed with `/varname` create
 "sections."  These have different behaviors depending on the value of
-the variable. When the variable is not a function or a container the
+the variable.
+
+The syntax `{{#varname |> f}}` applies the function `f` to the looked up value of `varname` before applying the section logic.
+
+##### Using a true(ish) value to conditionally display a section
+
+When the variable is not a function or a container the
 part between them is used only if the variable is defined and not
 "falsy:"
 
-```julia
+```@example mustache
 a = mt"{{#:b}}Hi{{/:b}}";
-a(; b=true) # "Hi"
-a(; c=true) # ""
+a(; b=true)  # "Hi"
+a(; c=true)  # ""
 a(; b=false) # "" also, as `b` is "falsy" (e.g., false, nothing, "")
 ```
+
+The Mustache spec call itself "logicless" but using a filter can add logic. For example this pattern will only show the value of `x` if `x` is a number:
+
+```{julia}
+tpl = mt"{{# :x |> r -> isa(r, Number)}}{{:x}}{{/ :x}}"
+tpl(; x = "one"), tpl(;, x=1)
+```
+
+
+#### Inverted section tags
+
+Related, if the tag begins with `^varname` and ends with `/varname`
+the text between these tags is included only if the variable is *not*
+defined or is `falsy`.
+
+Inverted tags may have a function call on the looked up value through the syntax `{{^varname |> f}}`.
+
+This example will show only one of the statements:
+
+```@example mustache
+tpl = mt"""
+{{#:x |> >=(10)}} bigger than or equal 10 {{/:x}}
+{{^:x |> >=(10)}} less than 10 {{/:x}}
+"""
+tpl(; x = 5) |> print
+```
+
+#### Using a function to modify the string within a section
 
 If the variable name refers to a function that function will be passed
 the unevaluated string within the section, as expected by the Mustache
 specification:
 
-```julia
+```@example mustache
 Mustache.render("{{#:a}}one{{/:a}}", a=length)  # "3"
 ```
 
 The specification has been widened to accept functions of two arguments, the string and a render function:
 
-```julia
+```@example mustache
 tpl = mt"{{#:bold}}Hi {{:name}}.{{/:bold}}"
 function bold(text, render)
     "<b>" * render(text) * "</b>"
@@ -244,7 +338,7 @@ tpl(; name="Tater", bold=bold) # "<b>Hi Tater.</b>"
 
 If the tag "|" is used, the section value will be rendered first, an enhancement to the specification.
 
-```julia
+```@example mustache
 fmt(txt) = "<b>" * string(round(parse(Float64, txt), digits=2)) * "</b>";
 tpl = """{{|:lambda}}{{:value}}{{/:lambda}} dollars.""";
 Mustache.render(tpl, value=1.23456789, lambda=fmt)  # "<b>1.23</b> dollars."
@@ -253,15 +347,7 @@ Mustache.render(tpl, value=1.23456789, lambda=fmt)  # "<b>1.23</b> dollars."
 (Without the `|` in the tag, an error, `ERROR: ArgumentError: cannot parse "{{:value}}" as Float64`, will be thrown.)
 
 
-
-### Inverted
-
-Related, if the tag begins with `^varname` and ends with `/varname`
-the text between these tags is included only if the variable is *not*
-defined or is `falsy`.
-
-
-### Iteration
+#### Iteration in a section
 
 If the section variable, `{{#varname}}`, binds to an iterable
 collection, then the text in the section is repeated for each item in
@@ -272,117 +358,14 @@ This is useful for collections of named objects, such as DataFrames
 (where the collection is comprised of rows) or arrays of
 dictionaries. For `Tables.jl` objects the rows are iterated over.
 
-For data frames, the variable names are specified as
-symbols or strings. Here is a template for making a web page:
 
-```julia
-tpl = mt"""
-<html>
-<head>
-<title>{{:TITLE}}</title>
-</head>
-<body>
-<table>
-<tr><th>name</th><th>summary</th></tr>
-{{#:D}}
-<tr><td>{{:names}}</td><td>{{:summs}}</td></tr>
-{{/:D}}
-</body>
-</html>
-"""
-```
-This can be used to generate a web page for `varinfo`-like values:
+##### Iterating over vectors
 
-```julia
-_names = String[]
-_summaries = String[]
-for s in sort(map(string, names(Main)))
-    v = Symbol(s)
-    if isdefined(Main,v)
-        push!(_names, s)
-        push!(_summaries, summary(eval(v)))
-    end
-end
-
-using DataFrames
-d = DataFrame(names=_names, summs=_summaries)
-
-out = Mustache.render(tpl, TITLE="A quick table", D=d)
-print(out)
-```
-
-
-This can be compared to using an array of `Dict`s, convenient if you have data by the row:
-
-```julia
-A = [Dict("a" => "eh", "b" => "bee"),
-     Dict("a" => "ah", "b" => "buh")]
-tpl = mt"{{#:A}}Pronounce a as {{a}} and b as {{b}}. {{/:A}}"
-Mustache.render(tpl, A=A) |> print
-```
-
-yielding
-
-```
-Pronounce a as eh and b as bee. Pronounce a as ah and b as buh.
-```
-
-The same approach can be made to make a LaTeX table from a data frame:
-
-```julia
-
-function df_to_table(df, label="label", caption="caption")
-    fmt = repeat("c", size(df,2))
-    header = join(string.(names(df)), " & ")
-    row = join(["{{:$x}}" for x in map(string, names(df))], " & ")
-
-tpl="""
-\\begin{table}
-  \\centering
-  \\begin{tabular}{$fmt}
-  $header\\\\
-{{#:DF}}    $row\\\\
-{{/:DF}}  \\end{tabular}
-  \\caption{$caption}
-  \\label{tab:$label}
-\\end{table}
-"""
-
-    Mustache.render(tpl, DF=df)
-end
-```
-
-In the above, a string is used above -- and not a `mt` macro -- so that string
-interpolation can happen. The `jmt_str` string macro allows for substitution, so the above template could also have been more simply written as:
-
-```julia
-function df_to_table(df, label="label", caption="caption")
-    fmt = repeat("c", size(df,2))
-    header = join(string.(names(df)), " & ")
-    row = join(["{{:$x}}" for x in map(string, names(df))], " & ")
-
-tpl = jmt"""
-\begin{table}
-  \centering
-  \begin{tabular}{$fmt}
-  $header\\
-{{#:DF}}    $row\\
-{{/:DF}}  \end{tabular}
-  \caption{$caption}
-  \label{tab:$label}
-\end{table}
-"""
-
-    Mustache.render(tpl, DF=df)
-end
-```
-
-#### Iterating over vectors
-
+Iterating over a associative array, like a dictionary or named tuple, the keys are used as variable name.
 Though it isn't part of the Mustache specification, when iterating
-over an unnamed vector or tuple, `Mustache.jl uses` `{{.}}` to refer to the item:
+over a vector or tuple---which have no obvious key save for index---`Mustache.jl uses` `{{.}}` to refer to the item:
 
-```julia
+```@example mustache
 tpl = mt"{{#:vec}}{{.}} {{/:vec}}"
 Mustache.render(tpl, vec = ["A1", "B2", "C3"])  # "A1 B2 C3 "
 ```
@@ -396,14 +379,14 @@ arithmetic on indices.)
 
 To print commas one can use this pattern:
 
-```julia
+```@example mustache
 tpl = mt"{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}"
 Mustache.render(tpl, vec = ["A1", "B2", "C3"])  # "A1, B2, C3"
 ```
 
 To put the first value in bold, but no others, say:
 
-```julia
+```@example mustache
 tpl = mt"""
 {{#:vec}}
 {{#.[1]}}<bold>{{.}}</bold>{{/.[1]}}
@@ -420,62 +403,111 @@ implemented for now -- does not allow for iteration. That is
 constructs like `{{#.[1]}}` don't introduce iteration, but only offer
 a conditional check.
 
-### Iterating when the value of a section variable is a function
+##### Iterating over DataFrames or other Tables compatible objects
+
+For data frames, the rows are iterated over. Data frames in `Julia` have named columns, not rows.
+Here is a template for making a markdown table from a data frame.
+The first line shows a filter applied to an iterable in a section tag. The second line shows function application to a variable. The rest shows nested iteration over unnamed elements.
+
+```@example mustache
+tpl = mt"""
+|{{#:d |> names}} {{.}} | {{/:d}}
+|{{:d  |> r -> ":----|" ^ size(r,2)}}
+{{#:d}}
+|{{#.}}{{.}}|{{/.}}
+{{/:d}}
+: {{:TITLE}}
+"""
+```
+
+
+We illustrate on some synthetic data.
+
+```julia
+using DataFrames
+d = DataFrame(names=["John", "Paul", "George", "Ringo"], hand=["right", "left", "right", "right"])
+tpl(; d, TITLE="dominant hand") |> print
+```
+
+
+This can be compared to using an array of `Dict`s, convenient if you have data by the row:
+
+```@example mustache
+A = [Dict("a" => "eh", "b" => "bee"),
+     Dict("a" => "ah", "b" => "buh")]
+tpl = mt"{{#:A}}Pronounce a as {{a}} and b as {{b}}. {{/:A}}"
+Mustache.render(tpl, A=A) |> print
+```
+
+#### Iterating when the value of a section variable is a function
 
 From the Mustache documentation, consider the template
 
-```julia
-tpl = mt"{{#:beatles}}
-* {{:name}}
-{{/:beatles}}"
+```@example mustache
+tpl = mt"""{{#:beatles}}
+* {{:makename}}
+{{/:beatles}}
+"""
 ```
 
 when `beatles` is a vector of named tuples (or some other `Tables.jl` object) and `name` is a function.
 
 When iterating over `beatles`, `name` can reference the rows of the `beatles` object by name. In `JavaScript`, this is done with `this.XXX`. In `Julia`, the values are stored in the `task_local_storage` object (with symbols as keys) allowing the access. The `Mustache.get_this` function allows `JavaScript`-like usage:
 
-```julia
-function name()
+```@example mustache
+function makename()
     this = Mustache.get_this()
     this.first * " " * this.last
 end
 beatles = [(first="John", last="Lennon"), (first="Paul", last="McCartney")]
 
-tpl(; beatles, name) # "* John Lennon\n* Paul McCartney\n"
+tpl(; beatles, makename) |> print
+```
+
+Using a filter, this might be more explicitly done through:
+
+```@example mustache
+mname(r) = r.first * " " * r.last
+tpl = mt"""
+{{# :beatles }}
+* {{. |> mname }}
+{{/ :beatles }}
+"""
+tpl(@__MODULE__; beatles) |> print   # pass module to lookup `mname` within
 ```
 
 
-### Conditional checking without iteration
+#### Conditional checking without iteration
 
-The section tag, `#`, check for existence; pushes the object into the view; and then iterates over the object. For cases where iteration is not desirable; the tag type `@` can be used.
+The section tag, `#`, checks for existence; pushes the object into the view; and then iterates over the object. For cases where iteration is not desirable; the tag type `@` can be used.
 
 Compare these:
 
-```julia
-julia> struct RANGE
+```@example mustache
+struct RANGE
   range
 end
 
-julia> tpl = mt"""
+tpl = mt"""
 <input type="range" {{@:range}} min="{{start}}" step="{{step}}" max="{{stop}}" {{/:range}}>
 """;
 
-julia> Mustache.render(tpl, RANGE(1:1:2))
-"<input type=\"range\"  min=\"1\" step=\"1\" max=\"2\" >\n"
+Mustache.render(tpl, RANGE(1:1:2))
 
-julia> tpl = mt"""
+tpl = mt"""
 <input type="range" {{#:range}} min="{{start}}" step="{{step}}" max="{{stop}}" {{/:range}}>
 """;
 
-julia> Mustache.render(tpl, RANGE(1:1:2)) # iterates over Range.range
-"<input type=\"range\"  min=\"1\" step=\"1\" max=\"2\"  min=\"1\" step=\"1\" max=\"2\" >\n"
+Mustache.render(tpl, RANGE(1:1:2)) # iterates over Range.range
 ```
 
-### Non-eager finding of values
+### Additional features
+
+#### Non-eager finding of values
 
 A view might have more than one variable bound to a symbol. The first one found is replaced in the template *unless* the variable is prefaced with `~`. This example illustrates:
 
-```julia
+```@example mustache
 d = Dict(:two=>Dict(:x=>3), :x=>2)
 tpl = mt"""
 {{#:one}}
@@ -490,7 +522,7 @@ Mustache.render(tpl, one=d, x=1) # "1\n"
 
 Were `{{:x}}` used, the value `3` would have been found within the dictionary `Dict(:x=>3)`; however, the presence of `{{~:x}}` is an instruction to keep looking up in the specified view to find other values, and use the last one found to substitute in. (This is hinted at in [this issue](https://github.com/janl/mustache.js/issues/399))
 
-### Partials
+#### Partials
 
 Partials are used to include partial templates into a template.
 
@@ -507,25 +539,23 @@ The partial specified by `{{< box.tpl }}` is not parsed, rather included as is i
 
 The variable can be a filename, as indicated above, or if not a variable. For example
 
-```julia
-julia> tpl = """\"{{>partial}}\""""
-"\"{{>partial}}\""
+```@example mustache
+tpl = """\"{{>partial}}\""""
 
-julia> Mustache.render(tpl, Dict("partial"=>"*{{text}}*","text"=>"content"))
-"\"*content*\""
+Mustache.render(tpl, Dict("partial"=>"*{{text}}*","text"=>"content"))
 ```
 
-### Summary of tags
+## Summary of tags
 
-To summarize the different tags marking a variable:
+To summarize the different tags marking a variable or container:
 
 
-* `{{variable}}` does substitution of the value held in `variable` in the current view; escapes HTML characters
+* `{{variable}}` does substitution of the value held in `variable` in the current view; escapes HTML characters. The double braces can be adjusted using `Mustache.parse`.
 * `{{{variable}}}` does substitution of the value held in `variable` in the current view; does not escape HTML characters. The outer pair of mustache braces can be adjusted using `Mustache.parse`.
 * `{{&variable}}` is an alternative syntax for triple braces (useful with custom braces)
 * `{{~variable}}` does substitution of the value held in `variable` in the outmost view
-* `{{#variable}}` depending on the type of variable, does the following:
-   - if `variable` is not a functions container and is not absent or
+* `{{#variable}}` is section syntax. Sections are closed by `{{/variable}}`. Depending on the type of variable, it specifies the following:
+   - if `variable` is not a container or a function and is not absent or
      `nothing` will use the text between the matching tags, marked
      with `{{/variable}}`; otherwise that text will be skipped. (Like
      an `if/end` block.)
@@ -539,15 +569,16 @@ To summarize the different tags marking a variable:
      named rows), will iterate over the values, pushing the named
      tuple to be the top-most view for the part of the template up to
      `{{\variable}}`.
-   - if `variable` is a vector or tuple -- for the part of the
-     template up to `{{\variable}}` -- will iterate over the
+   - if `variable` is a vector or tuple---for the part of the
+     template up to `{{\variable}}`---will iterate over the
      values. Use `{{.}}` to refer to the (unnamed) values. The values
      `.[end]` and `.[i]`, for a numeric literal, will refer to values
-     in the vector or tuple.
+     in the vector or tuple. For tabular data, `{{.}}` can also be iterated over.
 * `{{^variable}}`/`{{.variable}}` tags will show the values when `variable` is not defined, or is `nothing`.
 * `{{>partial}}` will include the partial value into the template, filling in the template using the current view. The partial can be a variable or a filename (checked with `isfile`).
 * `{{<partial}}` directly include partial value into template without filling in with the current view.
 * `{{!comment}}` comments begin with a bang, `!`
+
 
 ## Alternatives
 
@@ -582,7 +613,7 @@ This project deviates from Mustache.js in a few significant ways:
 
 * In the Mustache spec, when lambdas are used as section names, the function is passed the unevaluated section:
 
-```julia
+```@example mustache
 template = "<{{#lambda}}{{x}}{{/lambda}}>"
 data = Dict("x" => "Error!", "lambda" => (txt) ->  txt == "{{x}}" ? "yes" : "no")
 Mustache.render(template, data) ## "<yes>", as txt == "{{x}}"
@@ -590,10 +621,19 @@ Mustache.render(template, data) ## "<yes>", as txt == "{{x}}"
 
 The tag "|" is similar to the section tag "#", but will receive the *evaluated* section:
 
-```julia
+```@example mustache
 template = "<{{|lambda}}{{x}}{{/lambda}}>"
 data = Dict("x" => "Error!", "lambda" => (txt) ->  txt == "{{x}}" ? "yes" : "no")
 Mustache.render(template, data) ## "<no>", as "Error!" != "{{x}}"
+```
+
+Tags referencing variables can have a filter applied:
+
+```@example mustache
+tpl = mt"""
+{{:x}} --> {{:x |> uppercasefirst}} --> {{:x |> x-> uppercase(x[1:2]) * x[3:end]}} --> {{:x |> uppercase}}
+"""
+tpl(; x = "boo")  |> print
 ```
 
 ## API

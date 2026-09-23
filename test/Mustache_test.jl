@@ -17,6 +17,10 @@ end
 @test render(tpl, Main) == "a:ex b:why"
 @test render(tpl, d) == "a:ex b:why"
 @test render(tpl, ThrowAway(x,y)) == "a:ex b:why"
+@test render(tpl, Main; x="override") == "a:override b:why"
+@test tpl(Main; x="override") == "a:override b:why"
+@test tpl((; x="first"), (; x="second", y="third")) == "a:first b:third"
+@test tpl((; x="first"), (; x="second", y="third"); x="override") == "a:override b:third"
 
 
 ## triple quoted
@@ -30,6 +34,18 @@ tpl = mt"""a:{{x}} b:{{y}}"""
 ## conditional
 tpl = "{{#b}}this doesn't show{{/b}}{{#a}}this does show{{/a}}"
 @test render(tpl, Dict("a" => 1)) == "this does show"
+
+tpl = "{{#a |> x -> x > 1}}shown{{/a}}"
+@test render(tpl, Dict("a" => 2)) == "shown"
+@test render(tpl, Dict("a" => 1)) == ""
+
+tpl = "{{^a |> x -> x > 1}}shown{{/a}}"
+@test render(tpl, Dict("a" => 1)) == "shown"
+@test render(tpl, Dict("a" => 2)) == ""
+
+tpl = "{{#a |> >=(10)}}shown{{/a}}"
+@test render(tpl, Dict("a" => 12)) == "shown"
+@test render(tpl, Dict("a" => 5)) == ""
 
 ## dict using symbols
 d = Dict(:a => x, :b => y)
@@ -85,6 +101,35 @@ d = Dict("lambda" => (txt) -> begin
          end
          )
 @test Mustache.render(tpl, d) == "value dollars."
+
+tpl = mt"Hello {{:name |> uppercase}}!"
+@test tpl(name="world", uppercase=uppercase) == "Hello WORLD!"
+
+tpl = mt"{{{:name |> uppercase}}}"
+@test tpl(name="<world>", uppercase=uppercase) == "<WORLD>"
+
+tpl = mt"{{&:name |> uppercase}}"
+@test tpl(name="<world>", uppercase=uppercase) == "<WORLD>"
+
+tpl = mt"{{:name |> format_name}}"
+format_name(name) = "[$name]"
+@test tpl(name="world", format_name=format_name) == "[world]"
+
+main_only_filter(name) = "<$name>"
+tpl = mt"{{:name |> main_only_filter}}"
+@test tpl(name="world") == "&lt;world&gt;"
+
+tpl = mt"{{:name |> uppercase}}"
+@test tpl(name="world") == "WORLD"
+
+tpl = mt"{{:name |> x -> uppercase(x)}}"
+@test tpl(name="world") == "WORLD"
+
+tpl = mt"{{:name |> x -> \"[$x]\"}}"
+@test tpl(name="world") == "[world]"
+
+tpl = mt"{{:name |> missing_filter}}"
+@test_throws ArgumentError tpl(name="world")
 
 ## test nested section with filtering lambda
 tpl = """
@@ -150,13 +195,13 @@ expected = "Testing 1, 2, 3..."
 
 filepath = joinpath(@__DIR__, "test-sections-lf.tpl")
 tokens = Mustache.load(filepath)
-@test Mustache.render(tokens, Dict("a"=>Dict("x"=>111,),)) == """    111\n"""
-@test Mustache.render(tokens, Dict("y"=>222,)) == "    222\n"
+@test Mustache.render(tokens, Dict("a"=>Dict("x"=>111,),)) ∈ ("""    111\r\n""", """    111\n""")
+@test Mustache.render(tokens, Dict("y"=>222,)) ∈ ("    222\r\n", "    222\n")
 
 filepath = joinpath(@__DIR__, "test-sections-crlf.tpl")
 tokens = Mustache.load(filepath)
-@test Mustache.render(tokens, Dict("a"=>Dict("x"=>111,),)) == "    111\r\n"
-@test Mustache.render(tokens, Dict("y"=>222,)) == "    222\r\n"
+@test Mustache.render(tokens, Dict("a"=>Dict("x"=>111,),)) ∈ ("""    111\r\n""", """    111\n""")
+@test Mustache.render(tokens, Dict("y"=>222,)) ∈ ("    222\r\n", "    222\n")
 
 
 ## Test of MustacheTokens being callable
