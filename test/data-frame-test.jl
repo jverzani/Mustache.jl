@@ -1,5 +1,5 @@
 ## Data frame test
-## not run by default. Too time consuming and relies on external pacakgs
+## DataFrames is a test-only dependency (see [extras] in Project.toml)
 using Mustache, DataFrames
 using Test
 using Printf
